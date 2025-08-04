@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
@@ -25,10 +26,12 @@ const Hero34 = () => {
               <Button variant="outline">Secondary</Button>
             </div>
           </div>
-          <img
+          <Image
             src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
             alt="placeholder hero"
             className="h-full w-full object-cover"
+            width={800}
+            height={600}
           />
         </div>
       </div>

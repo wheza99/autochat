@@ -1,4 +1,5 @@
 import { GitBranch, Lightbulb } from "lucide-react";
+import Image from "next/image";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -40,9 +41,11 @@ const Casestudy1 = () => {
                     peculiar tale unfolded about a king who decided to tax the
                     very essence of joy itself - jokes and jest.
                   </p>
-                  <img
+                  <Image
                     src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
                     alt="placeholder"
+                    width={800}
+                    height={450}
                     className="my-8 aspect-video w-full rounded-lg object-cover"
                   />
                   <div className="mb-8 grid grid-cols-2 gap-5 lg:grid-cols-4">
@@ -158,9 +161,11 @@ const Casestudy1 = () => {
               </div>
             </div>
             <div className="h-fit lg:sticky lg:top-8 lg:max-w-80">
-              <img
+              <Image
                 src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/company/fictional-company-logo-3.svg"
                 alt="logo"
+                width={144}
+                height={72}
                 className="mb-8 w-36"
               />
               <p className="mb-1.5 text-sm font-semibold">Overview</p>

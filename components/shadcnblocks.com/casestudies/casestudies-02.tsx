@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 
 const Casestudies2 = () => {
@@ -13,15 +14,17 @@ const Casestudies2 = () => {
         <div className="mt-20">
           <div className="grid gap-16 lg:grid-cols-3 xl:gap-24">
             <div className="flex flex-col gap-10 border-border sm:flex-row lg:col-span-2 lg:border-r lg:pr-16 xl:pr-24">
-              <img
+              <Image
                 src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
                 alt="placeholder"
+                width={240}
+                height={290}
                 className="aspect-29/35 h-full w-full max-w-60 rounded-2xl object-cover"
               />
               <div className="flex h-full flex-col justify-between gap-10">
                 <q className="sm:text-xl">
                   This productivity tool transformed how we collaborate. Our
-                  team's workflow improved dramatically, and we've cut meeting
+                  team&apos;s workflow improved dramatically, and we&apos;ve cut meeting
                   time by half while increasing output.
                 </q>
                 <div className="flex items-end gap-6">
@@ -31,9 +34,11 @@ const Casestudies2 = () => {
                     </p>
                     <p className="text-muted-foreground">Product Director</p>
                   </div>
-                  <img
+                  <Image
                     src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/company/fictional-company-logo-2.svg"
                     alt="logo"
+                    width={80}
+                    height={40}
                   />
                 </div>
               </div>
@@ -60,9 +65,11 @@ const Casestudies2 = () => {
           <Separator className="my-20" />
           <div className="grid gap-16 lg:grid-cols-3 xl:gap-24">
             <div className="flex flex-col gap-10 border-border sm:flex-row lg:col-span-2 lg:border-r lg:pr-16 xl:pr-24">
-              <img
+              <Image
                 src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-2.svg"
                 alt="placeholder"
+                width={240}
+                height={290}
                 className="aspect-29/35 h-full w-full max-w-60 rounded-2xl object-cover"
               />
               <div className="flex h-full flex-col justify-between gap-10">
@@ -78,9 +85,11 @@ const Casestudies2 = () => {
                     </p>
                     <p className="text-muted-foreground">Operations Lead</p>
                   </div>
-                  <img
+                  <Image
                     src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/company/fictional-company-logo-3.svg"
                     alt="logo"
+                    width={80}
+                    height={40}
                   />
                 </div>
               </div>

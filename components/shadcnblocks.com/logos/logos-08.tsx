@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface Logo {
   name: string;
   logo: string;
@@ -49,7 +51,7 @@ const Logos8 = ({
           <p className="mt-1 text-muted-foreground">{subtitle}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-6 lg:gap-12">
             {logos.map((logo, index) => (
-              <img
+              <Image
                 key={index}
                 src={logo.logo}
                 alt={`${logo.name} logo`}

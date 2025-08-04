@@ -1,11 +1,15 @@
+import Image from "next/image";
+
 const Casestudy8 = () => {
   return (
     <section className="py-32">
       <div className="container flex flex-col gap-12 lg:flex-row lg:gap-24">
         <article className="mx-auto">
-          <img
+          <Image
             src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
             alt="placeholder"
+            width={768}
+            height={432}
             className="mb-8 aspect-video w-full max-w-3xl rounded-lg border object-cover"
           />
           <div className="prose dark:prose-invert">
@@ -100,9 +104,11 @@ const Casestudy8 = () => {
         <aside className="lg:max-w-[300px]">
           <div className="border-border bg-accent flex flex-col items-start rounded-lg border py-6 md:py-8">
             <div className="mb-8 px-6">
-              <img
+              <Image
                 src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/company/fictional-company-logo-3.svg"
                 alt="placeholder"
+                width={200}
+                height={32}
                 className="max-h-8 w-full"
               />
             </div>

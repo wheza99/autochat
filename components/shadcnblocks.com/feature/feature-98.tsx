@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 import {
   Accordion,
@@ -88,10 +89,12 @@ const Feature197 = ({ features = defaultFeatures }: Feature197Props) => {
                       {tab.description}
                     </p>
                     <div className="mt-4 md:hidden">
-                      <img
+                      <Image
                         src={tab.image}
                         alt={tab.title}
                         className="h-full max-h-80 w-full rounded-md object-cover"
+                        width={400}
+                        height={320}
                       />
                     </div>
                   </AccordionContent>
@@ -100,10 +103,12 @@ const Feature197 = ({ features = defaultFeatures }: Feature197Props) => {
             </Accordion>
           </div>
           <div className="relative m-auto hidden w-1/2 overflow-hidden rounded-xl bg-muted md:block">
-            <img
+            <Image
               src={activeImage}
               alt="Feature preview"
               className="aspect-4/3 rounded-md object-cover pl-4"
+              width={600}
+              height={450}
             />
           </div>
         </div>

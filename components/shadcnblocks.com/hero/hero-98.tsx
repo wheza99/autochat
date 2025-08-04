@@ -7,11 +7,12 @@ import {
   PieChart,
   SquareKanban,
 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { BorderBeam } from "@/components/magicui/border-beam";
+
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -123,12 +124,13 @@ const Hero195 = ({
                         },
                       )}
                     >
-                      <img
+                      <Image
                         src={tab.image}
                         alt={tab.title}
                         className="border-border aspect-[16/10] w-full border object-top shadow-[0_6px_20px_rgb(0,0,0,0.12)]"
+                        width={800}
+                        height={500}
                       />
-                      <BorderBeam duration={8} size={100} />
                     </TabsContent>
                   ))}
                 </div>

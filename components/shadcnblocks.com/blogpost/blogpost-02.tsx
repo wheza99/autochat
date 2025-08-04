@@ -1,4 +1,5 @@
 import { ChevronLeft } from "lucide-react";
+import Image from "next/image";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
@@ -33,9 +34,11 @@ const Blogpost2 = () => {
           </aside>
 
           <article className="">
-            <img
+            <Image
               src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
               alt="placeholder"
+              width={800}
+              height={450}
               className="mb-8 mt-0 aspect-video w-full rounded-lg object-cover"
             />
             <div className="prose dark:prose-invert">

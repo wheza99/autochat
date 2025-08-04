@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,10 +76,12 @@ const Hero1 = ({
               )}
             </div>
           </div>
-          <img
+          <Image
             src={image.src}
             alt={image.alt}
             className="max-h-96 w-full rounded-md object-cover"
+            width={800}
+            height={384}
           />
         </div>
       </div>

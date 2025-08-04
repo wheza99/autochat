@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { Lightbulb } from "lucide-react";
+import Image from "next/image";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -47,9 +48,11 @@ const Blogpost1 = ({ post = defaultPost }: { post?: BlogPostData }) => {
               <span className="ml-1">on {format(pubDate, "MMMM d, yyyy")}</span>
             </span>
           </div>
-          <img
+          <Image
             src={image}
             alt="placeholder"
+            width={800}
+            height={450}
             className="mb-8 mt-4 aspect-video w-full rounded-lg border object-cover"
           />
         </div>
@@ -115,9 +118,11 @@ const Blogpost1 = ({ post = defaultPost }: { post?: BlogPostData }) => {
 
           <h2>The King&apos;s Plan</h2>
 
-          <img
+          <Image
             src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
             alt="placeholder"
+            width={800}
+            height={450}
             className="my-8 aspect-video w-full rounded-md object-cover"
           />
           <p>

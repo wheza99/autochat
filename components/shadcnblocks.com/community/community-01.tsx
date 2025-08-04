@@ -1,4 +1,5 @@
 import { FaDiscord, FaGithub, FaXTwitter } from "react-icons/fa6";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
@@ -7,7 +8,7 @@ const Community1 = () => {
     <section className="py-32">
       <div className="container">
         <div className="flex flex-col items-center gap-5">
-          <img src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg" alt="logo" className="size-10" />
+          <Image src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg" alt="logo" width={40} height={40} className="size-10" />
           <h2 className="text-center text-3xl font-semibold">
             Join our community
             <br />

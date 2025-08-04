@@ -1,4 +1,5 @@
 import { Lightbulb, ListChecks, MessageCircleMore } from "lucide-react";
+import Image from "next/image";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -58,24 +59,30 @@ const Feature51 = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="feature-1">
-            <img
+            <Image
               src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
               alt=""
               className="aspect-video rounded-md object-cover"
+              width={800}
+              height={450}
             />
           </TabsContent>
           <TabsContent value="feature-2">
-            <img
+            <Image
               src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-2.svg"
               alt=""
               className="aspect-video rounded-md object-cover"
+              width={800}
+              height={450}
             />
           </TabsContent>
           <TabsContent value="feature-3">
-            <img
+            <Image
               src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-3.svg"
               alt=""
               className="aspect-video rounded-md object-cover"
+              width={800}
+              height={450}
             />
           </TabsContent>
         </Tabs>

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -153,10 +154,12 @@ const Gallery6 = ({
                     <div className="aspect-3/2 flex overflow-clip rounded-xl">
                       <div className="flex-1">
                         <div className="relative h-full w-full origin-bottom transition duration-300 group-hover:scale-105">
-                          <img
+                          <Image
                             src={item.image}
                             alt={item.title}
                             className="h-full w-full object-cover object-center"
+                            width={400}
+                            height={267}
                           />
                         </div>
                       </div>

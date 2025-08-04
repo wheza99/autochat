@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 
 interface Feature2Props {
@@ -33,9 +35,11 @@ const Feature2 = ({
     <section className="py-32">
       <div className="container">
         <div className="grid items-center gap-8 md:gap-16 lg:grid-cols-2">
-          <img
+          <Image
             src={imageSrc}
             alt={imageAlt}
+            width={800}
+            height={384}
             className="max-h-96 w-full rounded-md object-cover"
           />
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">

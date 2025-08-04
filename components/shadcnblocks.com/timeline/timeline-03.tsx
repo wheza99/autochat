@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 
 interface Feature {
@@ -83,10 +85,12 @@ const Timeline3 = ({
           <div className="flex flex-col gap-12 md:gap-20">
             {features.map((feature, index) => (
               <div key={index} className="rounded-xl border p-2">
-                <img
+                <Image
                   src={feature.image}
                   alt={feature.title}
                   className="aspect-video w-full rounded-xl border border-dashed object-cover"
+                  width={600}
+                  height={338}
                 />
                 <div className="p-6">
                   <h3 className="mb-1 text-2xl font-semibold">

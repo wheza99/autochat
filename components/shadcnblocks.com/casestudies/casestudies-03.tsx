@@ -1,5 +1,6 @@
 import { MoveRight } from "lucide-react";
 import React from "react";
+import Image from "next/image";
 
 interface CasestudyItem {
   logo: string;
@@ -61,7 +62,7 @@ const Casestudies3 = ({
           >
             <div className="flex flex-col justify-between gap-4 pt-8 md:pt-16 lg:pb-16">
               <div className="flex items-center gap-2 text-2xl font-medium">
-                <img src={featuredCasestudy.logo} alt="logo" className="h-9" />
+                <Image src={featuredCasestudy.logo} alt="logo" width={36} height={36} className="h-9" />
                 {featuredCasestudy.company}
               </div>
               <div>
@@ -84,9 +85,11 @@ const Casestudies3 = ({
             <div className="relative isolate py-16">
               <div className="border-border bg-background relative isolate h-full border p-2">
                 <div className="h-full overflow-hidden">
-                  <img
+                  <Image
                     src={featuredCasestudy.image}
                     alt="placeholder"
+                    width={560}
+                    height={360}
                     className="aspect-14/9 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   />
                 </div>
@@ -107,7 +110,7 @@ const Casestudies3 = ({
                   }`}
                 >
                   <div className="flex items-center gap-2 text-2xl font-medium">
-                    <img src={item.logo} alt="logo" className="h-9" />
+                    <Image src={item.logo} alt="logo" width={36} height={36} className="h-9" />
                     {item.company}
                   </div>
                   <div>

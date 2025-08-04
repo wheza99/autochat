@@ -1,4 +1,5 @@
 import { Calendar } from "lucide-react";
+import Image from "next/image";
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ const Hero67 = () => {
     <section className="py-32">
       <div className="container">
         <div className="z-10 mx-auto flex max-w-4xl flex-col items-center gap-14 text-center">
-          <img src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg" alt="logo" className="h-14" />
+          <Image src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg" alt="logo" className="h-14" width={56} height={56} />
           <div>
             <h1 className="mb-4 text-3xl font-medium text-pretty lg:text-6xl">
               Build Exceptional Online Experiences
@@ -56,10 +57,12 @@ const Hero67 = () => {
             </div>
           </div>
         </div>
-        <img
+        <Image
           src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
           alt="placeholder"
           className="mx-auto mt-24 aspect-video max-h-[700px] w-full max-w-7xl rounded-t-lg object-cover shadow-md"
+          width={1280}
+          height={700}
         />
       </div>
     </section>

@@ -100,6 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Tree({ item }: { item: string | any[] }) {
   const [name, ...items] = Array.isArray(item) ? item : [item]
 

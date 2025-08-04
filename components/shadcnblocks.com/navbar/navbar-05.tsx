@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { MenuIcon } from "lucide-react";
 
 import {
@@ -68,10 +69,12 @@ const Navbar5 = () => {
             href="https://www.shadcnblocks.com"
             className="flex items-center gap-2"
           >
-            <img
+            <Image
               src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
               className="max-h-8"
               alt="Shadcn UI Navbar"
+              width={32}
+              height={32}
             />
             <span className="text-lg font-semibold tracking-tighter">
               Shadcnblocks.com
@@ -145,10 +148,12 @@ const Navbar5 = () => {
                     href="https://www.shadcnblocks.com"
                     className="flex items-center gap-2"
                   >
-                    <img
+                    <Image
                       src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
                       className="max-h-8"
                       alt="Shadcn UI Navbar"
+                      width={32}
+                      height={32}
                     />
                     <span className="text-lg font-semibold tracking-tighter">
                       Shadcnblocks.com

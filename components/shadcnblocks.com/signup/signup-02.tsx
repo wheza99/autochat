@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,11 +36,13 @@ const Signup2 = ({
         <div className="flex flex-col items-center gap-6 lg:justify-start">
           {/* Logo */}
           <a href={logo.url}>
-            <img
+            <Image
               src={logo.src}
               alt={logo.alt}
               title={logo.title}
               className="h-10 dark:invert"
+              width={120}
+              height={40}
             />
           </a>
           <div className="min-w-sm border-muted bg-background flex w-full max-w-sm flex-col items-center gap-y-4 rounded-md border px-6 py-8 shadow-md">

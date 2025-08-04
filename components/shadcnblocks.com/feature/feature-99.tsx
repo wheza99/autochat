@@ -1,4 +1,5 @@
 import { ArrowUpRight, ChevronRight, ChevronUp } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 
 import { cn } from "@/lib/utils";
@@ -52,10 +53,12 @@ const Feature239 = () => {
               <div className="bg-muted-2/50 group-hover:bg-muted-2 relative h-full w-full p-4 transition-all ease-in-out">
                 {/* Bg Image div */}
                 <div className="relative h-full w-full overflow-hidden rounded-3xl">
-                  <img
+                  <Image
                     src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/photos/simone-hutsch-5oYbG-sEImY-unsplash.jpg"
                     alt="aiImage"
                     className="h-full w-full object-cover"
+                    width={800}
+                    height={600}
                   />
                   <div className="bg-linear-to-t absolute inset-0 from-black/70 to-transparent"></div>
                 </div>

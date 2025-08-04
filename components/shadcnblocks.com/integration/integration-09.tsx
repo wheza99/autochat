@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const DATA = [
@@ -77,7 +78,7 @@ const Integration9 = ({
               className="flex min-h-[140px] flex-col items-start rounded-xl border bg-background p-6 shadow-sm transition hover:shadow-md"
             >
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-muted">
-                <img
+                <Image
                   src={icon}
                   alt={title}
                   width={32}

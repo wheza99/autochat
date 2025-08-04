@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface Cta11Props {
   heading?: string;
   description?: string;
@@ -28,7 +30,7 @@ const Cta11 = ({
           <div className="shrink-0">
             <div className="flex flex-col justify-center gap-4 sm:flex-row sm:items-center">
               <div className="relative h-32 w-32 overflow-hidden rounded-lg sm:h-40 sm:w-40">
-                <img src={imageSrc} alt={imageAlt} className="object-cover" />
+                <Image src={imageSrc} alt={imageAlt} width={160} height={160} className="object-cover" />
               </div>
             </div>
           </div>
