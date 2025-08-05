@@ -27,6 +27,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/hooks/use-auth"
 
 const data = {
   user: {
@@ -153,6 +154,43 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, loading } = useAuth()
+
+  // Generate user data from Supabase user
+  const userData = React.useMemo(() => {
+    if (!user) {
+      return {
+        name: "Guest User",
+        email: "guest@example.com",
+        avatar: "/avatars/default.jpg",
+      }
+    }
+
+    // Extract name from user metadata or email
+    const displayName = user.user_metadata?.full_name || 
+                       user.user_metadata?.name || 
+                       user.email?.split('@')[0] || 
+                       "User"
+
+    return {
+      name: displayName,
+      email: user.email || "No email",
+      avatar: user.user_metadata?.avatar_url || "/avatars/default.jpg",
+    }
+  }, [user])
+
+  if (loading) {
+    return (
+      <Sidebar variant="inset" {...props}>
+        <SidebarHeader>
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+        </SidebarHeader>
+      </Sidebar>
+    )
+  }
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -164,8 +202,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-medium">Urbana Dashboard</span>
+                  <span className="truncate text-xs">Management System</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -178,7 +216,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   )
