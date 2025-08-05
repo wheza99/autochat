@@ -16,7 +16,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AgentProvider } from "@/contexts/agent-context";
-import { ChatInterface } from "@/components/chat/chat-interface";
+import { ChatMessages } from "@/components/chat/chat-messages";
+import { ChatInput } from "@/components/chat/chat-input";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarRight } from "./components/right-sidebar";
@@ -28,8 +29,6 @@ interface Message {
   content: string;
   timestamp: string;
 }
-
-
 
 // Sample data untuk chat messages
 const sampleMessages: Message[] = [
@@ -229,7 +228,7 @@ export default function Page() {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2">
+          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
               <Separator
@@ -251,11 +250,19 @@ export default function Page() {
           </header>
 
           {/* Main Content Area - Chat Interface */}
-          <div className="flex flex-1 h-[calc(100vh-4rem)]">
-            <ChatInterface messages={messages} onSendMessage={handleSendMessage} />
+          <div className="flex flex-1 flex-col h-[calc(100vh-4rem)]">
+            {/* Chat Messages - Scrollable */}
+            <div className="flex-1 overflow-hidden">
+              <ChatMessages messages={messages} />
+            </div>
+
+            {/* Chat Input - Fixed at bottom */}
+            <div className="sticky bottom-0 bg-background border-t">
+              <ChatInput onSendMessage={handleSendMessage} />
+            </div>
           </div>
         </SidebarInset>
-        <SidebarRight/>
+        <SidebarRight />
       </SidebarProvider>
     </AgentProvider>
   );
