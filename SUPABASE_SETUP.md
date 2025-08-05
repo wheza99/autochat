@@ -43,7 +43,36 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
    - Site URL: `http://localhost:3000` (untuk development)
    - Redirect URLs: `http://localhost:3000/auth/callback`
 
-### 6. Test Login
+### 6. Setup Storage Bucket
+1. Pergi ke **Storage** di dashboard Supabase
+2. Klik "Create a new bucket"
+3. Nama bucket: `documents`
+4. Set sebagai **Private bucket**
+5. Klik "Create bucket"
+
+### 7. Setup Row Level Security (RLS) Policies untuk Storage
+1. Pergi ke **Storage** > **Policies**
+2. Klik "New Policy" pada tabel `storage.objects`
+3. Buat policy untuk INSERT:
+   ```sql
+   CREATE POLICY "Allow authenticated users to upload documents" ON storage.objects
+   FOR INSERT TO authenticated
+   WITH CHECK (bucket_id = 'documents');
+   ```
+4. Buat policy untuk SELECT:
+   ```sql
+   CREATE POLICY "Allow authenticated users to view documents" ON storage.objects
+   FOR SELECT TO authenticated
+   USING (bucket_id = 'documents');
+   ```
+5. Buat policy untuk DELETE:
+   ```sql
+   CREATE POLICY "Allow authenticated users to delete documents" ON storage.objects
+   FOR DELETE TO authenticated
+   USING (bucket_id = 'documents');
+   ```
+
+### 8. Test Login
 1. Jalankan aplikasi: `pnpm dev`
 2. Buka `http://localhost:3000/login`
 3. Coba login dengan email/password atau OAuth providers
@@ -72,3 +101,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 - Pastikan redirect URL di Supabase sesuai dengan URL aplikasi
 - Untuk development: `http://localhost:3000/auth/callback`
 - Untuk production: `https://yourdomain.com/auth/callback`
+
+### Error: "StorageApiError: new row violates row-level security policy"
+- Pastikan bucket 'documents' sudah dibuat
+- Pastikan RLS policies untuk storage.objects sudah dibuat (lihat langkah 7)
+- Pastikan user sudah login/authenticated sebelum upload file

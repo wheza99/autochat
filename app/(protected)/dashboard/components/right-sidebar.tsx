@@ -1,6 +1,6 @@
-import * as React from "react"
-import { AgentDashboard } from "@/components/agent-dashboard"
-import { DocumentSection } from "./document-section"
+import * as React from "react";
+import { AgentDashboard } from "./agent-dashboard";
+import { DocumentSection } from "./document-section";
 import {
   Sidebar,
   SidebarContent,
@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 // Sample data for documents
 const data = {
@@ -44,7 +44,7 @@ const data = {
       date: "2024-03-01",
     },
   ],
-}
+};
 
 export function SidebarRight({
   ...props
@@ -55,14 +55,13 @@ export function SidebarRight({
       className="sticky top-0 hidden h-svh border-l lg:flex w-[380px]"
       {...props}
     >
-
       <SidebarContent className="pt-4">
         <AgentDashboard />
         <SidebarSeparator className="mx-0" />
         <div className="px-3">
-           <h3 className="text-sm font-semibold mb-2">Dokumen</h3>
-           <DocumentSection documents={data.documents} />
-         </div>
+          <h3 className="text-sm font-semibold mb-2">Dokumen</h3>
+          <DocumentSection />
+        </div>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -70,5 +69,5 @@ export function SidebarRight({
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

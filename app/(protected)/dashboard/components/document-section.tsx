@@ -17,34 +17,43 @@ import {
 import { Label } from "@/components/ui/label";
 import { FileText, Plus, Search, Upload } from "lucide-react";
 import { useState } from "react";
+import { useAgent } from "@/contexts/agent-context";
+import { supabase } from "@/lib/supabase";
+import { AgentDashboard } from "./agent-dashboard";
 
-interface Document {
-  id: number;
-  title: string;
-  type: string;
-  date: string;
-}
+// Sample data untuk dokumen
+const sampleDocuments = [
+  { id: 1, title: "Laporan Keuangan Q1 2024", type: "PDF", date: "2024-03-15" },
+  { id: 2, title: "Proposal Proyek Urbana", type: "DOCX", date: "2024-03-10" },
+  { id: 3, title: "Analisis Pasar", type: "XLSX", date: "2024-03-08" },
+  { id: 4, title: "Rencana Strategis 2024", type: "PDF", date: "2024-03-05" },
+  { id: 5, title: "Data Survei Pelanggan", type: "CSV", date: "2024-03-01" },
+  {
+    id: 6,
+    title: "Presentasi Board Meeting",
+    type: "PPTX",
+    date: "2024-02-28",
+  },
+];
 
-interface DocumentSectionProps {
-  documents: Document[];
-}
-
-export function DocumentSection({ documents }: DocumentSectionProps) {
+export function DocumentSection() {
+  const { selectedAgent } = useAgent();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const filteredDocuments = documents.filter((doc) =>
+  const filteredDocuments = sampleDocuments.filter((doc) =>
     doc.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold">Dokumen</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" className="w-full">
+            <Button size="sm" variant="outline" disabled={!selectedAgent}>
               <Plus className="h-4 w-4 mr-1" />
-              Tambah Dokumen
+              Tambah
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -60,8 +69,43 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
                 }
 
                 try {
+                  // Generate unique filename with agent folder
+                  const timestamp = Date.now();
+                  const fileExtension = file.name.split(".").pop();
+                  const cleanFileName = `${timestamp}_${file.name.replace(
+                    /[^a-zA-Z0-9.-]/g,
+                    "_"
+                  )}`;
+                  const agentFolderName =
+                    selectedAgent?.name.replace(/[^a-zA-Z0-9.-]/g, "_") ||
+                    "default";
+                  const fileName = `${agentFolderName}/${cleanFileName}`;
+
+                  // Upload to Supabase Storage first
+                  const { data: uploadData, error: uploadError } =
+                    await supabase.storage
+                      .from("documents")
+                      .upload(fileName, file, {
+                        cacheControl: "3600",
+                        upsert: false,
+                      });
+
+                  if (uploadError) {
+                    console.error("Supabase upload error:", uploadError);
+                    alert("Gagal menyimpan file ke storage");
+                    return;
+                  }
+
+                  // Get public URL from Supabase
+                  const { data: urlData } = supabase.storage
+                    .from("documents")
+                    .getPublicUrl(fileName);
+
+                  // Now send to n8n with file URL
                   const uploadFormData = new FormData();
                   uploadFormData.append("file", file);
+                  uploadFormData.append("supabase_url", urlData.publicUrl);
+                  uploadFormData.append("file_name", fileName);
 
                   const response = await fetch(
                     "https://n8n.wheza.id/webhook-test/andy-update-rag",
@@ -72,7 +116,7 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
                   );
 
                   if (response.ok) {
-                    alert("File berhasil diupload!");
+                    alert("File berhasil diupload dan disimpan!");
                     // Reset form safely
                     const form = e.currentTarget;
                     if (form) {
@@ -81,7 +125,9 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
                     // Close dialog
                     setIsDialogOpen(false);
                   } else {
-                    alert("Gagal mengupload file");
+                    alert("Gagal mengupload file ke n8n");
+                    // Optionally delete from Supabase if n8n fails
+                    await supabase.storage.from("documents").remove([fileName]);
                   }
                 } catch (error) {
                   console.error("Error uploading file:", error);
@@ -123,7 +169,7 @@ export function DocumentSection({ documents }: DocumentSectionProps) {
           </DialogContent>
         </Dialog>
       </div>
-      
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
