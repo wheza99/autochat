@@ -1,6 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react"
 
-import { LoginForm } from "@/components/shadcn-blocks/login-03/login-form"
+import { LoginForm } from "@/components/login/login-form"
 
 export default function LoginPage() {
   return (
