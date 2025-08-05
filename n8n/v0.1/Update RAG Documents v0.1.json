@@ -1,0 +1,160 @@
+{
+  "name": "Update RAG Documents v0.1",
+  "nodes": [
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "client_name",
+                "value": "ions_jet"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        620,
+        100
+      ],
+      "id": "bfe8d967-aa28-40ce-bdb8-71a77d6ce833",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        680,
+        260
+      ],
+      "id": "b55a753a-337d-4879-b6a3-7fd98d44ebd0",
+      "name": "Token Splitter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        460,
+        100
+      ],
+      "id": "5b8c8ee3-aa99-4f82-8495-3cda05a7df52",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "HbyMphavnZ3r83KX",
+          "name": "n8n-baik-official"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -100
+      ],
+      "id": "98bdd095-2065-4837-a229-029f485c18ae",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Wus7G0w9X8C0HwqA",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "andy-update-rag",
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -100
+      ],
+      "id": "39b73544-0f2d-4abd-8a45-488db38b8d8f",
+      "name": "Webhook",
+      "webhookId": "f9b4a6ca-1efa-491c-a560-93ffda7c1d9f"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c27cd580-7d14-45cc-9fb9-bc77c4d3ad10",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e5b1381b57229ef8600119f5543bb639ae628fe0e0b4ff8de96e499cf3b55f0"
+  },
+  "id": "fNHJbWw1IrCajmla",
+  "tags": []
+}

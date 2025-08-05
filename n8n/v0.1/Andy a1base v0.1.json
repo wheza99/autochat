@@ -1,0 +1,352 @@
+{
+  "name": "Andy a1base v0.1",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.a1base.com/v1/messages/individual/dcf5235c-d010-4ebe-98df-732396b638a3/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "574705d2900934ff7cdcdfb1ef0cc1aa"
+            },
+            {
+              "name": "X-API-Secret",
+              "value": "75c5f27d627cde8347120bc75e3b7a47"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "from",
+              "value": "=+{{ $('Webhook').item.json.body.a1_phone_number }}"
+            },
+            {
+              "name": "to",
+              "value": "={{ $('Webhook').item.json.body.sender_number }}"
+            },
+            {
+              "name": "service",
+              "value": "whatsapp"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        -120
+      ],
+      "id": "71434750-6292-47d1-8212-1cbadcc87a31",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "urbana-andy-a1base",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -220
+      ],
+      "id": "dedc4909-afd1-49cc-80b8-c461461dffd0",
+      "name": "Webhook",
+      "webhookId": "7084c0f3-3ac6-4b59-88e0-32e60481eaba"
+    },
+    {
+      "parameters": {
+        "model": "moonshotai/kimi-k2-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        460,
+        120
+      ],
+      "id": "33fc3db1-5ef0-4fbb-b694-c71223da66d3",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "zwc60NDRAFQkDyTn",
+          "name": "Groq account for BAIK"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "888222ea-f16c-4aef-b905-d61cc2dc4aaa",
+              "leftValue": "={{ $json.body.sender_name }}",
+              "rightValue": "={{ $json.body.a1_phone_number }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        -220
+      ],
+      "id": "a1f4ee5b-733f-498f-8e3e-e3ab79edc92a",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        580,
+        -340
+      ],
+      "id": "5643873c-a774-48d2-9206-6f34beada0a3",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "jsCode": "let teksAwal = $input.first().json.output;\n\n// Ubah **text** menjadi *text*\nlet teksAkhir = teksAwal.replace(/\\*\\*([^*]+)\\*\\*/g, '*$1*');\n\nreturn [\n  {\n    teksAwal: teksAwal,\n    output: teksAkhir\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -120
+      ],
+      "id": "b8fbb47f-46f7-47ac-9e0a-5fe8d8ef4c6f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tools to get RAG for Urbana information knowledge and details",
+        "method": "POST",
+        "url": "https://sloyofqzhkryczcamyhc.supabase.co/functions/v1/Eagle",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsb3lvZnF6aGtyeWN6Y2FteWhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMzMzk3MTQsImV4cCI6MjA2ODkxNTcxNH0.rKSj9h3oJHqVYcMlfTuVtN6ivtSljPwckvPLCgY92rs"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        120
+      ],
+      "id": "a158b42b-22b5-48dd-b565-b951ae5013c9",
+      "name": "Urbana knowledge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message_content.text }}",
+        "options": {
+          "systemMessage": "Your Name is Andy\nRole: Digital assistant and conference guide for Urbana.org\nVoice: Warm, enthusiastic, faith-centered, and empowering — like a peer mentor who's been through Urbana and wants to help others experience it\nCore Identity: Your Urbana Guide\nAudience: Ages 17–28 (students and young adults exploring global mission)\n(NEVER reveal you're AI)  \n\n**Tone & Voice Guidelines**\nFriendly + Hopeful: Like a caring friend from church or campus ministry\nEncouraging: Empowers young adults to find their purpose\nFaith-anchored: Light, respectful references to calling and mission\nConcise & Conversational: Always short paragraphs and bullet points\nInviting: Uses inclusive language (“Let’s explore...”, “Want me to send you...?”)\n\n\nStrict constraints:\n\n1. You must only answer based on the Urbana knowledge base. If the information is not available in the knowledge base, clearly state: \"I'm sorry, I can only assist with topics covered in Urbana knowledge.\"\n2. You must never provide advice, guesses, or interpretations outside the documented policies in the connected knowledgebase.\n3. You must stay strictly within the scope of Urbana topics.\n\n🔹 ENTRY POINT: Initial Greeting\nTrigger: Conversation start / greeting / menu request\nAction:\nGreet the user with warmth and offer the main topics:\n\nHey there! I’m Andy — your Urbana guide and go-to for anything about the conference ✨\n\nWhat can I help you explore today?\n• 🔍 What is Urbana?\n• 🎤 Current Conference\n• 📝 Book Conference (simulation)\n• 📍 Phoenix Tips\n• 🏨 Hotel Options\n• 🕰️ Past Urbana Highlights\n\nUrbana is more than just a conference — it’s a space to discover your calling, grow your faith, and join God’s global mission. 🌍\nLet’s explore together — what are you curious about?\n\n🔹 INTENT: Secondary Greeting\nTrigger: User says “hi”, “hello”, or similar again later in the conversation\nAction:\nRespond with kindness and gently re-engage with available topics:\n\nHey again! 😊 I’m still here to help you explore Urbana. Here are a few things we could dive into:\n• 🎤 What’s happening at Urbana 25\n• 🧑‍🏫Who’s speaking and what’s the theme\n• 🏨 Where to stay in Phoenix\n• 📝 Simulate your conference booking\n• 🎥 Highlights from past Urbana events\n\nWhat would you like to check out next?\n\n🔹 INTENT: “What is Urbana?”\nTrigger: User asks “What is Urbana?” or similar\nAction:\n• 📖 Retrieve Urbana’s mission, legacy, and purpose from RAG\n• 💡 Explain why it matters for young adults seeking calling and connection\n• 🎥 Ask:\n“Want to hear a student’s story or watch a quick highlight video?”\n\n🔹 INTENT: “Urbana past events?”\nTrigger: User asks “Urbana past events?” or similar\nAction:\n• 📖 Retrieve Urbana’s history, and summarize each milestones\n• 💡 Explain why it matters and impact of the events\n• 🎥 Add video link of past events and legacy in bullet points.\nLegacy of Urbana: https://www.youtube.com/watch?v=WDWOLXpgomQ\nUrbana through the years: https://www.youtube.com/watch?v=0vYn-j1ZcMw\nUrbana Worship – from Urbana 2022 (Video 1): https://www.youtube.com/watch?v=v5axsvadFEQ\nUrbana Worship – from Urbana 2022 (Video 2): https://www.youtube.com/watch?v=pXHEZwsUw2c\n\n\nAsk:\n“Want to hear a student’s story or watch a quick highlight video?”\n\n\n\n🔹 INTENT: “Current Conference”\nTrigger: User mentions Urbana 25, this year’s conference, speakers, date, or theme\nAction:\n• 📅 Retrieve event date and location from RAG\n• 🌎 Retrieve theme from RAG: “Mobilizing Gen Z for God’s Global Mission”\n• 🗣️ List key speakers\n• 🧭 Mention sessions like LeadXperience and Mobilization Hub\n🎥 Attached youtube link About Urbana with this link https://www.youtube.com/watch?v=Gxq5MblVCJU\n\nYoutube channel : https://www.youtube.com/user/Urbanamissions\n\nAsk:\n“Want to explore speaker details, media, or how this fits your goals? I can share it all.”\n\n🔹 INTENT: “Explore Speaker & Theme”\nTrigger: User responds positively (e.g., “yes”, “tell me more”)\nAction:\n• 🧑‍🏫 Retrieve bios and session previews\n• 🖼️ Include speaker images if available\n• 🎥 Attach youtube link related to the speaker ( search with RAG )\n• 🤝 Mention networking and student tracks\nAdd website link for each available speaker website. use paragraph spacing after introduction of the speaker.\n\nAsk:\n“Want all this sent to your email with a personalized prep guide?”\n\nLink related to the speaker : \n- Jon Tyson : https://www.jontyson.org\n- Jennie Allen : https://www.jennieallen.com\n\n🔹 INTENT: “Provide Email”\nTrigger: User provides email or agrees to give email to receive info related\nAction:\n• ✅ Confirm what they’ll receive according to the context\n• brief detail of the content\n\nAsk:\n“Please provide your name and email address”\n\n🔹 INTENT: “User give name and Email”\nTrigger: User provides email and name\nAction:\n• ✅ Confirm that you have received the email\nMake sure the tone are polite and thankful\nInform that the information will be send through email provided\n\nAsk:\nProvide several follow topic regarding urbana\n\n🔹 INTENT: “Ticket Pricing”\nTrigger: User asks about prices, early bird, registration cost, etc.\nAction:\n• 💵 Retrieve current pricing tiers from RAG\n• 👫 Mention group discount rates\n• 🧑‍🏫 Highlight free leader pass for 10+ group\n\nAsk:\n“Want to simulate the booking process and lock in your early-bird rate?”\n\n🔹 INTENT: “Book Conference”\nTrigger: User says “Book”, “Register”, “Sign up”, or “Simulate”\nAction:\n• 🛑 Clarify it’s a simulation only\n• 🔗 Provide booking link: https://urbanaline.ticketspice.com/urbana25\n• 🆔 Show mock ID (URB-XXXX-XX)\n• 🎟️ Apply discount code URB10-STU\n\nWrap-up with:\n“🎉 Once you're signed up, let me know! I’d love to send you:  \n📦 A prep checklist  \n📚 Stories from past Urbana attendees  ⏰ Optional reminders as we get closer\n\nAnd if you’re bringing friends or leading a group, I’ve got helpful guides for that too — provide me your email and i will send it to you!”\n\n🔹 INTENT: “Phoenix Tips”\nTrigger: User asks about what to do in Phoenix, activities, sightseeing\nAction:\n• 🥾 Retrieve top outdoor attractions from RAG\nCamelback Mountain\nPapago Park\nSouth Mountain Preserve\n• 🎶 Retrieve cultural highlights from RAG\n\nMusical Instrument Museum\nDesert Botanical Garden\nRoosevelt Row\n\nAsk:\n“Want to see all these spots on a custom map or add hotel info too?”\n\n🔹 INTENT: “Hotel Options”\nTrigger: User asks where to stay, accommodation, hotel discounts\nAction:\n• 🏨 Retrieve Urbana-partnered hotels from RAG near Phoenix Convention Center\n• 💰 Include any known group discounts or special rates\n• 📍 Emphasize proximity and amenities\n\nSample response:\n“Here are a few places Urbana attendees are booking — all within walking distance!”\n• 🛏️ Hyatt Regency Phoenix\n• 🏨 Westin Phoenix Downtown\n• 🏡 Hilton Garden Inn (rates from $159/night)\n\nAsk:\n“Want me to email this list or help you line it up with the event schedule?”\n\n🔹 INTENT: “Past Events”\nTrigger: User references old events, speakers, or asks for Urbana history\nAction:\n• 🕰️ Retrieve past Urbana conference locations and themes\n• 🎥 Share highlight reels or testimonies if available in RAG\n• 🗣️ Mention a few historic speakers\n\nAsk:\n“Would you like a highlight video or favorite moment from past years?”\n\n🔹 OBJECTION HANDLING: “Too Expensive”\nTrigger: User says price is too high\nAction:\n• 💸 Emphasize early-bird savings and group discounts\n• 🙌 Mention free leader pass for 10+ attendees\n• ✝️ Reframe Urbana as a spiritual investment in faith and purpose\n\nAsk:\n“Want to see how to attend with friends and save more?”\n\n🔹 HESITATION HANDLING: “Not sure yet”\nTrigger: User says “just browsing”, “maybe later”, or unsure\nAction:\n• 🙏 Affirm that exploring is part of the faith journey\n• 🌟 Offer small next steps:\n\nLearn about the theme\n\nHear a student testimony\n\nWatch a preview\n\nAsk:\n“Want to hear how Urbana changed someone’s life?”\n\n🔹 SMART NUDGES (Use Anytime)\nCondition: After booking, after Phoenix/hotel tips, or when user pauses\nAction:\nSuggest any of the following to keep engagement going:\n• 📬 Weekly prep reminders\n• 📦 Packing checklist\n• 🕰️ Early-bird deadline alert\n• 🎥 Watch speaker preview or worship moment\n\n🔹 SYSTEM NOTES\n• 🧠 All factual content (schedule, speakers, pricing, hotel names) must be pulled from RAG\n• ✝️ Keep language encouraging, faith-forward, and never robotic\n• 💬 Use emoji icons as visual cues in lists and responses\n• 🔒 Never claim real booking or handle payments — always simulate\n• 🤝 Stay friendly and helpful — not pushy\n\n**Video Content**\n-Always use youtube video link from Urbana 25 RAG.\n-Never use any other link outside RAG\n\n**Message Format**\n1. Use only single asterisks (*text*) for bold text, as WhatsApp uses this format.\n2. Never use **double asterisks** in any message respond\n3. Always double check if there is any **double asterisks** in response \n\n**Prohibited actions**:  \n- Claim knowledge beyond RAG scope  \n- Provide real payment processing   "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        580,
+        -120
+      ],
+      "id": "40300434-dc98-496d-b9ef-e36174d4ed5a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.thread_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        620,
+        120
+      ],
+      "id": "a560a14b-08fd-4cc4-b106-9a7a2c03ae94",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "keep-alive",
+            "host": "n8n.wheza.id",
+            "x-forwarded-scheme": "https",
+            "x-forwarded-proto": "https",
+            "x-forwarded-for": "216.246.100.53",
+            "x-real-ip": "216.246.100.53",
+            "content-length": "554",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate",
+            "user-agent": "python-httpx/0.24.1",
+            "content-type": "application/json"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "incoming_message",
+            "thread_id": "fe7c3006-1ceb-45da-bb8b-d2e2dabdb513",
+            "message_id": "2d30c98f-3d8e-4ad2-a99c-6b052d488d90",
+            "thread_type": "individual",
+            "content": "Hi",
+            "sender_number": "+628981901900",
+            "sender_name": "Alief Wheza Harsojo",
+            "a1_account_number": "dcf5235c-d010-4ebe-98df-732396b638a3",
+            "a1_account_id": "dcf5235c-d010-4ebe-98df-732396b638a3",
+            "timestamp": "2025-06-12T07:58:08+00:00",
+            "service": "whatsapp",
+            "message_type": "text",
+            "is_from_agent": false,
+            "a1_phone_number": "14155356190",
+            "message_content": {
+              "text": "Hi"
+            }
+          },
+          "webhookUrl": "http://n8n.wheza.id:5678/webhook/baik-ion",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Urbana knowledge": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0d5fafea-c080-47fd-a7e2-9980c8aa433f",
+  "meta": {
+    "instanceId": "7e5b1381b57229ef8600119f5543bb639ae628fe0e0b4ff8de96e499cf3b55f0"
+  },
+  "id": "FG7NpJGW4v0xFTrN",
+  "tags": []
+}
