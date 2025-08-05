@@ -1,3 +1,5 @@
+"use client"
+
 import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar"
 import {
   Breadcrumb,
@@ -13,13 +15,112 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { FileText, Send, Plus, Search } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/hooks/use-auth"
+
+// Sample data untuk dokumen
+const sampleDocuments = [
+  { id: 1, title: "Laporan Keuangan Q1 2024", type: "PDF", date: "2024-03-15" },
+  { id: 2, title: "Proposal Proyek Urbana", type: "DOCX", date: "2024-03-10" },
+  { id: 3, title: "Analisis Pasar", type: "XLSX", date: "2024-03-08" },
+  { id: 4, title: "Rencana Strategis 2024", type: "PDF", date: "2024-03-05" },
+  { id: 5, title: "Data Survei Pelanggan", type: "CSV", date: "2024-03-01" },
+  { id: 6, title: "Presentasi Board Meeting", type: "PPTX", date: "2024-02-28" },
+]
+
+// Sample data untuk chat messages
+const sampleMessages = [
+  {
+    id: 1,
+    type: "user",
+    content: "Halo, bisakah Anda membantu saya menganalisis laporan keuangan Q1?",
+    timestamp: "10:30"
+  },
+  {
+    id: 2,
+    type: "assistant",
+    content: "Tentu! Saya dapat membantu Anda menganalisis laporan keuangan Q1 2024. Berdasarkan dokumen yang tersedia, saya melihat ada laporan keuangan Q1 2024 dalam format PDF. Apakah ada aspek tertentu yang ingin Anda fokuskan dalam analisis ini?",
+    timestamp: "10:31"
+  },
+  {
+    id: 3,
+    type: "user",
+    content: "Saya ingin fokus pada tren pendapatan dan profitabilitas.",
+    timestamp: "10:32"
+  },
+]
 
 export default function Page() {
+  const { user } = useAuth()
+  const [message, setMessage] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [messages, setMessages] = useState(sampleMessages)
+  const [sessionId, setSessionId] = useState<string>("")
+
+  // Generate session ID on component mount
+  useEffect(() => {
+    const generateSessionId = () => {
+      return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    }
+    setSessionId(generateSessionId())
+  }, [])
+
+  const filteredDocuments = sampleDocuments.filter(doc =>
+    doc.title.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const handleSendMessage = async () => {
+    if (message.trim()) {
+      const newMessage = {
+        id: messages.length + 1,
+        type: "user" as const,
+        content: message,
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      }
+      setMessages([...messages, newMessage])
+      
+      // Hit webhook URL
+      try {
+        const response = await fetch('https://n8n.wheza.id/webhook-test/andy-flutterflow', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+             message: message,
+             timestamp: new Date().toISOString(),
+             user: {
+               id: user?.id || 'anonymous',
+               email: user?.email || 'no-email',
+               name: user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Anonymous User'
+             },
+             sessionId: sessionId
+           })
+        })
+        
+        if (response.ok) {
+          console.log('Webhook berhasil dipanggil')
+        } else {
+          console.error('Webhook gagal:', response.status)
+        }
+      } catch (error) {
+        console.error('Error calling webhook:', error)
+      }
+      
+      setMessage("")
+    }
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
+      <SidebarInset className="flex-1">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
@@ -30,24 +131,114 @@ export default function Page() {
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="#">
-                    Building Your Application
+                    Dashboard
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage>Chat Assistant</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
+        
+        {/* Main Content Area - Chat Interface */}
+        <div className="flex flex-1 h-[calc(100vh-4rem)]">
+          {/* Chat Area */}
+          <div className="flex-1 flex flex-col">
+            {/* Chat Messages */}
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-4 max-w-4xl mx-auto">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-4 ${
+                        msg.type === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <p className="text-sm">{msg.content}</p>
+                      <span className="text-xs opacity-70 mt-2 block">
+                        {msg.timestamp}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+            
+            {/* Chat Input */}
+            <div className="border-t p-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Ketik pesan Anda..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    className="flex-1"
+                  />
+                  <Button onClick={handleSendMessage} size="icon">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          
+          {/* Right Sidebar - Documents */}
+          <div className="w-80 border-l bg-muted/30">
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold">Dokumen</h3>
+                <Button size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Tambah
+                </Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Cari dokumen..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+            
+            <ScrollArea className="h-[calc(100vh-8rem)]">
+              <div className="p-4 space-y-2">
+                {filteredDocuments.map((doc) => (
+                  <Card key={doc.id} className="cursor-pointer hover:bg-accent transition-colors">
+                    <CardContent className="p-3">
+                      <div className="flex items-start gap-3">
+                        <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm truncate">
+                            {doc.title}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs bg-secondary px-2 py-0.5 rounded">
+                              {doc.type}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {doc.date}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
