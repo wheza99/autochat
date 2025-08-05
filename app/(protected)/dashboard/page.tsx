@@ -48,6 +48,17 @@ function DashboardContent() {
     setSessionId(generateSessionId());
   }, []);
 
+  // Reset messages and generate new session ID when selectedAgent changes
+  useEffect(() => {
+    if (selectedAgent) {
+      setMessages([]);
+      const generateSessionId = () => {
+        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      };
+      setSessionId(generateSessionId());
+    }
+  }, [selectedAgent]);
+
   const handleSendMessage = async (message: string) => {
     if (message.trim()) {
       const newMessage = {
