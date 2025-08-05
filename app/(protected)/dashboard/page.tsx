@@ -16,7 +16,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AgentProvider } from "@/contexts/agent-context";
-import { ChatInterface } from "@/components/chat-interface";
+import { ChatInterface } from "@/components/chat/chat-interface";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarRight } from "./components/right-sidebar";
