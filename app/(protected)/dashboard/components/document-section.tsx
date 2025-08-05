@@ -147,11 +147,33 @@ export function DocumentSection() {
                     .from("documents")
                     .getPublicUrl(fileName);
 
-                  // Now send to n8n with file URL
+                  // Save document metadata to database first to get storage_document_id
+                  const { data: documentData, error: dbError } = await supabase
+                    .from('storage_documents')
+                    .insert({
+                      name: file.name,
+                      url: urlData.publicUrl,
+                      file_path: fileName,
+                      mime_type: file.type
+                    })
+                    .select()
+                    .single();
+
+                  if (dbError) {
+                    console.error('Error saving to database:', dbError);
+                    alert('Gagal menyimpan metadata ke database');
+                    // Delete uploaded file from storage if database save fails
+                    await supabase.storage.from("documents").remove([fileName]);
+                    return;
+                  }
+
+                  // Now send to n8n with file URL, storage_document_id, and agent_id
                   const uploadFormData = new FormData();
                   uploadFormData.append("file", file);
                   uploadFormData.append("supabase_url", urlData.publicUrl);
                   uploadFormData.append("file_name", fileName);
+                  uploadFormData.append("storage_document_id", documentData.id);
+                  uploadFormData.append("agent_id", selectedAgent?.id || "");
 
                   const response = await fetch(
                     "https://n8n.wheza.id/webhook-test/andy-update-rag",
@@ -162,24 +184,9 @@ export function DocumentSection() {
                   );
 
                   if (response.ok) {
-                    // Save document metadata to database
-                    const { error: dbError } = await supabase
-                      .from('storage_documents')
-                      .insert({
-                        name: file.name,
-                        url: urlData.publicUrl,
-                        file_path: fileName,
-                        mime_type: file.type
-                      });
-
-                    if (dbError) {
-                      console.error('Error saving to database:', dbError);
-                      alert('File berhasil diupload tetapi gagal menyimpan metadata');
-                    } else {
-                      alert("File berhasil diupload dan disimpan!");
-                      // Refresh documents list
-                      fetchDocuments();
-                    }
+                    alert("File berhasil diupload dan disimpan!");
+                    // Refresh documents list
+                    fetchDocuments();
                     
                     // Reset form safely
                     const form = e.currentTarget;
@@ -190,7 +197,8 @@ export function DocumentSection() {
                     setIsDialogOpen(false);
                   } else {
                     alert("Gagal mengupload file ke n8n");
-                    // Optionally delete from Supabase if n8n fails
+                    // Delete from database and storage if n8n fails
+                    await supabase.from('storage_documents').delete().eq('id', documentData.id);
                     await supabase.storage.from("documents").remove([fileName]);
                   }
                 } catch (error) {
