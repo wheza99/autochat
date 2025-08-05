@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { FileText, Send, Plus, Search, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 
 // Sample data untuk dokumen
 const sampleDocuments = [
@@ -358,8 +359,35 @@ export default function Page() {
                           }
 
                           try {
+                            // Generate unique filename
+                            const timestamp = Date.now();
+                            const fileExtension = file.name.split('.').pop();
+                            const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+                            // Upload to Supabase Storage first
+                            const { data: uploadData, error: uploadError } = await supabase.storage
+                              .from('documents')
+                              .upload(fileName, file, {
+                                cacheControl: '3600',
+                                upsert: false
+                              });
+
+                            if (uploadError) {
+                              console.error('Supabase upload error:', uploadError);
+                              alert('Gagal menyimpan file ke storage');
+                              return;
+                            }
+
+                            // Get public URL from Supabase
+                            const { data: urlData } = supabase.storage
+                              .from('documents')
+                              .getPublicUrl(fileName);
+
+                            // Now send to n8n with file URL
                             const uploadFormData = new FormData();
                             uploadFormData.append("file", file);
+                            uploadFormData.append("supabase_url", urlData.publicUrl);
+                            uploadFormData.append("file_name", fileName);
 
                             const response = await fetch(
                               "https://n8n.wheza.id/webhook-test/andy-update-rag",
@@ -370,7 +398,7 @@ export default function Page() {
                             );
 
                             if (response.ok) {
-                              alert("File berhasil diupload!");
+                              alert("File berhasil diupload dan disimpan!");
                               // Reset form safely
                               const form = e.currentTarget;
                               if (form) {
@@ -379,7 +407,9 @@ export default function Page() {
                               // Close dialog
                               setIsDialogOpen(false);
                             } else {
-                              alert("Gagal mengupload file");
+                              alert("Gagal mengupload file ke n8n");
+                              // Optionally delete from Supabase if n8n fails
+                              await supabase.storage.from('documents').remove([fileName]);
                             }
                           } catch (error) {
                             console.error("Error uploading file:", error);
