@@ -52,14 +52,15 @@ export function SidebarRight({
   return (
     <Sidebar
       collapsible="none"
-      className="sticky top-0 hidden h-svh border-l lg:flex w-[380px]"
+      className="sticky top-0 hidden h-svh border-l lg:flex w-[320px]"
       {...props}
     >
-      <SidebarContent className="pt-4">
-        <AgentDashboard />
-        <SidebarSeparator className="mx-0" />
-        <div className="px-3">
-          <h3 className="text-sm font-semibold mb-2">Dokumen</h3>
+      <SidebarContent className="pt-2">
+        <div className="px-2">
+          <AgentDashboard />
+        </div>
+        <SidebarSeparator className="mx-2 my-3" />
+        <div className="px-2">
           <DocumentSection />
         </div>
       </SidebarContent>
