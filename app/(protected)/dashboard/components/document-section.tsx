@@ -284,7 +284,9 @@ export function DocumentSection() {
                     <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-xs truncate">
-                        {doc.name || 'Dokumen Tanpa Nama'}
+                        {(doc.name || 'Dokumen Tanpa Nama').length > 20 
+                          ? (doc.name || 'Dokumen Tanpa Nama').substring(0, 20) + '...' 
+                          : (doc.name || 'Dokumen Tanpa Nama')}
                       </h4>
                       <div className="flex items-center gap-1 mt-0.5">
                         <span className="text-xs bg-secondary px-1 py-0 rounded">
