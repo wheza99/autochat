@@ -380,6 +380,16 @@ export function DocumentSection() {
                           e.stopPropagation();
                           if (confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
                             try {
+                              // Delete from documents table first (based on storage_document_id in metadata)
+                              const { error: documentsError } = await supabase
+                                .from('documents')
+                                .delete()
+                                .contains('metadata', { storage_document_id: doc.id });
+                              
+                              if (documentsError) {
+                                console.error('Error deleting from documents table:', documentsError);
+                              }
+                              
                               // Delete from Supabase storage
                               if (doc.file_path) {
                                 const { error: storageError } = await supabase.storage
@@ -391,7 +401,7 @@ export function DocumentSection() {
                                 }
                               }
                               
-                              // Delete from database
+                              // Delete from storage_documents database
                               const { error: dbError } = await supabase
                                 .from('storage_documents')
                                 .delete()
