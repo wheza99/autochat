@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { FileText, Send, Plus, Search, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
 
 // Sample data untuk dokumen
@@ -76,8 +77,9 @@ const sampleMessages = [
   },
 ];
 
-export default function Page() {
+function DashboardContent() {
   const { user } = useAuth();
+  const { selectedAgent } = useAgent();
   const [message, setMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -255,8 +257,7 @@ export default function Page() {
   };
 
   return (
-    <AgentProvider>
-      <SidebarProvider>
+    <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2">
@@ -341,7 +342,11 @@ export default function Page() {
                   <h3 className="font-semibold">Dokumen</h3>
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        disabled={!selectedAgent}
+                      >
                         <Plus className="h-4 w-4 mr-1" />
                         Tambah
                       </Button>
@@ -496,6 +501,13 @@ export default function Page() {
           </div>
         </SidebarInset>
       </SidebarProvider>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <AgentProvider>
+      <DashboardContent />
     </AgentProvider>
   );
 }
