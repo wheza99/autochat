@@ -29,7 +29,7 @@ import {
 
 export function NavProjects() {
   const { isMobile } = useSidebar()
-  const { agents, setSelectedAgent } = useAgent()
+  const { agents, selectedAgent, setSelectedAgent } = useAgent()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -45,7 +45,10 @@ export function NavProjects() {
         ) : (
           agents.map((agent) => (
             <SidebarMenuItem key={agent.id}>
-              <SidebarMenuButton onClick={() => setSelectedAgent(agent)}>
+              <SidebarMenuButton 
+                onClick={() => setSelectedAgent(agent)}
+                isActive={selectedAgent?.id === agent.id}
+              >
                 <Bot />
                 <span>{agent.name || 'Unnamed Agent'}</span>
               </SidebarMenuButton>

@@ -65,6 +65,13 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     loadAgents()
   }, [])
 
+  // Auto-select first agent when agents are loaded and no agent is selected
+  useEffect(() => {
+    if (agents.length > 0 && !selectedAgent) {
+      setSelectedAgent(agents[0])
+    }
+  }, [agents, selectedAgent])
+
   return (
     <AgentContext.Provider value={{ agents, selectedAgent, setSelectedAgent, updateAgent, loadAgents }}>
       {children}
