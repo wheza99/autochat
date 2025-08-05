@@ -1,39 +1,47 @@
 import * as React from "react"
-import { Plus } from "lucide-react"
-
-import { Calendars } from "@/components/shadcn-blocks/sidebar-15/calendars"
-import { DatePicker } from "@/components/shadcn-blocks/sidebar-15/date-picker"
-import { NavUser } from "@/components/shadcn-blocks/sidebar-15/nav-user"
+import { AgentDashboard } from "@/components/agent-dashboard"
+import { DocumentSection } from "./document-section"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
+// Sample data for documents
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  calendars: [
+  documents: [
     {
-      name: "My Calendars",
-      items: ["Personal", "Work", "Family"],
+      id: 1,
+      title: "Laporan Keuangan Q1 2024",
+      type: "PDF",
+      date: "2024-03-15",
     },
     {
-      name: "Favorites",
-      items: ["Holidays", "Birthdays"],
+      id: 2,
+      title: "Proposal Proyek Urbana",
+      type: "DOCX",
+      date: "2024-03-10",
     },
     {
-      name: "Other",
-      items: ["Travel", "Reminders", "Deadlines"],
+      id: 3,
+      title: "Analisis Pasar",
+      type: "XLSX",
+      date: "2024-03-08",
+    },
+    {
+      id: 4,
+      title: "Rencana Strategis 2024",
+      type: "PDF",
+      date: "2024-03-05",
+    },
+    {
+      id: 5,
+      title: "Data Survei Pelanggan",
+      type: "CSV",
+      date: "2024-03-01",
     },
   ],
 }
@@ -44,25 +52,21 @@ export function SidebarRight({
   return (
     <Sidebar
       collapsible="none"
-      className="sticky top-0 hidden h-svh border-l lg:flex"
+      className="sticky top-0 hidden h-svh border-l lg:flex w-[380px]"
       {...props}
     >
-      <SidebarHeader className="border-sidebar-border h-16 border-b">
-        <NavUser user={data.user} />
-      </SidebarHeader>
-      <SidebarContent>
-        <DatePicker />
+
+      <SidebarContent className="pt-4">
+        <AgentDashboard />
         <SidebarSeparator className="mx-0" />
-        <Calendars calendars={data.calendars} />
+        <div className="px-3">
+           <h3 className="text-sm font-semibold mb-2">Dokumen</h3>
+           <DocumentSection documents={data.documents} />
+         </div>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton>
-              <Plus />
-              <span>New Calendar</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <SidebarMenuItem />
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

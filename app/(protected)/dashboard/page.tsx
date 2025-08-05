@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/sidebar";
 import { AgentProvider } from "@/contexts/agent-context";
 import { ChatInterface } from "@/components/chat-interface";
-import { DocumentSidebar } from "@/components/document-sidebar";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarRight } from "./components/right-sidebar";
@@ -30,20 +29,7 @@ interface Message {
   timestamp: string;
 }
 
-// Sample data untuk dokumen
-const sampleDocuments = [
-  { id: 1, title: "Laporan Keuangan Q1 2024", type: "PDF", date: "2024-03-15" },
-  { id: 2, title: "Proposal Proyek Urbana", type: "DOCX", date: "2024-03-10" },
-  { id: 3, title: "Analisis Pasar", type: "XLSX", date: "2024-03-08" },
-  { id: 4, title: "Rencana Strategis 2024", type: "PDF", date: "2024-03-05" },
-  { id: 5, title: "Data Survei Pelanggan", type: "CSV", date: "2024-03-01" },
-  {
-    id: 6,
-    title: "Presentasi Board Meeting",
-    type: "PPTX",
-    date: "2024-02-28",
-  },
-];
+
 
 // Sample data untuk chat messages
 const sampleMessages: Message[] = [
@@ -267,7 +253,6 @@ export default function Page() {
           {/* Main Content Area - Chat Interface */}
           <div className="flex flex-1 h-[calc(100vh-4rem)]">
             <ChatInterface messages={messages} onSendMessage={handleSendMessage} />
-            <DocumentSidebar documents={sampleDocuments} />
           </div>
         </SidebarInset>
         <SidebarRight/>

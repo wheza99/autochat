@@ -1,6 +1,5 @@
 "use client";
 
-import { AgentDashboard } from "@/components/agent-dashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,8 +39,6 @@ export function DocumentSidebar({ documents }: DocumentSidebarProps) {
 
   return (
     <div className="w-80 border-l bg-muted/30">
-      <AgentDashboard />
-
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold">Dokumen</h3>
