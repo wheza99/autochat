@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/use-auth'
 import { useAgent } from '@/contexts/agent-context'
 import { AgentProvider } from '@/contexts/agent-context'
 import { AuthProvider } from '@/components/auth-provider'
+import { supabase } from '@/lib/supabase'
+import { useSearchParams } from 'next/navigation'
 
 interface Message {
   id: number;
@@ -17,17 +19,43 @@ interface Message {
 
 function ChatInterface() {
   const { user } = useAuth();
-  const { selectedAgent } = useAgent();
+  const { selectedAgent, setSelectedAgent } = useAgent();
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const agentId = searchParams.get('id');
 
-  // Generate session ID on component mount
+  // Fetch agent data and generate session ID on component mount
   useEffect(() => {
-    const generateSessionId = () => {
-      return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const fetchAgentAndGenerateSession = async () => {
+      if (agentId) {
+        try {
+          const { data, error } = await supabase
+            .from('agents')
+            .select('*')
+            .eq('id', agentId)
+            .single();
+
+          if (error) {
+            console.error('Error fetching agent:', error);
+          } else if (data) {
+            setSelectedAgent(data);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+
+      const generateSessionId = () => {
+        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      };
+      setSessionId(generateSessionId());
+      setLoading(false);
     };
-    setSessionId(generateSessionId());
-  }, []);
+
+    fetchAgentAndGenerateSession();
+  }, [agentId, setSelectedAgent]);
 
   // Reset messages and generate new session ID when selectedAgent changes
   useEffect(() => {
@@ -197,15 +225,45 @@ function ChatInterface() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground text-lg">Memuat agent...</p>
+      </div>
+    );
+  }
+
+  if (!selectedAgent) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground text-lg">Agent tidak ditemukan.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 flex-col h-screen">
+      {/* Header with Agent Info */}
+      <div className="border-b bg-background p-4">
+        <h1 className="text-xl font-semibold">{selectedAgent.name}</h1>
+        <p className="text-sm text-muted-foreground">
+          {selectedAgent.model && `Model: ${selectedAgent.model}`}
+          {selectedAgent.phone && ` • Phone: ${selectedAgent.phone}`}
+        </p>
+      </div>
+
       {/* Chat Messages - Scrollable */}
       <div className="flex-1 overflow-hidden">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground text-lg">
-              Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!
-            </p>
+            <div className="text-center">
+              <p className="text-muted-foreground text-lg mb-2">
+                Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Mulai percakapan dengan {selectedAgent.name}
+              </p>
+            </div>
           </div>
         ) : (
           <ChatMessages messages={messages} />
