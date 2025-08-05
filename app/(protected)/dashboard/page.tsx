@@ -19,7 +19,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Send, Plus, Search } from "lucide-react"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { FileText, Send, Plus, Search, Upload } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -59,6 +70,7 @@ export default function Page() {
   const { user } = useAuth()
   const [message, setMessage] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [messages, setMessages] = useState(sampleMessages)
   const [sessionId, setSessionId] = useState<string>("")
 
@@ -266,10 +278,83 @@ export default function Page() {
             <div className="p-4 border-b">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold">Dokumen</h3>
-                <Button size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Tambah
-                </Button>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Tambah
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <form onSubmit={async (e) => {
+                      e.preventDefault()
+                      const formData = new FormData(e.currentTarget)
+                      const file = formData.get('file') as File
+                      
+                      if (!file || file.size === 0) {
+                        alert('Silakan pilih file terlebih dahulu')
+                        return
+                      }
+                      
+                      try {
+                        const uploadFormData = new FormData()
+                        uploadFormData.append('file', file)
+                        
+                        const response = await fetch('https://n8n.wheza.id/webhook-test/andy-update-rag', {
+                          method: 'POST',
+                          body: uploadFormData,
+                        })
+                        
+                        if (response.ok) {
+                          alert('File berhasil diupload!')
+                          // Reset form safely
+                          const form = e.currentTarget
+                          if (form) {
+                            form.reset()
+                          }
+                          // Close dialog
+                          setIsDialogOpen(false)
+                        } else {
+                          alert('Gagal mengupload file')
+                        }
+                      } catch (error) {
+                        console.error('Error uploading file:', error)
+                        alert('Terjadi kesalahan saat mengupload file')
+                      }
+                    }}>
+                      <DialogHeader>
+                        <DialogTitle>Upload Dokumen</DialogTitle>
+                        <DialogDescription>
+                          Pilih file yang ingin Anda upload ke sistem RAG.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4">
+                        <div className="grid gap-3">
+                          <Label htmlFor="file-upload">File</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              id="file-upload"
+                              name="file"
+                              type="file"
+                              accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.pptx"
+                              className="cursor-pointer"
+                            />
+                            <Upload className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Format yang didukung: PDF, DOC, DOCX, TXT, CSV, XLSX, PPTX
+                          </p>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Batal</Button>
+                        </DialogClose>
+                        <Button type="submit">Upload File</Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
