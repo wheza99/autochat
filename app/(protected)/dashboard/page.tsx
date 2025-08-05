@@ -20,6 +20,7 @@ import { ChatInterface } from "@/components/chat-interface";
 import { DocumentSidebar } from "@/components/document-sidebar";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { SidebarRight } from "./components/right-sidebar";
 
 // Message type definition
 interface Message {
@@ -269,6 +270,7 @@ export default function Page() {
             <DocumentSidebar documents={sampleDocuments} />
           </div>
         </SidebarInset>
+        <SidebarRight/>
       </SidebarProvider>
     </AgentProvider>
   );
