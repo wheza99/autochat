@@ -220,7 +220,7 @@ function ChatInterface() {
   )
 }
 
-export default function Home() {
+export default function Agent() {
   return (
     <AuthProvider>
       <AgentProvider>
