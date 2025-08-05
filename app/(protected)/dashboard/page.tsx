@@ -20,6 +20,7 @@ import { ChatMessages } from "@/components/chat/chat-messages";
 import { ChatInput } from "@/components/chat/chat-input";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useAgent } from "@/contexts/agent-context";
 import { SidebarRight } from "./components/right-sidebar";
 
 // Message type definition
@@ -32,8 +33,10 @@ interface Message {
 
 
 
-export default function Page() {
+// Inner component that uses the agent context
+function DashboardContent() {
   const { user } = useAuth();
+  const { selectedAgent } = useAgent();
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string>("");
 
@@ -80,6 +83,7 @@ export default function Page() {
                   "Anonymous User",
               },
               sessionId: sessionId,
+              phone: selectedAgent?.phone || null,
             }),
           }
         );
@@ -202,54 +206,60 @@ export default function Page() {
   };
 
   return (
-    <AgentProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
-              />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">Agent Dashboard</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Agents Management</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
-          </header>
-
-          {/* Main Content Area - Chat Interface */}
-          <div className="flex flex-1 flex-col h-[calc(100vh-4rem)]">
-            {/* Chat Messages - Scrollable */}
-            <div className="flex-1 overflow-hidden">
-              {messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-muted-foreground text-lg">
-                    Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!
-                  </p>
-                </div>
-              ) : (
-                <ChatMessages messages={messages} />
-              )}
-            </div>
-
-            {/* Chat Input - Fixed at bottom */}
-            <div className="sticky bottom-0 bg-background border-t">
-              <ChatInput onSendMessage={handleSendMessage} />
-            </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">Agent Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Agents Management</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
-        </SidebarInset>
-        <SidebarRight />
-      </SidebarProvider>
+        </header>
+
+        {/* Main Content Area - Chat Interface */}
+        <div className="flex flex-1 flex-col h-[calc(100vh-4rem)]">
+          {/* Chat Messages - Scrollable */}
+          <div className="flex-1 overflow-hidden">
+            {messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-muted-foreground text-lg">
+                  Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!
+                </p>
+              </div>
+            ) : (
+              <ChatMessages messages={messages} />
+            )}
+          </div>
+
+          {/* Chat Input - Fixed at bottom */}
+          <div className="sticky bottom-0 bg-background border-t">
+            <ChatInput onSendMessage={handleSendMessage} phone={selectedAgent?.phone} />
+          </div>
+        </div>
+      </SidebarInset>
+      <SidebarRight />
+    </SidebarProvider>
+  );
+}
+
+export default function Page() {
+  return (
+    <AgentProvider>
+      <DashboardContent />
     </AgentProvider>
   );
 }

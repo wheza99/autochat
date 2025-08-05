@@ -7,9 +7,10 @@ import { useState } from "react";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
+  phone?: number | null;
 }
 
-export function ChatInput({ onSendMessage }: ChatInputProps) {
+export function ChatInput({ onSendMessage, phone }: ChatInputProps) {
   const [message, setMessage] = useState("");
 
   const handleSendMessage = () => {
