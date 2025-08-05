@@ -16,33 +16,79 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { FileText, Plus, Search, Upload } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
 import { AgentDashboard } from "./agent-dashboard";
 
-// Sample data untuk dokumen
-const sampleDocuments = [
-  { id: 1, title: "Laporan Keuangan Q1 2024", type: "PDF", date: "2024-03-15" },
-  { id: 2, title: "Proposal Proyek Urbana", type: "DOCX", date: "2024-03-10" },
-  { id: 3, title: "Analisis Pasar", type: "XLSX", date: "2024-03-08" },
-  { id: 4, title: "Rencana Strategis 2024", type: "PDF", date: "2024-03-05" },
-  { id: 5, title: "Data Survei Pelanggan", type: "CSV", date: "2024-03-01" },
-  {
-    id: 6,
-    title: "Presentasi Board Meeting",
-    type: "PPTX",
-    date: "2024-02-28",
-  },
-];
+// Interface untuk dokumen dari database
+interface Document {
+  id: string;
+  name: string | null;
+  url: string | null;
+  file_path: string | null;
+  mime_type: string | null;
+  created_at: string;
+}
 
 export function DocumentSection() {
   const { selectedAgent } = useAgent();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredDocuments = sampleDocuments.filter((doc) =>
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // Fetch documents from Supabase
+  const fetchDocuments = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('storage_documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching documents:', error);
+      } else {
+        setDocuments(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  // Helper function to get file type from mime_type or file name
+  const getFileType = (mimeType: string | null, fileName: string | null): string => {
+    if (mimeType) {
+      if (mimeType.includes('pdf')) return 'PDF';
+      if (mimeType.includes('word') || mimeType.includes('document')) return 'DOCX';
+      if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'XLSX';
+      if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'PPTX';
+      if (mimeType.includes('text')) return 'TXT';
+      if (mimeType.includes('csv')) return 'CSV';
+    }
+    
+    if (fileName) {
+      const extension = fileName.split('.').pop()?.toUpperCase();
+      return extension || 'FILE';
+    }
+    
+    return 'FILE';
+  };
+
+  // Helper function to format date
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('id-ID');
+  };
+
+  const filteredDocuments = documents.filter((doc) =>
+    doc.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -116,7 +162,25 @@ export function DocumentSection() {
                   );
 
                   if (response.ok) {
-                    alert("File berhasil diupload dan disimpan!");
+                    // Save document metadata to database
+                    const { error: dbError } = await supabase
+                      .from('storage_documents')
+                      .insert({
+                        name: file.name,
+                        url: urlData.publicUrl,
+                        file_path: fileName,
+                        mime_type: file.type
+                      });
+
+                    if (dbError) {
+                      console.error('Error saving to database:', dbError);
+                      alert('File berhasil diupload tetapi gagal menyimpan metadata');
+                    } else {
+                      alert("File berhasil diupload dan disimpan!");
+                      // Refresh documents list
+                      fetchDocuments();
+                    }
+                    
                     // Reset form safely
                     const form = e.currentTarget;
                     if (form) {
@@ -182,31 +246,48 @@ export function DocumentSection() {
 
       <ScrollArea className="h-[300px]">
         <div className="space-y-2">
-          {filteredDocuments.map((doc) => (
-            <Card
-              key={doc.id}
-              className="cursor-pointer hover:bg-accent transition-colors"
-            >
-              <CardContent className="p-3">
-                <div className="flex items-start gap-3">
-                  <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm truncate">
-                      {doc.title}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs bg-secondary px-2 py-0.5 rounded">
-                        {doc.type}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {doc.date}
-                      </span>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-muted-foreground">Memuat dokumen...</div>
+            </div>
+          ) : filteredDocuments.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-muted-foreground">
+                {searchTerm ? 'Tidak ada dokumen yang ditemukan' : 'Belum ada dokumen'}
+              </div>
+            </div>
+          ) : (
+            filteredDocuments.map((doc) => (
+              <Card
+                key={doc.id}
+                className="cursor-pointer hover:bg-accent transition-colors"
+                onClick={() => {
+                  if (doc.url) {
+                    window.open(doc.url, '_blank');
+                  }
+                }}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-start gap-3">
+                    <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm truncate">
+                        {doc.name || 'Dokumen Tanpa Nama'}
+                      </h4>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs bg-secondary px-2 py-0.5 rounded">
+                          {getFileType(doc.mime_type, doc.name)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(doc.created_at)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </ScrollArea>
     </div>
