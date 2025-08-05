@@ -10,13 +10,17 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, Save, X } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, Save, X, ChevronDown } from "lucide-react"
 import { useAgent } from "@/contexts/agent-context"
 import { supabase } from "@/lib/supabase"
 
 export function AgentDashboard() {
   const { selectedAgent, updateAgent } = useAgent()
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isBasicInfoOpen, setIsBasicInfoOpen] = useState(true)
+  const [isSystemPromptOpen, setIsSystemPromptOpen] = useState(false)
+  const [isStatsOpen, setIsStatsOpen] = useState(false)
   const [editForm, setEditForm] = useState({
     name: '',
     phone: '',
@@ -82,11 +86,11 @@ export function AgentDashboard() {
 
   if (!selectedAgent) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-48">
         <div className="text-center">
-          <Bot className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-xl font-semibold mb-2">Select an Agent</h2>
-          <p className="text-muted-foreground">Choose an agent from the sidebar to view its details</p>
+          <Bot className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+          <h2 className="text-lg font-semibold mb-1">Select an Agent</h2>
+          <p className="text-sm text-muted-foreground">Choose an agent from the sidebar</p>
         </div>
       </div>
     )
@@ -95,145 +99,146 @@ export function AgentDashboard() {
   const agent = selectedAgent
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
-            <Bot className="h-6 w-6 text-primary" />
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+            <Bot className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{agent.name || 'Unnamed Agent'}</h1>
-            <p className="text-muted-foreground">Agent ID: {agent.id}</p>
+            <h1 className="text-lg font-bold truncate">{agent.name || 'Unnamed Agent'}</h1>
+            <p className="text-xs text-muted-foreground truncate">ID: {agent.id.slice(0, 8)}...</p>
           </div>
         </div>
         <Button 
           variant="outline" 
           size="sm" 
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-1"
           onClick={handleEditClick}
         >
-          <Edit className="h-4 w-4" />
-          <span>Edit Agent</span>
+          <Edit className="h-3 w-3" />
+          <span className="text-xs">Edit</span>
         </Button>
       </div>
 
       <Separator />
 
       {/* Basic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Settings className="h-5 w-5" />
-            <span>Basic Information</span>
-          </CardTitle>
-          <CardDescription>
-            Core details about this agent
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Name</label>
-            <p className="text-sm">{agent.name || 'Not specified'}</p>
-          </div>
-          
-          {agent.phone && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground flex items-center space-x-1">
-                <Phone className="h-4 w-4" />
-                <span>Phone</span>
-              </label>
-              <p className="text-sm">{agent.phone}</p>
-            </div>
-          )}
-          
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Model</label>
-            <div className="mt-1">
-              {agent.model ? (
-                <Badge variant="secondary">{agent.model}</Badge>
-              ) : (
-                <span className="text-sm text-muted-foreground">Not specified</span>
-              )}
-            </div>
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium text-muted-foreground flex items-center space-x-1">
-              <Calendar className="h-4 w-4" />
-              <span>Created</span>
-            </label>
-            <p className="text-sm">{new Date(agent.created_at).toLocaleDateString('id-ID', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</p>
-          </div>
-          
-          {agent.updated_at && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
-              <p className="text-sm">{new Date(agent.updated_at).toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <Collapsible open={isBasicInfoOpen} onOpenChange={setIsBasicInfoOpen}>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-2">
+              <CardTitle className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <Settings className="h-4 w-4" />
+                  <span>Basic Information</span>
+                </div>
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isBasicInfoOpen ? 'rotate-180' : ''}`} />
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="space-y-2 py-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Name</label>
+                  <p className="text-xs truncate">{agent.name || 'Not specified'}</p>
+                </div>
+                
+                {agent.phone && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
+                      <Phone className="h-3 w-3" />
+                      <span>Phone</span>
+                    </label>
+                    <p className="text-xs">{agent.phone}</p>
+                  </div>
+                )}
+                
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Model</label>
+                  <div className="mt-0.5">
+                    {agent.model ? (
+                      <Badge variant="secondary" className="text-xs px-1 py-0">{agent.model}</Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Not specified</span>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
+                    <Calendar className="h-3 w-3" />
+                    <span>Created</span>
+                  </label>
+                  <p className="text-xs">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* System Prompt */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <MessageSquare className="h-5 w-5" />
-            <span>System Prompt</span>
-          </CardTitle>
-          <CardDescription>
-            Instructions and behavior configuration
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {agent.system_prompt ? (
-            <div className="bg-muted/50 rounded-lg p-4">
-              <pre className="text-sm whitespace-pre-wrap font-mono">{agent.system_prompt}</pre>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground italic">No system prompt configured</p>
-          )}
-        </CardContent>
-      </Card>
+      <Collapsible open={isSystemPromptOpen} onOpenChange={setIsSystemPromptOpen}>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-2">
+              <CardTitle className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="h-4 w-4" />
+                  <span>System Prompt</span>
+                </div>
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isSystemPromptOpen ? 'rotate-180' : ''}`} />
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="py-2">
+              {agent.system_prompt ? (
+                <div className="bg-muted/50 rounded-lg p-2">
+                  <pre className="text-xs whitespace-pre-wrap font-mono max-h-32 overflow-y-auto">{agent.system_prompt}</pre>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No system prompt configured</p>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Statistics or Additional Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Agent Statistics</CardTitle>
-          <CardDescription>
-            Performance and usage metrics
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Total Conversations</div>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Messages Sent</div>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-primary">Active</div>
-              <div className="text-sm text-muted-foreground">Status</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Collapsible open={isStatsOpen} onOpenChange={setIsStatsOpen}>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-2">
+              <CardTitle className="flex items-center justify-between text-sm">
+                <span>Agent Statistics</span>
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isStatsOpen ? 'rotate-180' : ''}`} />
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="py-2">
+              <div className="grid gap-2 grid-cols-3">
+                <div className="text-center p-2 bg-muted/50 rounded-lg">
+                  <div className="text-lg font-bold text-primary">0</div>
+                  <div className="text-xs text-muted-foreground">Conversations</div>
+                </div>
+                <div className="text-center p-2 bg-muted/50 rounded-lg">
+                  <div className="text-lg font-bold text-primary">0</div>
+                  <div className="text-xs text-muted-foreground">Messages</div>
+                </div>
+                <div className="text-center p-2 bg-muted/50 rounded-lg">
+                  <div className="text-lg font-bold text-primary">Active</div>
+                  <div className="text-xs text-muted-foreground">Status</div>
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

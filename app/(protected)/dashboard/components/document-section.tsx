@@ -101,14 +101,14 @@ export function DocumentSection() {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold">Dokumen</h3>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold">Dokumen</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" disabled={!selectedAgent}>
-              <Plus className="h-4 w-4 mr-1" />
-              Tambah
+            <Button size="sm" variant="outline" disabled={!selectedAgent} className="h-7 px-2">
+              <Plus className="h-3 w-3 mr-1" />
+              <span className="text-xs">Tambah</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -245,24 +245,24 @@ export function DocumentSection() {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
         <Input
           placeholder="Cari dokumen..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-9"
+          className="pl-7 h-8 text-xs"
         />
       </div>
 
-      <ScrollArea className="h-[300px]">
-        <div className="space-y-2">
+      <ScrollArea className="h-[200px]">
+        <div className="space-y-1">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-sm text-muted-foreground">Memuat dokumen...</div>
+            <div className="flex items-center justify-center py-4">
+              <div className="text-xs text-muted-foreground">Memuat dokumen...</div>
             </div>
           ) : filteredDocuments.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-center py-4">
+              <div className="text-xs text-muted-foreground">
                 {searchTerm ? 'Tidak ada dokumen yang ditemukan' : 'Belum ada dokumen'}
               </div>
             </div>
@@ -272,15 +272,15 @@ export function DocumentSection() {
                 key={doc.id}
                 className="hover:bg-accent transition-colors"
               >
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-3">
-                    <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-2">
+                    <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate">
+                      <h4 className="font-medium text-xs truncate">
                         {doc.name || 'Dokumen Tanpa Nama'}
                       </h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs bg-secondary px-2 py-0.5 rounded">
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span className="text-xs bg-secondary px-1 py-0 rounded">
                           {getFileType(doc.mime_type, doc.name)}
                         </span>
                         <span className="text-xs text-muted-foreground">
@@ -288,11 +288,11 @@ export function DocumentSection() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0"
+                        className="h-6 w-6 p-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (doc.url) {
@@ -301,12 +301,12 @@ export function DocumentSection() {
                         }}
                         title="Lihat dokumen"
                       >
-                        <FileText className="h-4 w-4" />
+                        <FileText className="h-3 w-3" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0"
+                        className="h-6 w-6 p-0"
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (doc.url && doc.name) {
@@ -330,12 +330,12 @@ export function DocumentSection() {
                         }}
                         title="Download dokumen"
                       >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-3 w-3" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
@@ -373,7 +373,7 @@ export function DocumentSection() {
                         }}
                         title="Hapus dokumen"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
