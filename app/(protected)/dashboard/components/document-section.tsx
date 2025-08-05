@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { FileText, Plus, Search, Upload } from "lucide-react";
+import { FileText, Plus, Search, Upload, Download, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
@@ -28,6 +28,7 @@ interface Document {
   url: string | null;
   file_path: string | null;
   mime_type: string | null;
+  agent_id: string | null;
   created_at: string;
 }
 
@@ -42,9 +43,17 @@ export function DocumentSection() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
+      
+      if (!selectedAgent) {
+        setDocuments([]);
+        setLoading(false);
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('storage_documents')
         .select('*')
+        .eq('agent_id', selectedAgent.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -61,7 +70,7 @@ export function DocumentSection() {
 
   useEffect(() => {
     fetchDocuments();
-  }, []);
+  }, [selectedAgent]);
 
   // Helper function to get file type from mime_type or file name
   const getFileType = (mimeType: string | null, fileName: string | null): string => {
@@ -268,12 +277,7 @@ export function DocumentSection() {
             filteredDocuments.map((doc) => (
               <Card
                 key={doc.id}
-                className="cursor-pointer hover:bg-accent transition-colors"
-                onClick={() => {
-                  if (doc.url) {
-                    window.open(doc.url, '_blank');
-                  }
-                }}
+                className="hover:bg-accent transition-colors"
               >
                 <CardContent className="p-3">
                   <div className="flex items-start gap-3">
@@ -290,6 +294,94 @@ export function DocumentSection() {
                           {formatDate(doc.created_at)}
                         </span>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (doc.url) {
+                            window.open(doc.url, '_blank');
+                          }
+                        }}
+                        title="Lihat dokumen"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (doc.url && doc.name) {
+                            try {
+                              const response = await fetch(doc.url);
+                              const blob = await response.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.style.display = 'none';
+                              a.href = url;
+                              a.download = doc.name;
+                              document.body.appendChild(a);
+                              a.click();
+                              window.URL.revokeObjectURL(url);
+                              document.body.removeChild(a);
+                            } catch (error) {
+                              console.error('Error downloading file:', error);
+                              alert('Gagal mendownload file');
+                            }
+                          }
+                        }}
+                        title="Download dokumen"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
+                            try {
+                              // Delete from Supabase storage
+                              if (doc.file_path) {
+                                const { error: storageError } = await supabase.storage
+                                  .from('documents')
+                                  .remove([doc.file_path]);
+                                
+                                if (storageError) {
+                                  console.error('Error deleting from storage:', storageError);
+                                }
+                              }
+                              
+                              // Delete from database
+                              const { error: dbError } = await supabase
+                                .from('storage_documents')
+                                .delete()
+                                .eq('id', doc.id);
+                              
+                              if (dbError) {
+                                console.error('Error deleting from database:', dbError);
+                                alert('Gagal menghapus dokumen dari database');
+                              } else {
+                                alert('Dokumen berhasil dihapus!');
+                                // Refresh documents list
+                                fetchDocuments();
+                              }
+                            } catch (error) {
+                              console.error('Error deleting document:', error);
+                              alert('Terjadi kesalahan saat menghapus dokumen');
+                            }
+                          }
+                        }}
+                        title="Hapus dokumen"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
