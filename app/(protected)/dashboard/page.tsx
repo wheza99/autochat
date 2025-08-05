@@ -30,33 +30,11 @@ interface Message {
   timestamp: string;
 }
 
-// Sample data untuk chat messages
-const sampleMessages: Message[] = [
-  {
-    id: 1,
-    type: "user" as const,
-    content:
-      "Halo, bisakah Anda membantu saya menganalisis laporan keuangan Q1?",
-    timestamp: "10:30",
-  },
-  {
-    id: 2,
-    type: "assistant" as const,
-    content:
-      "Tentu! Saya dapat membantu Anda menganalisis laporan keuangan Q1 2024. Berdasarkan dokumen yang tersedia, saya melihat ada laporan keuangan Q1 2024 dalam format PDF. Apakah ada aspek tertentu yang ingin Anda fokuskan dalam analisis ini?",
-    timestamp: "10:31",
-  },
-  {
-    id: 3,
-    type: "user" as const,
-    content: "Saya ingin fokus pada tren pendapatan dan profitabilitas.",
-    timestamp: "10:32",
-  },
-];
+
 
 export default function Page() {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>(sampleMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string>("");
 
   // Generate session ID on component mount
@@ -253,7 +231,15 @@ export default function Page() {
           <div className="flex flex-1 flex-col h-[calc(100vh-4rem)]">
             {/* Chat Messages - Scrollable */}
             <div className="flex-1 overflow-hidden">
-              <ChatMessages messages={messages} />
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-muted-foreground text-lg">
+                    Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!
+                  </p>
+                </div>
+              ) : (
+                <ChatMessages messages={messages} />
+              )}
             </div>
 
             {/* Chat Input - Fixed at bottom */}
