@@ -28,6 +28,7 @@ interface Document {
   url: string | null;
   file_path: string | null;
   mime_type: string | null;
+  agent_id: string | null;
   created_at: string;
 }
 
@@ -42,9 +43,17 @@ export function DocumentSection() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
+      
+      if (!selectedAgent) {
+        setDocuments([]);
+        setLoading(false);
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('storage_documents')
         .select('*')
+        .eq('agent_id', selectedAgent.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -61,7 +70,7 @@ export function DocumentSection() {
 
   useEffect(() => {
     fetchDocuments();
-  }, []);
+  }, [selectedAgent]);
 
   // Helper function to get file type from mime_type or file name
   const getFileType = (mimeType: string | null, fileName: string | null): string => {
@@ -169,7 +178,8 @@ export function DocumentSection() {
                         name: file.name,
                         url: urlData.publicUrl,
                         file_path: fileName,
-                        mime_type: file.type
+                        mime_type: file.type,
+                        agent_id: selectedAgent?.id
                       });
 
                     if (dbError) {
