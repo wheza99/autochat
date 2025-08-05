@@ -85,32 +85,102 @@ export default function Page() {
       setMessages([...messages, newMessage])
       
       // Hit webhook URL
-      try {
-        const response = await fetch('https://n8n.wheza.id/webhook-test/andy-flutterflow', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-             message: message,
-             timestamp: new Date().toISOString(),
-             user: {
-               id: user?.id || 'anonymous',
-               email: user?.email || 'no-email',
-               name: user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Anonymous User'
-             },
-             sessionId: sessionId
-           })
-        })
-        
-        if (response.ok) {
-          console.log('Webhook berhasil dipanggil')
-        } else {
-          console.error('Webhook gagal:', response.status)
-        }
-      } catch (error) {
-        console.error('Error calling webhook:', error)
-      }
+       try {
+         const response = await fetch('https://n8n.wheza.id/webhook-test/andy-flutterflow', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({
+              message: message,
+              timestamp: new Date().toISOString(),
+              user: {
+                id: user?.id || 'anonymous',
+                email: user?.email || 'no-email',
+                name: user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Anonymous User'
+              },
+              sessionId: sessionId
+            })
+         })
+         
+         if (response.ok) {
+           try {
+             const responseText = await response.text()
+             console.log('Raw response:', responseText)
+             
+             if (responseText.trim() === '') {
+               console.log('Empty response received')
+               const errorMessage = {
+                 id: messages.length + 2,
+                 type: "assistant" as const,
+                 content: "Maaf, tidak ada respons dari server. Silakan coba lagi.",
+                 timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+               }
+               setMessages(prevMessages => [...prevMessages, errorMessage])
+               return
+             }
+             
+             const responseData = JSON.parse(responseText)
+             console.log('Webhook berhasil dipanggil', responseData)
+             
+             // Add assistant response to chat
+              if (responseData && responseData.output) {
+                const assistantMessage = {
+                  id: messages.length + 2,
+                  type: "assistant" as const,
+                  content: responseData.output,
+                  timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                }
+                setMessages(prevMessages => [...prevMessages, assistantMessage])
+              } else if (responseData && Array.isArray(responseData) && responseData.length > 0 && responseData[0].output) {
+                const assistantMessage = {
+                  id: messages.length + 2,
+                  type: "assistant" as const,
+                  content: responseData[0].output,
+                  timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                }
+                setMessages(prevMessages => [...prevMessages, assistantMessage])
+              } else {
+               const errorMessage = {
+                 id: messages.length + 2,
+                 type: "assistant" as const,
+                 content: "Maaf, format respons tidak sesuai. Silakan coba lagi.",
+                 timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+               }
+               setMessages(prevMessages => [...prevMessages, errorMessage])
+             }
+           } catch (jsonError) {
+             console.error('JSON parsing error:', jsonError)
+             const errorMessage = {
+               id: messages.length + 2,
+               type: "assistant" as const,
+               content: "Maaf, terjadi kesalahan saat memproses respons. Silakan coba lagi.",
+               timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+             }
+             setMessages(prevMessages => [...prevMessages, errorMessage])
+           }
+         } else {
+           console.error('Webhook gagal:', response.status)
+           // Add error message to chat
+           const errorMessage = {
+             id: messages.length + 2,
+             type: "assistant" as const,
+             content: "Maaf, terjadi kesalahan saat memproses pesan Anda. Silakan coba lagi.",
+             timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+           }
+           setMessages(prevMessages => [...prevMessages, errorMessage])
+         }
+       } catch (error) {
+         console.error('Error calling webhook:', error)
+         // Add error message to chat
+         const errorMessage = {
+           id: messages.length + 2,
+           type: "assistant" as const,
+           content: "Maaf, terjadi kesalahan koneksi. Silakan coba lagi.",
+           timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+         }
+         setMessages(prevMessages => [...prevMessages, errorMessage])
+       }
       
       setMessage("")
     }
