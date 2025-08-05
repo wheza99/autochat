@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { FileText, Plus, Search, Upload, Download, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAgent } from "@/contexts/agent-context";
@@ -38,6 +39,8 @@ export function DocumentSection() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch documents from Supabase
   const fetchDocuments = async () => {
@@ -123,7 +126,12 @@ export function DocumentSection() {
                   return;
                 }
 
+                setIsUploading(true);
+                setUploadProgress(0);
+
                 try {
+                  // Simulate progress for file preparation
+                  setUploadProgress(10);
                   // Generate unique filename with agent folder
                   const timestamp = Date.now();
                   const fileExtension = file.name.split(".").pop();
@@ -137,6 +145,7 @@ export function DocumentSection() {
                   const fileName = `${agentFolderName}/${cleanFileName}`;
 
                   // Upload to Supabase Storage first
+                  setUploadProgress(25);
                   const { data: uploadData, error: uploadError } =
                     await supabase.storage
                       .from("documents")
@@ -144,6 +153,7 @@ export function DocumentSection() {
                         cacheControl: "3600",
                         upsert: false,
                       });
+                  setUploadProgress(50);
 
                   if (uploadError) {
                     console.error("Supabase upload error:", uploadError);
@@ -157,6 +167,7 @@ export function DocumentSection() {
                     .getPublicUrl(fileName);
 
                   // Save document metadata to database first to get storage_document_id
+                  setUploadProgress(65);
                   const { data: documentData, error: dbError } = await supabase
                     .from('storage_documents')
                     .insert({
@@ -184,6 +195,7 @@ export function DocumentSection() {
                   uploadFormData.append("storage_document_id", documentData.id);
                   uploadFormData.append("agent_id", selectedAgent?.id || "");
 
+                  setUploadProgress(80);
                   const response = await fetch(
                     "https://n8n.wheza.id/webhook-test/andy-update-rag",
                     {
@@ -191,8 +203,10 @@ export function DocumentSection() {
                       body: uploadFormData,
                     }
                   );
+                  setUploadProgress(95);
 
                   if (response.ok) {
+                    setUploadProgress(100);
                     alert("File berhasil diupload dan disimpan!");
                     // Refresh documents list
                     fetchDocuments();
@@ -213,6 +227,9 @@ export function DocumentSection() {
                 } catch (error) {
                   console.error("Error uploading file:", error);
                   alert("Terjadi kesalahan saat mengupload file");
+                } finally {
+                  setIsUploading(false);
+                  setUploadProgress(0);
                 }
               }}
             >
@@ -232,6 +249,7 @@ export function DocumentSection() {
                       type="file"
                       accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.pptx"
                       className="cursor-pointer"
+                      disabled={isUploading}
                     />
                     <Upload className="h-4 w-4 text-muted-foreground" />
                   </div>
@@ -239,12 +257,26 @@ export function DocumentSection() {
                     Format yang didukung: PDF, DOC, DOCX, TXT, CSV, XLSX, PPTX
                   </p>
                 </div>
+                {isUploading && (
+                  <div className="grid gap-2">
+                    <Label className="text-sm">Progress Upload</Label>
+                    <Progress value={uploadProgress} className="w-full" />
+                    <p className="text-xs text-muted-foreground text-center">
+                      {uploadProgress}% - {uploadProgress < 25 ? 'Mempersiapkan file...' : 
+                       uploadProgress < 50 ? 'Mengupload ke storage...' :
+                       uploadProgress < 65 ? 'Menyimpan metadata...' :
+                       uploadProgress < 95 ? 'Memproses RAG...' : 'Menyelesaikan...'}
+                    </p>
+                  </div>
+                )}
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">Batal</Button>
+                  <Button variant="outline" disabled={isUploading}>Batal</Button>
                 </DialogClose>
-                <Button type="submit">Upload File</Button>
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? 'Mengupload...' : 'Upload File'}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
