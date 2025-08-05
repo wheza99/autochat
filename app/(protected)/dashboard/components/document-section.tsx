@@ -174,7 +174,8 @@ export function DocumentSection() {
                       name: file.name,
                       url: urlData.publicUrl,
                       file_path: fileName,
-                      mime_type: file.type
+                      mime_type: file.type,
+                      agent_id: selectedAgent?.id
                     })
                     .select()
                     .single();
