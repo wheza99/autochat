@@ -7,8 +7,9 @@ export async function middleware(req: NextRequest) {
   
   // Define protected routes (routes that require authentication)
   const protectedRoutes = ['/', '/dashboard']
+  const authRoutes = ['/login', '/register']
   const isProtectedRoute = protectedRoutes.some(route => 
-    req.nextUrl.pathname.startsWith(route) && req.nextUrl.pathname !== '/login'
+    req.nextUrl.pathname.startsWith(route) && !authRoutes.includes(req.nextUrl.pathname)
   )
   
   // If user is not signed in and trying to access protected route, redirect to /login
@@ -16,8 +17,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
-  // If user is signed in and trying to access /login, redirect to /
-  if (token && req.nextUrl.pathname === '/login') {
+  // If user is signed in and trying to access auth routes, redirect to /
+  if (token && authRoutes.includes(req.nextUrl.pathname)) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
