@@ -364,10 +364,12 @@ function DashboardContent() {
                           }
 
                           try {
-                            // Generate unique filename
+                            // Generate unique filename with agent folder
                             const timestamp = Date.now();
                             const fileExtension = file.name.split('.').pop();
-                            const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                            const cleanFileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                            const agentFolderName = selectedAgent?.name.replace(/[^a-zA-Z0-9.-]/g, '_') || 'default';
+                            const fileName = `${agentFolderName}/${cleanFileName}`;
 
                             // Upload to Supabase Storage first
                             const { data: uploadData, error: uploadError } = await supabase.storage
