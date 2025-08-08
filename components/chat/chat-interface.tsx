@@ -53,7 +53,7 @@ function ChatInterface() {
       // Hit webhook URL
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL}/whatsapp`,
+          `${process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL}/fluterflow`,
           {
             method: "POST",
             headers: {
