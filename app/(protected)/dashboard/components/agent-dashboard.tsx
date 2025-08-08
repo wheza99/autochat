@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, Save, X, ChevronDown } from "lucide-react"
+import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, Save, X, ChevronDown, Eye, EyeOff } from "lucide-react"
 import { useAgent } from "@/contexts/agent-context"
 import { supabase } from "@/lib/supabase"
 
@@ -30,6 +30,8 @@ export function AgentDashboard() {
     model: '',
     api_key: ''
   })
+  const [showApiKey, setShowApiKey] = useState(false)
+  const [showApiKeyInEdit, setShowApiKeyInEdit] = useState(false)
   const [systemPromptForm, setSystemPromptForm] = useState('')
   const [statsForm, setStatsForm] = useState({
     status: 'Active'
@@ -245,7 +247,22 @@ export function AgentDashboard() {
                     
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">API Key</label>
-                      <p className="text-xs">{agent.api_key ? `${agent.api_key.substring(0, 8)}...` : 'Not specified'}</p>
+                      <div className="flex items-center space-x-1">
+                        <p className="text-xs">
+                          {agent.api_key ? 
+                            (showApiKey ? agent.api_key : '••••••••••••••••') : 
+                            'Not specified'
+                          }
+                        </p>
+                        {agent.api_key && (
+                          <button
+                            onClick={() => setShowApiKey(!showApiKey)}
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {showApiKey ? <EyeOff className="h-2.5 w-2.5" /> : <Eye className="h-2.5 w-2.5" />}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     
                     <div>
@@ -354,14 +371,23 @@ export function AgentDashboard() {
               <Label htmlFor="api_key" className="text-right">
                 API Key
               </Label>
-              <Input
-                id="api_key"
-                type="password"
-                value={basicInfoForm.api_key}
-                onChange={(e) => setBasicInfoForm(prev => ({ ...prev, api_key: e.target.value }))}
-                className="col-span-3"
-                placeholder="Enter API key"
-              />
+              <div className="col-span-3 relative">
+                <Input
+                  id="api_key"
+                  type={showApiKeyInEdit ? "text" : "password"}
+                  value={basicInfoForm.api_key}
+                  onChange={(e) => setBasicInfoForm(prev => ({ ...prev, api_key: e.target.value }))}
+                  className="pr-8"
+                  placeholder="Enter API key"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKeyInEdit(!showApiKeyInEdit)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showApiKeyInEdit ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
           <DialogFooter>
