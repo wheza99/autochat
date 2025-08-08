@@ -46,13 +46,13 @@ export function RegisterForm({
       const { error } = await signUp(email, password)
       
       if (error) {
-        toast.error('Registrasi gagal: ' + error.message)
+        toast.error('Registration failed: ' + error.message)
       } else {
-        toast.success('Registrasi berhasil! Silakan cek email untuk verifikasi.')
+        toast.success('Registration successful! Please check your email for verification.')
         router.push('/login')
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat registrasi')
+      toast.error('An error occurred during registration')
     } finally {
       setIsLoading(false)
     }
@@ -63,10 +63,10 @@ export function RegisterForm({
     try {
       const { error } = await signInWithGoogle()
       if (error) {
-        toast.error('Registrasi Google gagal: ' + error.message)
+        toast.error('Google registration failed: ' + error.message)
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat registrasi dengan Google')
+      toast.error('An error occurred during Google registration')
     } finally {
       setIsLoading(false)
     }
@@ -77,10 +77,10 @@ export function RegisterForm({
     try {
       const { error } = await signInWithApple()
       if (error) {
-        toast.error('Registrasi Apple gagal: ' + error.message)
+        toast.error('Apple registration failed: ' + error.message)
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat registrasi dengan Apple')
+      toast.error('An error occurred during Apple registration')
     } finally {
       setIsLoading(false)
     }

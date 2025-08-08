@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  User,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -50,13 +51,13 @@ export function NavUser({
     try {
       const { error } = await signOut()
       if (error) {
-        toast.error('Logout gagal: ' + error.message)
+        toast.error('Logout failed: ' + error.message)
       } else {
-        toast.success('Logout berhasil!')
+        toast.success('Logout successful!')
         router.push('/login')
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat logout')
+      toast.error('An error occurred during logout')
     }
   }
 
@@ -111,11 +112,11 @@ export function NavUser({
 
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+              <DropdownMenuItem onClick={() => router.push('/profile')}>
+                <User />
+                Edit Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/billing')}>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
