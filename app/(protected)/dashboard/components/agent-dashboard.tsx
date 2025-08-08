@@ -52,7 +52,7 @@ export function AgentDashboard() {
         .from('agents')
         .update({
           name: basicInfoForm.name,
-          phone: basicInfoForm.phone ? Number(basicInfoForm.phone) : null,
+          phone: basicInfoForm.phone || null,
           model: basicInfoForm.model,
           updated_at: new Date().toISOString()
         })
