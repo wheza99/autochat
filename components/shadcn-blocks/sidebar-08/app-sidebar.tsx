@@ -5,6 +5,8 @@ import * as React from "react";
 import {
   BookOpen,
   Bot,
+  Eye,
+  EyeOff,
   Frame,
   LifeBuoy,
   Map,
@@ -79,11 +81,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState(false);
   const [userProfile, setUserProfile] = React.useState<any>(null);
+  const [showApiKey, setShowApiKey] = React.useState(false);
   const [newAgentForm, setNewAgentForm] = React.useState({
     name: '',
     phone: '',
     model: '',
-    system_prompt: ''
+    system_prompt: '',
+    api_key: ''
   });
 
   // Load user profile from database
@@ -247,13 +251,42 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 placeholder="Enter system prompt instructions..."
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="agent-api-key" className="text-right">
+                API Key
+              </Label>
+              <div className="col-span-3 relative">
+                <Input
+                  id="agent-api-key"
+                  type={showApiKey ? "text" : "password"}
+                  value={newAgentForm.api_key}
+                  onChange={(e) => setNewAgentForm(prev => ({ ...prev, api_key: e.target.value }))}
+                  className="pr-10"
+                  placeholder="Enter API key (optional)"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button 
               variant="outline" 
               onClick={() => {
                 setIsAddAgentDialogOpen(false);
-                setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '' });
+                setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '', api_key: '' });
+                setShowApiKey(false);
               }}
               disabled={isCreating}
             >
@@ -292,6 +325,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           phone: formattedPhone,
           model: newAgentForm.model || null,
           system_prompt: newAgentForm.system_prompt.trim() || null,
+          api_key: newAgentForm.api_key.trim() || null,
           created_at: new Date().toISOString()
         })
         .select()
@@ -307,8 +341,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       await loadAgents();
       
       // Reset form and close dialog
-      setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '' });
+      setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '', api_key: '' });
       setIsAddAgentDialogOpen(false);
+      setShowApiKey(false);
       
       alert('Agent created successfully!');
     } catch (error) {
