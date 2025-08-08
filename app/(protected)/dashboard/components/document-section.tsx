@@ -166,7 +166,7 @@ export function DocumentSection() {
                     .from("source")
                     .getPublicUrl(fileName);
 
-                  // Save document metadata to database first to get storage_document_id
+                  // Save document metadata to database first to get source_id
                   setUploadProgress(65);
                   const { data: documentData, error: dbError } = await supabase
                     .from('source')
@@ -188,12 +188,12 @@ export function DocumentSection() {
                     return;
                   }
 
-                  // Now send to n8n with file URL, storage_document_id, and agent_id
+                  // Now send to n8n with file URL, source_id, and agent_id
                   const uploadFormData = new FormData();
                   uploadFormData.append("file", file);
                   uploadFormData.append("supabase_url", urlData.publicUrl);
                   uploadFormData.append("file_name", fileName);
-                  uploadFormData.append("storage_document_id", documentData.id);
+                  uploadFormData.append("source_id", documentData.id);
                   uploadFormData.append("agent_id", selectedAgent?.id || "");
 
                   setUploadProgress(80);
@@ -382,11 +382,11 @@ export function DocumentSection() {
                           e.stopPropagation();
                           if (confirm('Are you sure you want to delete this document?')) {
                             try {
-                              // Delete from documents table first (based on storage_document_id in metadata)
+                              // Delete from documents table first (based on source_id in metadata)
                               const { error: documentsError } = await supabase
                                 .from('documents')
                                 .delete()
-                                .contains('metadata', { storage_document_id: doc.id });
+                                .contains('metadata', { source_id: doc.id });
                               
                               if (documentsError) {
                                 console.error('Error deleting from documents table:', documentsError);
