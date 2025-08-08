@@ -178,9 +178,9 @@ export function AgentDashboard() {
 
       {/* Basic Information */}
       <Collapsible open={isBasicInfoOpen} onOpenChange={setIsBasicInfoOpen}>
-        <Card>
-          <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-2">
+        <CollapsibleTrigger asChild>
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardHeader className="py-2">
               <CardTitle className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
                   <Settings className="h-4 w-4" />
@@ -202,52 +202,52 @@ export function AgentDashboard() {
                 </div>
               </CardTitle>
             </CardHeader>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="space-y-2 py-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Name</label>
-                  <p className="text-xs truncate">{agent.name || 'Not specified'}</p>
-                </div>
-                
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
-                    <Phone className="h-3 w-3" />
-                    <span>Phone</span>
-                  </label>
-                  <p className="text-xs">{agent.phone || 'Not specified'}</p>
-                </div>
-                
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Model</label>
-                  <div className="mt-0.5">
-                    {agent.model ? (
-                      <Badge variant="secondary" className="text-xs px-1 py-0">{agent.model}</Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Not specified</span>
-                    )}
+            <CollapsibleContent>
+              <CardContent className="space-y-2 py-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Name</label>
+                    <p className="text-xs truncate">{agent.name || 'Not specified'}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
+                      <Phone className="h-3 w-3" />
+                      <span>Phone</span>
+                    </label>
+                    <p className="text-xs">{agent.phone || 'Not specified'}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Model</label>
+                    <div className="mt-0.5">
+                      {agent.model ? (
+                        <Badge variant="secondary" className="text-xs px-1 py-0">{agent.model}</Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Not specified</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>Created</span>
+                    </label>
+                    <p className="text-xs">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
                   </div>
                 </div>
-                
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>Created</span>
-                  </label>
-                  <p className="text-xs">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </CollapsibleTrigger>
       </Collapsible>
 
       {/* System Prompt */}
       <Collapsible open={isSystemPromptOpen} onOpenChange={setIsSystemPromptOpen}>
-        <Card>
-          <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-2">
+        <CollapsibleTrigger asChild>
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardHeader className="py-2">
               <CardTitle className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
                   <MessageSquare className="h-4 w-4" />
@@ -269,19 +269,19 @@ export function AgentDashboard() {
                 </div>
               </CardTitle>
             </CardHeader>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="py-2">
-              {agent.system_prompt ? (
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <pre className="text-xs whitespace-pre-wrap font-mono max-h-48 overflow-y-auto leading-relaxed">{agent.system_prompt}</pre>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground italic">No system prompt configured</p>
-              )}
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
+            <CollapsibleContent>
+              <CardContent className="py-2">
+                {agent.system_prompt ? (
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <pre className="text-xs whitespace-pre-wrap font-mono max-h-48 overflow-y-auto leading-relaxed">{agent.system_prompt}</pre>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">No system prompt configured</p>
+                )}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </CollapsibleTrigger>
       </Collapsible>
 
       {/* Basic Information Dialog */}
