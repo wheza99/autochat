@@ -43,11 +43,11 @@ export default function Testimonials() {
                   <CardContent className="p-6">
                     {/* Quote */}
                     <div className="mb-6">
-                      <div className="text-4xl text-primary mb-4">"</div>
+                      <div className="text-4xl text-primary mb-4">&ldquo;</div>
                       <p className="text-muted-foreground leading-relaxed italic">
                         {testimonial.content}
                       </p>
-                      <div className="text-4xl text-primary text-right">"</div>
+                      <div className="text-4xl text-primary text-right">&rdquo;</div>
                     </div>
 
                     {/* Author */}

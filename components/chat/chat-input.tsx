@@ -11,7 +11,7 @@ interface ChatInputProps {
   phone?: string | null;
 }
 
-export function ChatInput({ onSendMessage, phone }: ChatInputProps) {
+export function ChatInput({ onSendMessage }: ChatInputProps) {
   const [message, setMessage] = useState("");
 
   const handleSendMessage = () => {

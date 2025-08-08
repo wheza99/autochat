@@ -40,7 +40,7 @@ export function LoginForm({
         toast.success('Login successful!')
         router.push('/')
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during login')
     } finally {
       setIsLoading(false)
@@ -54,7 +54,7 @@ export function LoginForm({
       if (error) {
         toast.error('Google login failed: ' + error.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during Google login')
     } finally {
       setIsLoading(false)
@@ -68,7 +68,7 @@ export function LoginForm({
       if (error) {
         toast.error('Apple login failed: ' + error.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during Apple login')
     } finally {
       setIsLoading(false)

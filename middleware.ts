@@ -1,77 +1,44 @@
 // Middleware untuk autentikasi dan proteksi route aplikasi
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
-  })
+  });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          // This is used for setting cookies in the response
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: any) {
-          // This is used for removing cookies in the response
-          response.cookies.delete({
-            name,
-            ...options,
-          })
-        },
-      },
-    }
-  )
+  // Check for authentication tokens in cookies
+  const accessToken = request.cookies.get("sb-access-token")?.value;
+  const refreshToken = request.cookies.get("sb-refresh-token")?.value;
 
-  // Get the current session and refresh if needed
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession()
-    
-    // If there's an error getting the session, clear auth cookies
-    if (error) {
-      console.error('Session error in middleware:', error)
-      // Clear auth-related cookies
-      response.cookies.delete('sb-access-token')
-      response.cookies.delete('sb-refresh-token')
-    }
-    
-    // Check if we're accessing a protected route
-    const isProtectedRoute = request.nextUrl.pathname.startsWith('/(protected)')
-    const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || 
-                       request.nextUrl.pathname.startsWith('/register') ||
-                       request.nextUrl.pathname.startsWith('/forgot-password')
-    
-    // Redirect to login if accessing protected route without session
-    if (isProtectedRoute && !session) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    
-    // Redirect to dashboard if accessing auth routes with valid session
-    if (isAuthRoute && session) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  } catch (error) {
-    console.error('Middleware error:', error)
-    // Clear potentially corrupted auth cookies
-    response.cookies.delete('sb-access-token')
-    response.cookies.delete('sb-refresh-token')
+  // Simple token presence check (Edge Runtime compatible)
+  const hasValidTokens = accessToken && refreshToken;
+
+  // Check if we're accessing a protected route
+  const isProtectedRoute =
+    request.nextUrl.pathname.startsWith("/dashboard") ||
+    request.nextUrl.pathname.startsWith("/profile") ||
+    request.nextUrl.pathname.startsWith("/billing") ||
+    request.nextUrl.pathname.startsWith("/agent");
+
+  const isAuthRoute =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/register") ||
+    request.nextUrl.pathname.startsWith("/forgot-password");
+
+  // Redirect to login if accessing protected route without tokens
+  if (isProtectedRoute && !hasValidTokens) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return response
+  // Redirect to dashboard if accessing auth routes with valid tokens
+  if (isAuthRoute && hasValidTokens) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  return response;
 }
 
 export const config = {
@@ -83,6 +50,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public (public files)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
-}
+};

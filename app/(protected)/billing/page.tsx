@@ -1,9 +1,9 @@
 // Halaman billing untuk mengelola informasi pembayaran pengguna
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CreditCard, User } from 'lucide-react'
+import { ArrowLeft, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -61,13 +61,7 @@ export default function BillingPage() {
     country: ""
   })
 
-  useEffect(() => {
-    if (user) {
-      loadBillingInfo()
-    }
-  }, [user])
-
-  const loadBillingInfo = async () => {
+  const loadBillingInfo = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('billing_info')
@@ -98,7 +92,15 @@ export default function BillingPage() {
       console.error('Error loading billing info:', error)
       toast.error('Failed to load billing information')
     }
-  }
+  }, [user?.id])
+
+  useEffect(() => {
+    if (user) {
+      loadBillingInfo()
+    }
+  }, [user, loadBillingInfo])
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

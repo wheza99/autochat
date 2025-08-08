@@ -52,7 +52,7 @@ export function RegisterForm({
         toast.success('Registration successful! Please check your email for verification.')
         router.push('/login')
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during registration')
     } finally {
       setIsLoading(false)
@@ -66,7 +66,7 @@ export function RegisterForm({
       if (error) {
         toast.error('Google registration failed: ' + error.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during Google registration')
     } finally {
       setIsLoading(false)
@@ -80,7 +80,7 @@ export function RegisterForm({
       if (error) {
         toast.error('Apple registration failed: ' + error.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during Apple registration')
     } finally {
       setIsLoading(false)
