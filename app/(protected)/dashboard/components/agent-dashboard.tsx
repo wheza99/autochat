@@ -27,7 +27,8 @@ export function AgentDashboard() {
   const [basicInfoForm, setBasicInfoForm] = useState({
     name: '',
     phone: '',
-    model: ''
+    model: '',
+    api_key: ''
   })
   const [systemPromptForm, setSystemPromptForm] = useState('')
   const [statsForm, setStatsForm] = useState({
@@ -36,10 +37,16 @@ export function AgentDashboard() {
 
   const handleEditBasicInfo = () => {
     if (selectedAgent) {
+      // Remove @s.whatsapp.net suffix for display
+      const displayPhone = selectedAgent.phone 
+        ? String(selectedAgent.phone).replace('@s.whatsapp.net', '') 
+        : '';
+      
       setBasicInfoForm({
         name: selectedAgent.name || '',
-        phone: selectedAgent.phone ? String(selectedAgent.phone) : '',
-        model: selectedAgent.model || ''
+        phone: displayPhone,
+        model: selectedAgent.model || '',
+        api_key: selectedAgent.api_key || ''
       })
       setIsBasicInfoDialogOpen(true)
     }
@@ -49,12 +56,18 @@ export function AgentDashboard() {
     if (!selectedAgent) return
     
     try {
+      // Format phone number with WhatsApp suffix if provided
+      const formattedPhone = basicInfoForm.phone.trim() 
+        ? `${basicInfoForm.phone.trim()}@s.whatsapp.net`
+        : null;
+      
       const { data, error } = await supabase
         .from('agents')
         .update({
           name: basicInfoForm.name,
-          phone: basicInfoForm.phone || null,
+          phone: formattedPhone,
           model: basicInfoForm.model,
+          api_key: basicInfoForm.api_key || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', selectedAgent.id)
@@ -216,7 +229,7 @@ export function AgentDashboard() {
                         <Phone className="h-2.5 w-2.5" />
                         <span>Phone</span>
                       </label>
-                      <p className="text-xs">{agent.phone || 'Not specified'}</p>
+                      <p className="text-xs">{agent.phone ? agent.phone.replace('@s.whatsapp.net', '') : 'Not specified'}</p>
                     </div>
                     
                     <div>
@@ -228,6 +241,11 @@ export function AgentDashboard() {
                           <span className="text-xs text-muted-foreground">Not specified</span>
                         )}
                       </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">API Key</label>
+                      <p className="text-xs">{agent.api_key ? `${agent.api_key.substring(0, 8)}...` : 'Not specified'}</p>
                     </div>
                     
                     <div>
@@ -331,6 +349,19 @@ export function AgentDashboard() {
                   <SelectItem value="claude-3">Claude 3</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="api_key" className="text-right">
+                API Key
+              </Label>
+              <Input
+                id="api_key"
+                type="password"
+                value={basicInfoForm.api_key}
+                onChange={(e) => setBasicInfoForm(prev => ({ ...prev, api_key: e.target.value }))}
+                className="col-span-3"
+                placeholder="Enter API key"
+              />
             </div>
           </div>
           <DialogFooter>

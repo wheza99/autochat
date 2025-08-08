@@ -280,11 +280,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setIsCreating(true);
     
     try {
+      // Format phone number with WhatsApp suffix if provided
+      const formattedPhone = newAgentForm.phone.trim() 
+        ? `${newAgentForm.phone.trim()}@s.whatsapp.net`
+        : null;
+      
       const { data, error } = await supabase
         .from('agents')
         .insert({
           name: newAgentForm.name.trim(),
-          phone: newAgentForm.phone.trim() || null,
+          phone: formattedPhone,
           model: newAgentForm.model || null,
           system_prompt: newAgentForm.system_prompt.trim() || null,
           created_at: new Date().toISOString()

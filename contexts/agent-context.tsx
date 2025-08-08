@@ -11,6 +11,7 @@ interface Agent {
   model: string | null
   created_at: string
   updated_at: string | null
+  api_key: string | null
 }
 
 interface AgentContextType {
