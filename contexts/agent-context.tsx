@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 interface Agent {
   id: string
   name: string
-  phone: number | null
+  phone: string | null
   system_prompt: string | null
   model: string | null
   created_at: string

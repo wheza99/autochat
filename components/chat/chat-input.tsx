@@ -7,7 +7,7 @@ import { useState } from "react";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
-  phone?: number | null;
+  phone?: string | null;
 }
 
 export function ChatInput({ onSendMessage, phone }: ChatInputProps) {

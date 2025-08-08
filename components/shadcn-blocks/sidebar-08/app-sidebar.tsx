@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   BookOpen,
   Bot,
-  Command,
   Frame,
   LifeBuoy,
   Map,
@@ -14,6 +13,7 @@ import {
   SquareTerminal,
 } from "lucide-react";
 
+import { AppSwitcher } from "@/components/shadcn-blocks/sidebar-08/app-switcher";
 import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
 import { NavProjects } from "@/components/shadcn-blocks/sidebar-08/nav-projects";
 import { NavSecondary } from "@/components/shadcn-blocks/sidebar-08/nav-secondary";
@@ -23,9 +23,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -109,21 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Urbana Dashboard</span>
-                  <span className="truncate text-xs">Management System</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <AppSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavProjects />
