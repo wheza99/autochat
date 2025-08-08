@@ -198,7 +198,7 @@ export function DocumentSection() {
 
                   setUploadProgress(80);
                   const response = await fetch(
-                    "https://n8n.wheza.id/webhook-test/andy-update-rag",
+                    `${process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL}/update-rag`,
                     {
                       method: "POST",
                       body: uploadFormData,
@@ -323,7 +323,7 @@ export function DocumentSection() {
                       </h4>
                       <div className="flex items-center gap-1 mt-0.5">
                         <span className="text-xs bg-secondary px-1 py-0 rounded">
-                          {getFileType(doc.mime_type, doc.name)}
+                          {doc.mime_type || 'Unknown'}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           {formatDate(doc.created_at)}

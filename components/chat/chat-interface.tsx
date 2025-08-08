@@ -52,7 +52,7 @@ function ChatInterface() {
       // Hit webhook URL
       try {
         const response = await fetch(
-          "https://n8n.wheza.id/webhook-test/andy-flutterflow",
+          `${process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL}/whatsapp`,
           {
             method: "POST",
             headers: {
