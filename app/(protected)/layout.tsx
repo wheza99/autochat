@@ -13,13 +13,13 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const router = useRouter()
 
   useEffect(() => {
-    // Jika user belum login, redirect ke halaman login
+    // If user is not logged in, redirect to login page
     if (!loading && !user) {
       router.push('/login')
     }
   }, [user, loading, router])
 
-  // Tampilkan loading saat mengecek authentication status
+  // Show loading while checking authentication status
   if (loading) {
     return (
       <div className="flex min-h-svh items-center justify-center">
@@ -33,11 +33,11 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     )
   }
 
-  // Jika user belum login, jangan render children (akan redirect)
+  // If user is not logged in, don't render children (will redirect)
   if (!user) {
     return null
   }
 
-  // Render halaman protected untuk user yang sudah login
+  // Render protected page for logged in users
   return <>{children}</>
 }

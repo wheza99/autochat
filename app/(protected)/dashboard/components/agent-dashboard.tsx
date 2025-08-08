@@ -62,7 +62,7 @@ export function AgentDashboard() {
       
       if (error) {
         console.error('Error updating agent:', error)
-        alert('Gagal menyimpan perubahan. Silakan coba lagi.')
+        alert('Failed to save changes. Please try again.')
         return
       }
       
@@ -73,7 +73,7 @@ export function AgentDashboard() {
       setIsBasicInfoDialogOpen(false)
     } catch (error) {
       console.error('Unexpected error:', error)
-      alert('Terjadi kesalahan. Silakan coba lagi.')
+      alert('An error occurred. Please try again.')
     }
   }
 
@@ -100,7 +100,7 @@ export function AgentDashboard() {
       
       if (error) {
         console.error('Error updating agent:', error)
-        alert('Gagal menyimpan perubahan. Silakan coba lagi.')
+        alert('Failed to save changes. Please try again.')
         return
       }
       
@@ -178,108 +178,108 @@ export function AgentDashboard() {
 
       {/* Basic Information */}
       <Collapsible open={isBasicInfoOpen} onOpenChange={setIsBasicInfoOpen}>
-        <CollapsibleTrigger asChild>
-          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <CardHeader className="py-2">
-              <CardTitle className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-2">
-                  <Settings className="h-4 w-4" />
-                  <span>Basic Information</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-6 px-2"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleEditBasicInfo()
-                    }}
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isBasicInfoOpen ? 'rotate-180' : ''}`} />
-                </div>
-              </CardTitle>
-            </CardHeader>
+          <CollapsibleTrigger asChild>
+            <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+              <CardHeader className="py-1">
+                  <CardTitle className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-1">
+                      <Settings className="h-3.5 w-3.5" />
+                      <span>Basic Information</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-5 px-1.5"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEditBasicInfo()
+                        }}
+                      >
+                        <Edit className="h-2.5 w-2.5" />
+                      </Button>
+                      <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 ${isBasicInfoOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </CardTitle>
+                </CardHeader>
             <CollapsibleContent>
-              <CardContent className="space-y-2 py-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Name</label>
-                    <p className="text-xs truncate">{agent.name || 'Not specified'}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
-                      <Phone className="h-3 w-3" />
-                      <span>Phone</span>
-                    </label>
-                    <p className="text-xs">{agent.phone || 'Not specified'}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Model</label>
-                    <div className="mt-0.5">
-                      {agent.model ? (
-                        <Badge variant="secondary" className="text-xs px-1 py-0">{agent.model}</Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Not specified</span>
-                      )}
+              <CardContent className="space-y-1 py-1">
+                  <div className="grid grid-cols-2 gap-1">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Name</label>
+                      <p className="text-xs truncate">{agent.name || 'Not specified'}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground flex items-center space-x-0.5">
+                        <Phone className="h-2.5 w-2.5" />
+                        <span>Phone</span>
+                      </label>
+                      <p className="text-xs">{agent.phone || 'Not specified'}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Model</label>
+                      <div className="mt-0.5">
+                        {agent.model ? (
+                          <Badge variant="secondary" className="text-xs px-1 py-0 h-4">{agent.model}</Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Not specified</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground flex items-center space-x-0.5">
+                        <Calendar className="h-2.5 w-2.5" />
+                        <span>Created</span>
+                      </label>
+                      <p className="text-xs">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
                     </div>
                   </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>Created</span>
-                    </label>
-                    <p className="text-xs">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
-                  </div>
-                </div>
-              </CardContent>
+                </CardContent>
             </CollapsibleContent>
-          </Card>
-        </CollapsibleTrigger>
-      </Collapsible>
+            </Card>
+          </CollapsibleTrigger>
+        </Collapsible>
 
       {/* System Prompt */}
       <Collapsible open={isSystemPromptOpen} onOpenChange={setIsSystemPromptOpen}>
-        <CollapsibleTrigger asChild>
-          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <CardHeader className="py-2">
-              <CardTitle className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>System Prompt</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-6 px-2"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleEditSystemPrompt()
-                    }}
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isSystemPromptOpen ? 'rotate-180' : ''}`} />
-                </div>
-              </CardTitle>
-            </CardHeader>
+          <CollapsibleTrigger asChild>
+            <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+              <CardHeader className="py-1">
+                  <CardTitle className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-1">
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      <span>System Prompt</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-5 px-1.5"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEditSystemPrompt()
+                        }}
+                      >
+                        <Edit className="h-2.5 w-2.5" />
+                      </Button>
+                      <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 ${isSystemPromptOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </CardTitle>
+                </CardHeader>
             <CollapsibleContent>
-              <CardContent className="py-2">
-                {agent.system_prompt ? (
-                  <div className="bg-muted/50 rounded-lg p-3">
-                    <pre className="text-xs whitespace-pre-wrap font-mono max-h-48 overflow-y-auto leading-relaxed">{agent.system_prompt}</pre>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">No system prompt configured</p>
-                )}
-              </CardContent>
-            </CollapsibleContent>
+               <CardContent className="py-1">
+                   {agent.system_prompt ? (
+                     <div className="bg-muted/50 rounded-md p-1.5">
+                       <pre className="text-xs whitespace-pre-wrap font-mono max-h-24 overflow-y-auto leading-relaxed">{agent.system_prompt}</pre>
+                     </div>
+                   ) : (
+                     <p className="text-xs text-muted-foreground italic">No system prompt configured</p>
+                   )}
+                 </CardContent>
+             </CollapsibleContent>
           </Card>
         </CollapsibleTrigger>
       </Collapsible>

@@ -14,13 +14,13 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   const router = useRouter()
 
   useEffect(() => {
-    // Jika user sudah login, redirect ke dashboard
+    // If user is already logged in, redirect to dashboard
     if (!loading && user) {
       router.push('/dashboard')
     }
   }, [user, loading, router])
 
-  // Tampilkan loading saat mengecek authentication status
+  // Show loading while checking authentication status
   if (loading) {
     return (
       <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -39,12 +39,12 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     )
   }
 
-  // Jika user sudah login, jangan render children (akan redirect)
+  // If user is already logged in, don't render children (will redirect)
   if (user) {
     return null
   }
 
-  // Render halaman auth untuk user yang belum login
+  // Render auth page for users who are not logged in
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">

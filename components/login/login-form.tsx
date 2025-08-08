@@ -34,13 +34,13 @@ export function LoginForm({
       const { error } = await signIn(email, password)
       
       if (error) {
-        toast.error('Login gagal: ' + error.message)
+        toast.error('Login failed: ' + error.message)
       } else {
-        toast.success('Login berhasil!')
+        toast.success('Login successful!')
         router.push('/')
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat login')
+      toast.error('An error occurred during login')
     } finally {
       setIsLoading(false)
     }
@@ -51,10 +51,10 @@ export function LoginForm({
     try {
       const { error } = await signInWithGoogle()
       if (error) {
-        toast.error('Login Google gagal: ' + error.message)
+        toast.error('Google login failed: ' + error.message)
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat login dengan Google')
+      toast.error('An error occurred during Google login')
     } finally {
       setIsLoading(false)
     }
@@ -65,10 +65,10 @@ export function LoginForm({
     try {
       const { error } = await signInWithApple()
       if (error) {
-        toast.error('Login Apple gagal: ' + error.message)
+        toast.error('Apple login failed: ' + error.message)
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat login dengan Apple')
+      toast.error('An error occurred during Apple login')
     } finally {
       setIsLoading(false)
     }

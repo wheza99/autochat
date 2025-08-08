@@ -74,7 +74,7 @@ export function DocumentSidebar({ documents }: DocumentSidebarProps) {
                     );
 
                     if (response.ok) {
-                      alert("File berhasil diupload!");
+                      alert("File uploaded successfully!");
                       // Reset form safely
                       const form = e.currentTarget;
                       if (form) {
@@ -83,18 +83,18 @@ export function DocumentSidebar({ documents }: DocumentSidebarProps) {
                       // Close dialog
                       setIsDialogOpen(false);
                     } else {
-                      alert("Gagal mengupload file");
+                      alert("Failed to upload file");
                     }
                   } catch (error) {
                     console.error("Error uploading file:", error);
-                    alert("Terjadi kesalahan saat mengupload file");
+                    alert("An error occurred while uploading file");
                   }
                 }}
               >
                 <DialogHeader>
-                  <DialogTitle>Upload Dokumen</DialogTitle>
+                  <DialogTitle>Upload Document</DialogTitle>
                   <DialogDescription>
-                    Pilih file yang ingin Anda upload ke sistem RAG.
+                    Select the file you want to upload to the RAG system.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4">
@@ -111,13 +111,13 @@ export function DocumentSidebar({ documents }: DocumentSidebarProps) {
                       <Upload className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Format yang didukung: PDF, DOC, DOCX, TXT, CSV, XLSX, PPTX
+                      Supported formats: PDF, DOC, DOCX, TXT, CSV, XLSX, PPTX
                     </p>
                   </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
-                    <Button variant="outline">Batal</Button>
+                    <Button variant="outline">Cancel</Button>
                   </DialogClose>
                   <Button type="submit">Upload File</Button>
                 </DialogFooter>
