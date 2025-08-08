@@ -22,7 +22,7 @@ import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
 import { AgentDashboard } from "./agent-dashboard";
 
-// Interface untuk dokumen dari database
+// Interface for documents from database
 interface Document {
   id: string;
   name: string | null;
@@ -96,7 +96,7 @@ export function DocumentSection() {
 
   // Helper function to format date
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('id-ID');
+    return new Date(dateString).toLocaleDateString('en-US');
   };
 
   const filteredDocuments = documents.filter((doc) =>
@@ -106,12 +106,12 @@ export function DocumentSection() {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold">Dokumen</h3>
+        <h3 className="text-sm font-semibold">Documents</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" disabled={!selectedAgent} className="h-7 px-2">
               <Plus className="h-3 w-3 mr-1" />
-              <span className="text-xs">Tambah</span>
+              <span className="text-xs">Add</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -122,7 +122,7 @@ export function DocumentSection() {
                 const file = formData.get("file") as File;
 
                 if (!file || file.size === 0) {
-                  alert("Silakan pilih file terlebih dahulu");
+                  alert("Please select a file first");
                   return;
                 }
 
@@ -157,7 +157,7 @@ export function DocumentSection() {
 
                   if (uploadError) {
                     console.error("Supabase upload error:", uploadError);
-                    alert("Gagal menyimpan file ke storage");
+                    alert("Failed to save file to storage");
                     return;
                   }
 
@@ -182,7 +182,7 @@ export function DocumentSection() {
 
                   if (dbError) {
                     console.error('Error saving to database:', dbError);
-                    alert('Gagal menyimpan metadata ke database');
+                    alert('Failed to save metadata to database');
                     // Delete uploaded file from storage if database save fails
                     await supabase.storage.from("source").remove([fileName]);
                     return;
@@ -208,7 +208,7 @@ export function DocumentSection() {
 
                   if (response.ok) {
                     setUploadProgress(100);
-                    alert("File berhasil diupload dan disimpan!");
+                    alert("File successfully uploaded and saved!");
                     // Refresh documents list
                     fetchDocuments();
                     
@@ -220,14 +220,14 @@ export function DocumentSection() {
                     // Close dialog
                     setIsDialogOpen(false);
                   } else {
-                    alert("Gagal mengupload file ke n8n");
+                    alert("Failed to upload file to n8n");
                     // Delete from database and storage if n8n fails
                     await supabase.from('source').delete().eq('id', documentData.id);
                     await supabase.storage.from("source").remove([fileName]);
                   }
                 } catch (error) {
                   console.error("Error uploading file:", error);
-                  alert("Terjadi kesalahan saat mengupload file");
+                  alert("An error occurred while uploading file");
                 } finally {
                   setIsUploading(false);
                   setUploadProgress(0);
@@ -235,9 +235,9 @@ export function DocumentSection() {
               }}
             >
               <DialogHeader>
-                <DialogTitle>Upload Dokumen</DialogTitle>
+                <DialogTitle>Upload Document</DialogTitle>
                 <DialogDescription>
-                  Pilih file yang ingin Anda upload ke sistem RAG.
+                  Select the file you want to upload to the RAG system.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4">
@@ -255,28 +255,28 @@ export function DocumentSection() {
                     <Upload className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Format yang didukung: PDF, DOC, DOCX, TXT, CSV, XLSX, PPTX
+                    Supported formats: PDF, DOC, DOCX, TXT, CSV, XLSX, PPTX
                   </p>
                 </div>
                 {isUploading && (
                   <div className="grid gap-2">
-                    <Label className="text-sm">Progress Upload</Label>
+                    <Label className="text-sm">Upload Progress</Label>
                     <Progress value={uploadProgress} className="w-full" />
                     <p className="text-xs text-muted-foreground text-center">
-                      {uploadProgress}% - {uploadProgress < 25 ? 'Mempersiapkan file...' : 
-                       uploadProgress < 50 ? 'Mengupload ke storage...' :
-                       uploadProgress < 65 ? 'Menyimpan metadata...' :
-                       uploadProgress < 95 ? 'Memproses RAG...' : 'Menyelesaikan...'}
+                      {uploadProgress}% - {uploadProgress < 25 ? 'Preparing file...' : 
+                       uploadProgress < 50 ? 'Uploading to storage...' :
+                       uploadProgress < 65 ? 'Saving metadata...' :
+                       uploadProgress < 95 ? 'Processing RAG...' : 'Finalizing...'}
                     </p>
                   </div>
                 )}
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline" disabled={isUploading}>Batal</Button>
+                  <Button variant="outline" disabled={isUploading}>Cancel</Button>
                 </DialogClose>
                 <Button type="submit" disabled={isUploading}>
-                  {isUploading ? 'Mengupload...' : 'Upload File'}
+                  {isUploading ? 'Uploading...' : 'Upload File'}
                 </Button>
               </DialogFooter>
             </form>
@@ -287,7 +287,7 @@ export function DocumentSection() {
       <div className="relative">
         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
         <Input
-          placeholder="Cari dokumen..."
+          placeholder="Search documents..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-7 h-8 text-xs"
@@ -298,12 +298,12 @@ export function DocumentSection() {
         <div className="space-y-1">
           {loading ? (
             <div className="flex items-center justify-center py-4">
-              <div className="text-xs text-muted-foreground">Memuat dokumen...</div>
+              <div className="text-xs text-muted-foreground">Loading documents...</div>
             </div>
           ) : filteredDocuments.length === 0 ? (
             <div className="flex items-center justify-center py-4">
               <div className="text-xs text-muted-foreground">
-                {searchTerm ? 'Tidak ada dokumen yang ditemukan' : 'Belum ada dokumen'}
+                {searchTerm ? 'No documents found' : 'No documents yet'}
               </div>
             </div>
           ) : (
@@ -317,9 +317,9 @@ export function DocumentSection() {
                     <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-xs truncate">
-                        {(doc.name || 'Dokumen Tanpa Nama').length > 20 
-                          ? (doc.name || 'Dokumen Tanpa Nama').substring(0, 20) + '...' 
-                          : (doc.name || 'Dokumen Tanpa Nama')}
+                        {(doc.name || 'Untitled Document').length > 20 
+                          ? (doc.name || 'Untitled Document').substring(0, 20) + '...' 
+                          : (doc.name || 'Untitled Document')}
                       </h4>
                       <div className="flex items-center gap-1 mt-0.5">
                         <span className="text-xs bg-secondary px-1 py-0 rounded">
@@ -341,7 +341,7 @@ export function DocumentSection() {
                             window.open(doc.url, '_blank');
                           }
                         }}
-                        title="Lihat dokumen"
+                        title="View document"
                       >
                         <FileText className="h-3 w-3" />
                       </Button>
@@ -366,11 +366,11 @@ export function DocumentSection() {
                               document.body.removeChild(a);
                             } catch (error) {
                               console.error('Error downloading file:', error);
-                              alert('Gagal mendownload file');
+                              alert('Failed to download file');
                             }
                           }
                         }}
-                        title="Download dokumen"
+                        title="Download document"
                       >
                         <Download className="h-3 w-3" />
                       </Button>
@@ -380,7 +380,7 @@ export function DocumentSection() {
                         className="h-6 w-6 p-0 text-destructive hover:text-destructive"
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
+                          if (confirm('Are you sure you want to delete this document?')) {
                             try {
                               // Delete from documents table first (based on storage_document_id in metadata)
                               const { error: documentsError } = await supabase
@@ -411,19 +411,19 @@ export function DocumentSection() {
                               
                               if (dbError) {
                                 console.error('Error deleting from database:', dbError);
-                                alert('Gagal menghapus dokumen dari database');
+                                alert('Failed to delete document from database');
                               } else {
-                                alert('Dokumen berhasil dihapus!');
+                                alert('Document successfully deleted!');
                                 // Refresh documents list
                                 fetchDocuments();
                               }
                             } catch (error) {
                               console.error('Error deleting document:', error);
-                              alert('Terjadi kesalahan saat menghapus dokumen');
+                              alert('An error occurred while deleting document');
                             }
                           }
                         }}
-                        title="Hapus dokumen"
+                        title="Delete document"
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>

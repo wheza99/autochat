@@ -59,8 +59,7 @@ export function SidebarRight({
         <div className="px-2">
           <AgentDashboard />
         </div>
-        <SidebarSeparator className="mx-2 my-3" />
-        <div className="px-2">
+        <div className="px-2 pt-8">
           <DocumentSection />
         </div>
       </SidebarContent>
