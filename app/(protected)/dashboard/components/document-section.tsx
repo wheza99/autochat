@@ -54,7 +54,7 @@ export function DocumentSection() {
       }
       
       const { data, error } = await supabase
-        .from('storage_documents')
+        .from('source')
         .select('*')
         .eq('agent_id', selectedAgent.id)
         .order('created_at', { ascending: false });
@@ -148,7 +148,7 @@ export function DocumentSection() {
                   setUploadProgress(25);
                   const { data: uploadData, error: uploadError } =
                     await supabase.storage
-                      .from("documents")
+                      .from("source")
                       .upload(fileName, file, {
                         cacheControl: "3600",
                         upsert: false,
@@ -163,13 +163,13 @@ export function DocumentSection() {
 
                   // Get public URL from Supabase
                   const { data: urlData } = supabase.storage
-                    .from("documents")
+                    .from("source")
                     .getPublicUrl(fileName);
 
                   // Save document metadata to database first to get storage_document_id
                   setUploadProgress(65);
                   const { data: documentData, error: dbError } = await supabase
-                    .from('storage_documents')
+                    .from('source')
                     .insert({
                       name: file.name,
                       url: urlData.publicUrl,
@@ -184,7 +184,7 @@ export function DocumentSection() {
                     console.error('Error saving to database:', dbError);
                     alert('Gagal menyimpan metadata ke database');
                     // Delete uploaded file from storage if database save fails
-                    await supabase.storage.from("documents").remove([fileName]);
+                    await supabase.storage.from("source").remove([fileName]);
                     return;
                   }
 
@@ -222,8 +222,8 @@ export function DocumentSection() {
                   } else {
                     alert("Gagal mengupload file ke n8n");
                     // Delete from database and storage if n8n fails
-                    await supabase.from('storage_documents').delete().eq('id', documentData.id);
-                    await supabase.storage.from("documents").remove([fileName]);
+                    await supabase.from('source').delete().eq('id', documentData.id);
+                    await supabase.storage.from("source").remove([fileName]);
                   }
                 } catch (error) {
                   console.error("Error uploading file:", error);
@@ -395,7 +395,7 @@ export function DocumentSection() {
                               // Delete from Supabase storage
                               if (doc.file_path) {
                                 const { error: storageError } = await supabase.storage
-                                  .from('documents')
+                                  .from('source')
                                   .remove([doc.file_path]);
                                 
                                 if (storageError) {
@@ -403,9 +403,9 @@ export function DocumentSection() {
                                 }
                               }
                               
-                              // Delete from storage_documents database
+                              // Delete from source database
                               const { error: dbError } = await supabase
-                                .from('storage_documents')
+                                .from('source')
                                 .delete()
                                 .eq('id', doc.id);
                               
