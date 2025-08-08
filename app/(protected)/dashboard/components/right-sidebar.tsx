@@ -1,3 +1,4 @@
+// Sidebar kanan yang menampilkan dashboard agent dan dokumen
 import * as React from "react";
 import { AgentDashboard } from "./agent-dashboard";
 import { DocumentSection } from "./document-section";

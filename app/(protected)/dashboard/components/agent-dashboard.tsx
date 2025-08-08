@@ -1,3 +1,4 @@
+// Komponen dashboard untuk mengelola informasi dan pengaturan agent
 "use client"
 
 import { useState } from "react"

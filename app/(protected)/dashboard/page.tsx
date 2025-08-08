@@ -1,3 +1,4 @@
+// Halaman dashboard utama dengan chat interface dan sidebar
 "use client";
 
 import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";

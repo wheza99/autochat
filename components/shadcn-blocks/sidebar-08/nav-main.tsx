@@ -1,3 +1,4 @@
+// Komponen navigasi utama sidebar dengan menu collapsible
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"

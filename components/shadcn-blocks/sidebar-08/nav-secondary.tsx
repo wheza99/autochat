@@ -1,3 +1,4 @@
+// Komponen navigasi sekunder untuk menu support dan feedback
 import * as React from "react"
 import { type LucideIcon } from "lucide-react"
 

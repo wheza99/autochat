@@ -1,3 +1,4 @@
+// Sidebar utama aplikasi dengan navigasi dan manajemen agent
 "use client";
 
 import * as React from "react";

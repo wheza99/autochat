@@ -1,3 +1,4 @@
+// Komponen form login dengan autentikasi email dan sosial
 'use client'
 
 import { useState } from 'react'

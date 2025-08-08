@@ -1,3 +1,4 @@
+// Layout untuk halaman yang memerlukan autentikasi pengguna
 'use client'
 
 import React, { useEffect } from 'react'

@@ -1,3 +1,4 @@
+// Halaman landing utama dengan komponen hero dan fitur
 import Hero from "@/components/landing/hero";
 import Features from "@/components/landing/features";
 import Stats from "@/components/landing/stats";

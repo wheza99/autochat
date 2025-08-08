@@ -1,3 +1,4 @@
+// Layout autentikasi dengan redirect otomatis untuk user login
 'use client'
 
 import React, { useEffect } from 'react'

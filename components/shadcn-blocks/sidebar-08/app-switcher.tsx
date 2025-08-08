@@ -1,3 +1,4 @@
+// Komponen switcher untuk memilih plan aplikasi AutoChat
 "use client"
 
 import * as React from "react"

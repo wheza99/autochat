@@ -1,3 +1,4 @@
+// Sidebar untuk mengelola dokumen dengan fitur upload dan pencarian
 "use client";
 
 import { Button } from "@/components/ui/button";

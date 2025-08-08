@@ -1,3 +1,4 @@
+// Halaman callback untuk menangani proses autentikasi OAuth
 'use client'
 
 import { useEffect } from 'react'

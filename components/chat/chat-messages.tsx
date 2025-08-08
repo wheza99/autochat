@@ -1,3 +1,4 @@
+// Komponen untuk menampilkan daftar pesan chat dengan scroll
 "use client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";

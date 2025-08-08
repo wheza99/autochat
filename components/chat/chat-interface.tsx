@@ -1,3 +1,4 @@
+// Interface chat utama dengan manajemen pesan dan webhook
 import React, { useState, useEffect } from 'react'
 import { ChatMessages } from './chat-messages'
 import { ChatInput } from './chat-input'

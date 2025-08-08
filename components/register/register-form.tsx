@@ -1,3 +1,4 @@
+// Komponen form registrasi dengan autentikasi email dan sosial
 'use client'
 
 import { useState } from 'react'
