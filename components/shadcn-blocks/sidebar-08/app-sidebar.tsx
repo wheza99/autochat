@@ -10,6 +10,9 @@ import {
   Map,
   PieChart,
   Plus,
+  QrCode,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
 
 import { NavProjects } from "@/components/shadcn-blocks/sidebar-08/nav-projects";
@@ -27,6 +30,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { useAgent } from "@/contexts/agent-context";
@@ -84,6 +89,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     system_prompt: '',
     api_key: ''
   });
+  const [qrData, setQrData] = React.useState<string | null>(null);
+  const [sessionData, setSessionData] = React.useState<any>(null);
+  const [isGeneratingQR, setIsGeneratingQR] = React.useState(false);
+  const [isConnected, setIsConnected] = React.useState(false);
+  const [pollingInterval, setPollingInterval] = React.useState<NodeJS.Timeout | null>(null);
 
   // Load user profile from database
   const loadUserProfile = React.useCallback(async () => {
@@ -141,6 +151,111 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       delete (window as Window & { reloadUserProfile?: () => Promise<void> }).reloadUserProfile;
     };
   }, [loadUserProfile]);
+
+  // Generate QR Code for WhatsApp connection
+  const generateQRCode = async () => {
+    setIsGeneratingQR(true);
+    try {
+      const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
+      const response = await fetch('https://app.notif.my.id/ss/scanorpairing', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('QR Generated:', data);
+        setQrData(data.qr);
+        setSessionData(data);
+        
+        // Start polling for connection status
+        startPolling(data.session);
+      } else {
+        console.error('Failed to generate QR code');
+        alert('Failed to generate QR code. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      alert('Error generating QR code. Please try again.');
+    } finally {
+      setIsGeneratingQR(false);
+    }
+  };
+
+  // Start polling for connection status
+  const startPolling = (sessionId: string) => {
+    // Clear existing interval
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
+        const response = await fetch(`https://app.notif.my.id/ss/status/${sessionId}`, {
+          headers: {
+            'Authorization': `Basic ${credentials}`
+          }
+        });
+        
+        if (response.ok) {
+          const statusData = await response.json();
+          console.log('Status Check:', statusData);
+          
+          if (statusData.status === 'connected' && statusData.phone) {
+            console.log('WhatsApp Connected Successfully:', statusData);
+            
+            // Auto-fill form with connection data
+            const phoneNumber = statusData.phone.replace('@s.whatsapp.net', '');
+            setNewAgentForm(prev => ({
+              ...prev,
+              phone: phoneNumber,
+              api_key: sessionData?.apikey || ''
+            }));
+            
+            setIsConnected(true);
+            clearInterval(interval);
+            setPollingInterval(null);
+            
+            alert('WhatsApp connected successfully! Phone and API key have been auto-filled.');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking status:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    setPollingInterval(interval);
+    
+    // Stop polling after 2 minutes
+    setTimeout(() => {
+      clearInterval(interval);
+      setPollingInterval(null);
+    }, 120000);
+  };
+
+  // Cleanup polling on unmount or dialog close
+  React.useEffect(() => {
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [pollingInterval]);
+
+  // Reset QR state when dialog closes
+  const resetQRState = () => {
+    setQrData(null);
+    setSessionData(null);
+    setIsConnected(false);
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -210,6 +325,73 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 placeholder="Enter agent name"
               />
             </div>
+            {/* WhatsApp QR Code Section */}
+            <div className="col-span-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <QrCode className="h-4 w-4" />
+                    <span>WhatsApp Connection</span>
+                    {isConnected && (
+                      <Badge variant="default" className="text-xs">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Connected
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Generate QR code to connect WhatsApp and auto-fill phone & API key
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={generateQRCode}
+                    disabled={isGeneratingQR || isConnected}
+                  >
+                    {isGeneratingQR ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : isConnected ? (
+                      <>
+                        <CheckCircle className="h-3 w-3 mr-2" />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        <QrCode className="h-3 w-3 mr-2" />
+                        Generate QR Code
+                      </>
+                    )}
+                  </Button>
+                  
+                  {qrData && !isConnected && (
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="p-2 bg-white rounded border">
+                        <img 
+                          src={qrData} 
+                          alt="WhatsApp QR Code" 
+                          className="w-32 h-32 object-contain"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Scan with WhatsApp mobile app
+                      </p>
+                      {sessionData && (
+                        <p className="text-xs text-muted-foreground text-center font-mono">
+                          Session: {sessionData.session}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="agent-phone" className="text-right">
                 Phone
@@ -219,7 +401,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 value={newAgentForm.phone}
                 onChange={(e) => setNewAgentForm(prev => ({ ...prev, phone: e.target.value }))}
                 className="col-span-3"
-                placeholder="Enter phone number"
+                placeholder="Enter phone number or scan QR"
+                readOnly={isConnected}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -260,7 +443,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   value={newAgentForm.api_key}
                   onChange={(e) => setNewAgentForm(prev => ({ ...prev, api_key: e.target.value }))}
                   className="pr-10"
-                  placeholder="Enter API key (optional)"
+                  placeholder="Enter API key or scan QR"
+                  readOnly={isConnected}
                 />
                 <Button
                   type="button"
@@ -285,6 +469,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 setIsAddAgentDialogOpen(false);
                 setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '', api_key: '' });
                 setShowApiKey(false);
+                resetQRState();
               }}
               disabled={isCreating}
             >
@@ -348,6 +533,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '', api_key: '' });
       setIsAddAgentDialogOpen(false);
       setShowApiKey(false);
+      resetQRState();
       
       alert('Agent created successfully!');
     } catch (error) {

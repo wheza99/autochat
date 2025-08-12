@@ -17,15 +17,6 @@ interface Device {
   api_key: string | null
 }
 
-interface UserDeviceLimit {
-  id: string
-  user_id: string
-  max_devices: number
-  plan_type: string
-  created_at: string
-  updated_at: string
-}
-
 interface DeviceStats {
   totalDevices: number
   activeDevices: number
@@ -45,24 +36,39 @@ export function useDevice() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Get stable device fingerprint
+  // Get stable device fingerprint with localStorage persistence
   const getDeviceFingerprint = useCallback(() => {
-    // Use more stable identifiers that don't change frequently
+    // Check if we already have a stored device ID for this browser
+    const storedDeviceId = localStorage.getItem('device_fingerprint')
+    
+    if (storedDeviceId) {
+      return storedDeviceId
+    }
+    
+    // Generate new fingerprint only if not stored
+    // Use a fixed timestamp for browser installation time to ensure consistency
+    const browserInstallTime = localStorage.getItem('browser_install_time') || Date.now().toString()
+    localStorage.setItem('browser_install_time', browserInstallTime)
+    
     const stableInfo = {
       userAgent: navigator.userAgent.replace(/\s+/g, ' ').trim(),
       language: navigator.language,
       platform: navigator.platform,
       screenResolution: `${screen.width}x${screen.height}`,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      // Remove canvas fingerprint as it can be inconsistent
       hardwareConcurrency: navigator.hardwareConcurrency || 0,
-      maxTouchPoints: navigator.maxTouchPoints || 0
+      maxTouchPoints: navigator.maxTouchPoints || 0,
+      // Use stored timestamp to ensure consistency
+      browserInstallTime: browserInstallTime
     }
     
-    // Create a more stable hash
+    // Create a stable hash
     const fingerprint = btoa(JSON.stringify(stableInfo))
       .replace(/[+/=]/g, '') // Remove special chars
       .slice(0, 32)
+    
+    // Store in localStorage for persistence across sessions
+    localStorage.setItem('device_fingerprint', fingerprint)
     
     return fingerprint
   }, [])
@@ -94,105 +100,16 @@ export function useDevice() {
     }
   }, [])
 
-  // Register current device with cleanup
+  // Register current device with cleanup (DISABLED - Display only)
   const registerDevice = useCallback(async () => {
     if (!user) return
     
-    try {
-      const deviceId = getDeviceFingerprint()
-      const deviceInfo = getDeviceInfo()
-      const now = new Date().toISOString()
-      
-      // First, cleanup old inactive devices (older than 30 days)
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-      await supabase
-        .from('device')
-        .delete()
-        .eq('user_id', user.id)
-        .lt('last_active', thirtyDaysAgo)
-        .eq('is_active', false)
-      
-      // Check if current device already exists
-      const { data: existingDevice } = await supabase
-        .from('device')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('device_id', deviceId)
-        .single()
-      
-      if (existingDevice) {
-        // Update existing device
-        await supabase
-          .from('device')
-          .update({ 
-            last_active: now,
-            is_active: true,
-            device_name: deviceInfo.deviceName, // Update name in case browser changed
-            device_type: deviceInfo.deviceType,
-            updated_at: now
-          })
-          .eq('id', existingDevice.id)
-      } else {
-        // Before registering new device, check device limit
-        const { data: devices } = await supabase
-          .from('device')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-        
-        const { data: limits } = await supabase
-          .from('user_device_limits')
-          .select('max_devices')
-          .eq('user_id', user.id)
-          .single()
-        
-        const maxDevices = limits?.max_devices || 5
-        const currentDeviceCount = devices?.length || 0
-        
-        if (currentDeviceCount >= maxDevices) {
-          // Deactivate oldest device to make room
-          const { data: oldestDevice } = await supabase
-            .from('device')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('is_active', true)
-            .order('last_active', { ascending: true })
-            .limit(1)
-            .single()
-          
-          if (oldestDevice) {
-            await supabase
-              .from('device')
-              .update({ is_active: false, updated_at: now })
-              .eq('id', oldestDevice.id)
-          }
-        }
-        
-        // Register new device
-        await supabase
-          .from('device')
-          .insert({
-            user_id: user.id,
-            device_id: deviceId,
-            device_name: deviceInfo.deviceName,
-            device_type: deviceInfo.deviceType,
-            phone_number: null,
-            last_active: now,
-            is_active: true,
-            created_at: now,
-            updated_at: now,
-            api_key: null
-          })
-      }
-      
-      // Refresh device list after registration
-      await loadDevices()
-    } catch (error) {
-      console.error('Error registering device:', error)
-    }
-  }, [user, getDeviceFingerprint, getDeviceInfo])
+    console.log('🔍 Device registration disabled - display only mode')
+    // Device registration is disabled for now
+    return
+  }, [user])
 
-  // Load devices with real-time filtering
+  // Load devices with real-time filtering (DISABLED - Display only)
   const loadDevices = useCallback(async () => {
     if (!user) {
       setDevices([])
@@ -206,239 +123,67 @@ export function useDevice() {
       return
     }
     
-    try {
-      setLoading(true)
-      setError(null)
-      
-      // Load only active devices for current user
-      const { data: devicesData, error: devicesError } = await supabase
-        .from('device')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true) // Only show active devices
-        .order('last_active', { ascending: false })
-      
-      if (devicesError) throw devicesError
-      
-      // Load device limits
-      let limitsData = null
-      const { data: existingLimits, error: limitsError } = await supabase
-        .from('user_device_limits')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-      
-      if (limitsError && limitsError.code === 'PGRST116') {
-        // If no limits found, create default
-        const { data: newLimits } = await supabase
-          .from('user_device_limits')
-          .insert({
-            user_id: user.id,
-            max_devices: 5,
-            plan_type: 'free',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single()
-        
-        limitsData = newLimits || { max_devices: 5, plan_type: 'free' }
-      } else {
-        limitsData = existingLimits
+    console.log('🔍 Device loading disabled - using dummy data for display')
+    
+    // Set dummy data for display only
+    const dummyDevices = [
+      {
+        id: 'dummy-1',
+        user_id: user.id,
+        device_name: 'Chrome Browser (desktop)',
+        device_type: 'desktop',
+        device_id: 'dummy-device-id-1',
+        phone_number: null,
+        last_active: new Date().toISOString(),
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        api_key: null
       }
-      
-      const devices = devicesData || []
-      const limits = limitsData || { max_devices: 5, plan_type: 'free' }
-      
-      setDevices(devices)
-      setDeviceStats({
-        totalDevices: devices.length,
-        activeDevices: devices.length, // All loaded devices are active
-        maxDevices: limits.max_devices,
-        planType: limits.plan_type
-      })
-      
-    } catch (error) {
-      console.error('Error loading devices:', error)
-      setError('Failed to load devices')
-    } finally {
-      setLoading(false)
-    }
+    ]
+    
+    setDevices(dummyDevices)
+    setDeviceStats({
+      totalDevices: 1,
+      activeDevices: 1,
+      maxDevices: 5,
+      planType: 'free'
+    })
+    setLoading(false)
   }, [user])
 
-  // Remove device
+  // Remove device (DISABLED - Display only)
   const removeDevice = useCallback(async (deviceId: string) => {
-    try {
-      const { error } = await supabase
-        .from('device')
-        .delete()
-        .eq('id', deviceId)
-        .eq('user_id', user?.id)
-      
-      if (error) throw error
-      
-      await loadDevices()
-    } catch (error) {
-      console.error('Error removing device:', error)
-      setError('Failed to remove device')
-    }
-  }, [user, loadDevices])
+    console.log('🔍 Device removal disabled - display only mode')
+    alert('Device removal is currently disabled for display purposes')
+  }, [])  
 
-  // Update device status
+  // Update device status (DISABLED - Display only)
   const updateDeviceStatus = useCallback(async (deviceId: string, isActive: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('device')
-        .update({ 
-          is_active: isActive,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', deviceId)
-        .eq('user_id', user?.id)
-      
-      if (error) throw error
-      
-      await loadDevices()
-    } catch (error) {
-      console.error('Error updating device status:', error)
-      setError('Failed to update device status')
-    }
-  }, [user, loadDevices])
+    console.log('🔍 Device status update disabled - display only mode')
+    alert('Device status update is currently disabled for display purposes')
+  }, [])
 
-  // Update device heartbeat
+  // Update device heartbeat (DISABLED - Display only)
   const updateHeartbeat = useCallback(async () => {
-    if (!user) return
-    
-    try {
-      const deviceId = getDeviceFingerprint()
-      await supabase
-        .from('device')
-        .update({ 
-          last_active: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id)
-        .eq('device_id', deviceId)
-        .eq('is_active', true)
-    } catch (error) {
-      console.error('Error updating heartbeat:', error)
-    }
-  }, [user, getDeviceFingerprint])
+    console.log('🔍 Device heartbeat disabled - display only mode')
+    // Heartbeat is disabled for now
+    return
+  }, [])
 
-  // Initialize and setup real-time subscription
+  // Initialize and setup real-time subscription (DISABLED - Display only)
   useEffect(() => {
     if (user) {
-      registerDevice()
+      console.log('🔍 Device management disabled - loading dummy data only')
       loadDevices()
-      
-      // Setup real-time subscription for device changes
-      const deviceSubscription = supabase
-        .channel(`device_changes_${user.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'device',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('Device change detected:', payload)
-            // Reload devices when changes occur
-            loadDevices()
-          }
-        )
-        .subscribe()
-      
-      // Setup heartbeat interval (every 5 minutes)
-      const heartbeatInterval = setInterval(updateHeartbeat, 5 * 60 * 1000)
-      
-      // Setup periodic cleanup (every 10 minutes)
-      const cleanupInterval = setInterval(async () => {
-        try {
-          // Mark devices as inactive if not seen for 15 minutes
-          const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString()
-          await supabase
-            .from('device')
-            .update({ 
-              is_active: false,
-              updated_at: new Date().toISOString()
-            })
-            .eq('user_id', user.id)
-            .lt('last_active', fifteenMinutesAgo)
-            .eq('is_active', true)
-          
-          // Delete very old inactive devices (older than 7 days)
-          const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-          await supabase
-            .from('device')
-            .delete()
-            .eq('user_id', user.id)
-            .lt('last_active', sevenDaysAgo)
-            .eq('is_active', false)
-          
-          // Refresh device list after cleanup
-          loadDevices()
-        } catch (error) {
-          console.error('Error in periodic cleanup:', error)
-        }
-      }, 10 * 60 * 1000)
-      
-      // Handle page unload to mark device as inactive
-      const handleBeforeUnload = async () => {
-        try {
-          const deviceId = getDeviceFingerprint()
-          // Use sendBeacon for reliable delivery during page unload
-          const data = JSON.stringify({
-            user_id: user.id,
-            device_id: deviceId,
-            is_active: false,
-            updated_at: new Date().toISOString()
-          })
-          
-          // Fallback to synchronous request if sendBeacon not available
-          if (navigator.sendBeacon) {
-            navigator.sendBeacon('/api/device/deactivate', data)
-          } else {
-            await supabase
-              .from('device')
-              .update({ 
-                is_active: false,
-                updated_at: new Date().toISOString()
-              })
-              .eq('user_id', user.id)
-              .eq('device_id', deviceId)
-          }
-        } catch (error) {
-          console.error('Error deactivating device on unload:', error)
-        }
-      }
-      
-      // Add event listeners for page unload
-      window.addEventListener('beforeunload', handleBeforeUnload)
-      window.addEventListener('pagehide', handleBeforeUnload)
-      
-      // Handle visibility change (tab switching)
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible') {
-          // Tab became visible, update heartbeat
-          updateHeartbeat()
-        }
-      }
-      
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-      
-      // Cleanup on unmount
-      return () => {
-        deviceSubscription.unsubscribe()
-        clearInterval(heartbeatInterval)
-        clearInterval(cleanupInterval)
-        window.removeEventListener('beforeunload', handleBeforeUnload)
-        window.removeEventListener('pagehide', handleBeforeUnload)
-        document.removeEventListener('visibilitychange', handleVisibilityChange)
-      }
     }
-  }, [user, registerDevice, loadDevices, updateHeartbeat])
+  }, [user, loadDevices])
+
+  // Clear device fingerprint (useful for logout or device reset)
+  const clearDeviceFingerprint = useCallback(() => {
+    localStorage.removeItem('device_fingerprint')
+    localStorage.removeItem('browser_install_time')
+  }, [])
 
   return {
     devices,
@@ -448,6 +193,7 @@ export function useDevice() {
     loadDevices,
     removeDevice,
     updateDeviceStatus,
-    registerDevice
+    registerDevice,
+    clearDeviceFingerprint
   }
 }

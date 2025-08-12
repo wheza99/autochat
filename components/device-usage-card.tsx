@@ -12,6 +12,12 @@ interface DeviceUsageCardProps {
 
 export function DeviceUsageCard({ onManageClick }: DeviceUsageCardProps) {
   const { deviceStats, loading: deviceLoading } = useDevice()
+  
+  // Get current device fingerprint for display
+  const getCurrentDeviceId = () => {
+    const storedDeviceId = localStorage.getItem('device_fingerprint')
+    return storedDeviceId ? `${storedDeviceId.slice(0, 8)}...${storedDeviceId.slice(-4)}` : 'Not Set'
+  }
 
   return (
     <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-lg p-3 border mb-2">
@@ -31,6 +37,9 @@ export function DeviceUsageCard({ onManageClick }: DeviceUsageCardProps) {
         >
           <Settings className="h-3 w-3" />
         </Button>
+      </div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+        Current Device: <span className="font-mono">{getCurrentDeviceId()}</span>
       </div>
       <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-3">
         <div 

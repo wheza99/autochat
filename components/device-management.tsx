@@ -46,7 +46,7 @@ interface DeviceManagementProps {
 }
 
 export function DeviceManagement({ open, onOpenChange }: DeviceManagementProps) {
-  const { devices, deviceStats, loading, removeDevice, updateDeviceStatus, loadDevices } = useDevice()
+  const { devices, deviceStats, loading, removeDevice, updateDeviceStatus, loadDevices, clearDeviceFingerprint } = useDevice()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const getDeviceIcon = (deviceType: string | null) => {
@@ -89,6 +89,18 @@ export function DeviceManagement({ open, onOpenChange }: DeviceManagementProps) 
     }
   }
 
+  const handleClearFingerprint = async () => {
+    if (confirm('Apakah Anda yakin ingin reset device fingerprint? Device ini akan terdaftar sebagai device baru saat refresh halaman.')) {
+      setActionLoading('clear-fingerprint')
+      try {
+        clearDeviceFingerprint()
+        alert('Device fingerprint telah di-reset. Refresh halaman untuk mendaftarkan device baru.')
+      } finally {
+        setActionLoading(null)
+      }
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
@@ -101,15 +113,25 @@ export function DeviceManagement({ open, onOpenChange }: DeviceManagementProps) 
                 Anda menggunakan {deviceStats.totalDevices} dari {deviceStats.maxDevices} device yang tersedia.
               </DialogDescription>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={actionLoading === 'refresh'}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${actionLoading === 'refresh' ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={actionLoading === 'refresh'}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${actionLoading === 'refresh' ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFingerprint}
+                disabled={actionLoading === 'clear-fingerprint'}
+              >
+                Reset Device ID
+              </Button>
+            </div>
           </div>
         </DialogHeader>
         
@@ -144,12 +166,13 @@ export function DeviceManagement({ open, onOpenChange }: DeviceManagementProps) 
               <TableHeader>
                 <TableRow>
                   <TableHead>Device</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Active</TableHead>
-                  <TableHead>Phone Number</TableHead>
-                  <TableHead>API Key</TableHead>
-                  <TableHead className="w-[50px]">Actions</TableHead>
+                <TableHead>Device ID</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last Active</TableHead>
+                <TableHead>Phone Number</TableHead>
+                <TableHead>API Key</TableHead>
+                <TableHead className="w-[50px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -160,6 +183,15 @@ export function DeviceManagement({ open, onOpenChange }: DeviceManagementProps) 
                         {getDeviceIcon(device.device_type)}
                         <span className="font-medium">{device.device_name || 'Unknown Device'}</span>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600 dark:text-gray-400 max-w-[120px] truncate">
+                      {device.device_id ? (
+                        <span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs" title={device.device_id}>
+                          {device.device_id.slice(0, 8)}...{device.device_id.slice(-4)}
+                        </span>
+                      ) : (
+                        'Not Set'
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="capitalize">
