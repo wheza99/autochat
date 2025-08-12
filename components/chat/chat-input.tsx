@@ -22,21 +22,17 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
   };
 
   return (
-    <div className="border-t p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Ketik pesan Anda..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            className="flex-1"
-          />
-          <Button onClick={handleSendMessage} size="icon">
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+    <div className="flex gap-2">
+      <Input
+        placeholder="Ketik pesan..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+        className="flex-1 text-xs"
+      />
+      <Button onClick={handleSendMessage} size="sm" className="px-3">
+        <Send className="h-3 w-3" />
+      </Button>
     </div>
   );
 }

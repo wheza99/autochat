@@ -1,4 +1,4 @@
-// Halaman dashboard utama dengan chat interface dan sidebar
+// Halaman dashboard utama dengan tabs dan sidebar
 "use client";
 
 import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";
@@ -16,8 +16,17 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Settings, FileText, MessageCircle } from "lucide-react";
 import { AgentProvider } from "@/contexts/agent-context";
-import ChatInterface from "@/components/chat/chat-interface";
+import { BasicInformationContent } from "./components/basic-information-content";
+import { DocumentSection } from "./components/document-section";
+import { WhatsAppSection } from "./components/whatsapp-section";
 
 import { SidebarRight } from "./components/right-sidebar";
 
@@ -54,8 +63,25 @@ function DashboardContent() {
           </div>
         </header>
 
-        {/* Main Content Area - Chat Interface */}
-        <ChatInterface />
+        {/* Main Content Area - Tabs */}
+        <div className="flex-1 p-6">
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList>
+              <TabsTrigger value="basic">Info</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+            </TabsList>
+            <TabsContent value="basic" className="mt-3">
+              <BasicInformationContent />
+            </TabsContent>
+            <TabsContent value="documents" className="mt-3">
+              <DocumentSection />
+            </TabsContent>
+            <TabsContent value="whatsapp" className="mt-3">
+              <WhatsAppSection />
+            </TabsContent>
+          </Tabs>
+        </div>
       </SidebarInset>
       <SidebarRight />
     </SidebarProvider>
