@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS public.device (
     updated_at TIMESTAMP WITHOUT TIME ZONE NULL,
     api_key TEXT NULL,
     CONSTRAINT device_pkey PRIMARY KEY (id)
-) TABLESPACE pg_default;
 
 -- Enable RLS (Row Level Security)
 ALTER TABLE public.device ENABLE ROW LEVEL SECURITY;
@@ -200,12 +199,6 @@ Setelah setup selesai:
 - Device yang sama tidak akan terdaftar ulang
 - Cleanup otomatis menghapus device lama
 
-**Device tidak update real-time**
-- Check koneksi internet untuk Supabase realtime
-- Pastikan browser mendukung WebSocket
-- Check browser console untuk error subscription
-
-**Device limit tidak berfungsi**
 - Pastikan tabel user_device_limits sudah dibuat
 - Check apakah ada data di tabel untuk user yang login
 - Device terlama akan otomatis dinonaktifkan saat mencapai limit

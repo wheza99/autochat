@@ -10,15 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, Eye, EyeOff } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
 
 export function BasicInformationContent() {
   const { selectedAgent, updateAgent } = useAgent();
-  const [isBasicInfoOpen, setIsBasicInfoOpen] = useState(false);
-  const [isSystemPromptOpen, setIsSystemPromptOpen] = useState(false);
   const [isBasicInfoDialogOpen, setIsBasicInfoDialogOpen] = useState(false);
   const [isSystemPromptDialogOpen, setIsSystemPromptDialogOpen] = useState(false);
   const [basicInfoForm, setBasicInfoForm] = useState({
@@ -142,26 +139,22 @@ export function BasicInformationContent() {
   return (
     <div className="space-y-5">
       {/* Basic Information */}
-      <Collapsible open={isBasicInfoOpen} onOpenChange={setIsBasicInfoOpen}>
-        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
-          <div className="flex items-center space-x-2">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="flex items-center space-x-2 text-sm font-medium">
             <Settings className="h-4 w-4" />
             <span>Basic Information</span>
-          </div>
-          <div className="flex items-center space-x-1">
-             <div 
-               className="inline-flex items-center justify-center h-6 w-6 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-               onClick={(e) => {
-                 e.stopPropagation();
-                 handleEditBasicInfo();
-               }}
-             >
-               <Edit className="h-3 w-3" />
-             </div>
-             <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isBasicInfoOpen ? 'rotate-180' : ''}`} />
-           </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="px-3 pb-2">
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEditBasicInfo}
+            className="h-8 w-8 p-0"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-3 pt-2">
              <div className="space-y-2">
                <div className="flex items-center justify-between">
@@ -217,41 +210,37 @@ export function BasicInformationContent() {
                </div>
              </div>
            </div>
-        </CollapsibleContent>
-      </Collapsible>
+        </CardContent>
+      </Card>
 
       {/* System Prompt */}
-      <Collapsible open={isSystemPromptOpen} onOpenChange={setIsSystemPromptOpen}>
-        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
-          <div className="flex items-center space-x-2">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="flex items-center space-x-2 text-sm font-medium">
             <MessageSquare className="h-4 w-4" />
             <span>System Prompt</span>
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEditSystemPrompt}
+            className="h-8 w-8 p-0"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="pt-2">
+            {agent.system_prompt ? (
+              <div className="max-h-48 overflow-y-auto">
+                <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed">{agent.system_prompt}</pre>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No system prompt configured</p>
+            )}
           </div>
-          <div className="flex items-center space-x-1">
-             <div 
-               className="inline-flex items-center justify-center h-6 w-6 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-               onClick={(e) => {
-                 e.stopPropagation();
-                 handleEditSystemPrompt();
-               }}
-             >
-               <Edit className="h-3 w-3" />
-             </div>
-             <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isSystemPromptOpen ? 'rotate-180' : ''}`} />
-           </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="px-3 pb-2">
-           <div className="pt-2">
-             {agent.system_prompt ? (
-               <div className="max-h-48 overflow-y-auto">
-                 <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed">{agent.system_prompt}</pre>
-               </div>
-             ) : (
-               <p className="text-sm text-muted-foreground italic">No system prompt configured</p>
-             )}
-           </div>
-         </CollapsibleContent>
-      </Collapsible>
+        </CardContent>
+      </Card>
 
       {/* Basic Information Dialog */}
       <Dialog open={isBasicInfoDialogOpen} onOpenChange={setIsBasicInfoDialogOpen}>
