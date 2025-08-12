@@ -1,4 +1,4 @@
-// Halaman Chat untuk manajemen dan monitoring agent Chat
+// Halaman Documents untuk manajemen dan monitoring agent Documents
 "use client";
 
 import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";
@@ -18,11 +18,10 @@ import {
 } from "@/components/ui/sidebar";
 
 import { AgentProvider } from "@/contexts/agent-context";
-import ChatInterface from "@/components/chat/chat-interface";
 import React from "react";
 
 // Main Dashboard Content
-function ChatContent() {
+function DocumentsContent() {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -43,7 +42,7 @@ function ChatContent() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Chat</BreadcrumbPage>
+                  <BreadcrumbPage>Documents</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -51,7 +50,6 @@ function ChatContent() {
         </header>
         
         <div className="flex flex-1 flex-col gap-4 p-4">
-          <ChatInterface />
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -59,10 +57,10 @@ function ChatContent() {
 }
 
 // Main Page Component
-export default function ChatPage() {
+export default function DocumentsPage() {
   return (
     <AgentProvider>
-      <ChatContent />
+      <DocumentsContent />
     </AgentProvider>
   );
 }
