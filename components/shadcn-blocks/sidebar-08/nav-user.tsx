@@ -5,7 +5,9 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
+  LifeBuoy,
   LogOut,
+  Send,
   User,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -122,6 +124,14 @@ export function NavUser({
               <DropdownMenuItem>
                 <Bell />
                 Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <LifeBuoy />
+                Support
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Send />
+                Feedback
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

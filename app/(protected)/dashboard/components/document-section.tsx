@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent } from "@/components/ui/card";
+
 import {
   Dialog,
   DialogClose,
@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Plus, Search, Upload, Download, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FileText, Plus, Search, Upload, Download, Trash2, MoreVertical } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
@@ -287,130 +293,134 @@ export function DocumentSection() {
               </div>
             </div>
           ) : (
-            filteredDocuments.map((doc) => (
-              <Card
-                key={doc.id}
-                className="hover:bg-accent transition-colors"
-              >
-                <CardContent className="p-2">
-                  <div className="flex items-start gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-xs truncate">
-                        {(doc.name || 'Untitled Document').length > 20 
-                          ? (doc.name || 'Untitled Document').substring(0, 20) + '...' 
-                          : (doc.name || 'Untitled Document')}
-                      </h4>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-xs bg-secondary px-1 py-0 rounded">
+            filteredDocuments.map((doc, index) => (
+               <div
+                  key={doc.id}
+                  className="p-3 hover:bg-accent transition-colors border-b border-border"
+                >
+                 <div className="flex items-start gap-3">
+                   <FileText className="h-5 w-5 text-muted-foreground mt-1" />
+                   <div className="flex-1 min-w-0">
+                     <h4 className="font-medium text-sm truncate">
+                       {(doc.name || 'Untitled Document').length > 25 
+                         ? (doc.name || 'Untitled Document').substring(0, 25) + '...' 
+                         : (doc.name || 'Untitled Document')}
+                     </h4>
+                     <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs bg-secondary px-2 py-1 rounded">
                           {doc.mime_type || 'Unknown'}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           {formatDate(doc.created_at)}
                         </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-0.5">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 p-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (doc.url) {
-                            window.open(doc.url, '_blank');
-                          }
-                        }}
-                        title="View document"
-                      >
-                        <FileText className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 p-0"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (doc.url && doc.name) {
-                            try {
-                              const response = await fetch(doc.url);
-                              const blob = await response.blob();
-                              const url = window.URL.createObjectURL(blob);
-                              const a = document.createElement('a');
-                              a.style.display = 'none';
-                              a.href = url;
-                              a.download = doc.name;
-                              document.body.appendChild(a);
-                              a.click();
-                              window.URL.revokeObjectURL(url);
-                              document.body.removeChild(a);
-                            } catch (error) {
-                              console.error('Error downloading file:', error);
-                              alert('Failed to download file');
-                            }
-                          }
-                        }}
-                        title="Download document"
-                      >
-                        <Download className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (confirm('Are you sure you want to delete this document?')) {
-                            try {
-                              // Delete from documents table first (based on source_id in metadata)
-                              const { error: documentsError } = await supabase
-                                .from('documents')
-                                .delete()
-                                .contains('metadata', { source_id: doc.id });
-                              
-                              if (documentsError) {
-                                console.error('Error deleting from documents table:', documentsError);
-                              }
-                              
-                              // Delete from Supabase storage
-                              if (doc.file_path) {
-                                const { error: storageError } = await supabase.storage
-                                  .from('source')
-                                  .remove([doc.file_path]);
-                                
-                                if (storageError) {
-                                  console.error('Error deleting from storage:', storageError);
-                                }
-                              }
-                              
-                              // Delete from source database
-                              const { error: dbError } = await supabase
-                                .from('source')
-                                .delete()
-                                .eq('id', doc.id);
-                              
-                              if (dbError) {
-                                console.error('Error deleting from database:', dbError);
-                                alert('Failed to delete document from database');
-                              } else {
-                                alert('Document successfully deleted!');
-                                // Refresh documents list
-                                fetchDocuments();
-                              }
-                            } catch (error) {
-                              console.error('Error deleting document:', error);
-                              alert('An error occurred while deleting document');
-                            }
-                          }
-                        }}
-                        title="Delete document"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+                   </div>
+                   <div className="flex items-center">
+                     <DropdownMenu>
+                       <DropdownMenuTrigger asChild>
+                         <Button
+                           size="sm"
+                           variant="ghost"
+                           className="h-8 w-8 p-0"
+                           onClick={(e) => e.stopPropagation()}
+                         >
+                           <MoreVertical className="h-4 w-4" />
+                         </Button>
+                       </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (doc.url) {
+                               window.open(doc.url, '_blank');
+                             }
+                           }}
+                         >
+                           <FileText className="h-4 w-4 mr-2" />
+                           View Document
+                         </DropdownMenuItem>
+                         <DropdownMenuItem
+                           onClick={async (e) => {
+                             e.stopPropagation();
+                             if (doc.url && doc.name) {
+                               try {
+                                 const response = await fetch(doc.url);
+                                 const blob = await response.blob();
+                                 const url = window.URL.createObjectURL(blob);
+                                 const a = document.createElement('a');
+                                 a.style.display = 'none';
+                                 a.href = url;
+                                 a.download = doc.name;
+                                 document.body.appendChild(a);
+                                 a.click();
+                                 window.URL.revokeObjectURL(url);
+                                 document.body.removeChild(a);
+                               } catch (error) {
+                                 console.error('Error downloading file:', error);
+                                 alert('Failed to download file');
+                               }
+                             }
+                           }}
+                         >
+                           <Download className="h-4 w-4 mr-2" />
+                           Download
+                         </DropdownMenuItem>
+                         <DropdownMenuItem
+                           onClick={async (e) => {
+                             e.stopPropagation();
+                             if (confirm('Are you sure you want to delete this document?')) {
+                               try {
+                                 // Delete from documents table first (based on source_id in metadata)
+                                 const { error: documentsError } = await supabase
+                                   .from('documents')
+                                   .delete()
+                                   .contains('metadata', { source_id: doc.id });
+                                 
+                                 if (documentsError) {
+                                   console.error('Error deleting from documents table:', documentsError);
+                                 }
+                                 
+                                 // Delete from Supabase storage
+                                 if (doc.file_path) {
+                                   const { error: storageError } = await supabase.storage
+                                     .from('source')
+                                     .remove([doc.file_path]);
+                                   
+                                   if (storageError) {
+                                     console.error('Error deleting from storage:', storageError);
+                                   }
+                                 }
+                                 
+                                 // Delete from source database
+                                 const { error: dbError } = await supabase
+                                   .from('source')
+                                   .delete()
+                                   .eq('id', doc.id);
+                                 
+                                 if (dbError) {
+                                   console.error('Error deleting from database:', dbError);
+                                   alert('Failed to delete document from database');
+                                 } else {
+                                   alert('Document successfully deleted!');
+                                   // Refresh documents list
+                                   fetchDocuments();
+                                 }
+                               } catch (error) {
+                                 console.error('Error deleting document:', error);
+                                 alert('An error occurred while deleting document');
+                               }
+                             }
+                           }}
+                           className="text-destructive focus:text-destructive"
+                         >
+                           <Trash2 className="h-4 w-4 mr-2" />
+                           Delete
+                         </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))
           )}
         </div>

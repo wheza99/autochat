@@ -35,13 +35,13 @@ export function SidebarRight({
         <div className="px-2">
           <AgentHeader />
         </div>
-        <div className="px-2 pt-4">
+        <div className="px-2">
           <Tabs defaultValue="basic" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="basic" className="text-xs">
-                <Settings className="h-3 w-3 mr-1" />
-                Basic
-              </TabsTrigger>
+                  <Settings className="h-3 w-3 mr-1" />
+                  Info
+                </TabsTrigger>
               <TabsTrigger value="documents" className="text-xs">
                 <FileText className="h-3 w-3 mr-1" />
                 Docs
@@ -51,7 +51,7 @@ export function SidebarRight({
                 WhatsApp
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="basic" className="mt-4">
+            <TabsContent value="basic" className="mt-1">
               <BasicInformationContent />
             </TabsContent>
             <TabsContent value="documents" className="mt-4">

@@ -140,133 +140,117 @@ export function BasicInformationContent() {
   const agent = selectedAgent;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       {/* Basic Information */}
       <Collapsible open={isBasicInfoOpen} onOpenChange={setIsBasicInfoOpen}>
-        <CollapsibleTrigger asChild>
-          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <CardHeader className="py-1">
-              <CardTitle className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-1">
-                  <Settings className="h-3.5 w-3.5" />
-                  <span>Basic Information</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-5 px-1.5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditBasicInfo();
-                    }}
-                  >
-                    <Edit className="h-2.5 w-2.5" />
-                  </Button>
-                  <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 ${isBasicInfoOpen ? 'rotate-180' : ''}`} />
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="space-y-1 py-1">
-                <div className="grid grid-cols-2 gap-1">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Name</label>
-                    <p className="text-xs truncate">{agent.name || 'Not specified'}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-0.5">
-                      <Phone className="h-2.5 w-2.5" />
-                      <span>Phone</span>
-                    </label>
-                    <p className="text-xs">{agent.phone ? agent.phone.replace('@s.whatsapp.net', '') : 'Not specified'}</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Model</label>
-                    <div className="mt-0.5">
-                      {agent.model ? (
-                        <Badge variant="secondary" className="text-xs px-1 py-0 h-4">{agent.model}</Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Not specified</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">API Key</label>
-                    <div className="flex items-center space-x-1">
-                      <p className="text-xs">
-                        {agent.api_key ? 
-                          (showApiKey ? agent.api_key : '••••••••••••••••') : 
-                          'Not specified'
-                        }
-                      </p>
-                      {agent.api_key && (
-                        <button
-                          onClick={() => setShowApiKey(!showApiKey)}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {showApiKey ? <EyeOff className="h-2.5 w-2.5" /> : <Eye className="h-2.5 w-2.5" />}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground flex items-center space-x-0.5">
-                      <Calendar className="h-2.5 w-2.5" />
-                      <span>Created</span>
-                    </label>
-                    <p className="text-xs">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
+        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+          <div className="flex items-center space-x-2">
+            <Settings className="h-4 w-4" />
+            <span>Basic Information</span>
+          </div>
+          <div className="flex items-center space-x-1">
+             <div 
+               className="inline-flex items-center justify-center h-6 w-6 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+               onClick={(e) => {
+                 e.stopPropagation();
+                 handleEditBasicInfo();
+               }}
+             >
+               <Edit className="h-3 w-3" />
+             </div>
+             <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isBasicInfoOpen ? 'rotate-180' : ''}`} />
+           </div>
         </CollapsibleTrigger>
+        <CollapsibleContent className="px-3 pb-2">
+          <div className="space-y-3 pt-2">
+             <div className="space-y-2">
+               <div className="flex items-center justify-between">
+                 <label className="text-xs font-medium text-muted-foreground">Name</label>
+                 <p className="text-sm truncate">{agent.name || 'Not specified'}</p>
+               </div>
+               
+               <div className="flex items-center justify-between">
+                 <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
+                   <Phone className="h-3 w-3" />
+                   <span>Phone</span>
+                 </label>
+                 <p className="text-sm">{agent.phone ? agent.phone.replace('@s.whatsapp.net', '') : 'Not specified'}</p>
+               </div>
+               
+               <div className="flex items-center justify-between">
+                 <label className="text-xs font-medium text-muted-foreground">Model</label>
+                 <div>
+                   {agent.model ? (
+                     <Badge variant="secondary" className="text-xs">{agent.model}</Badge>
+                   ) : (
+                     <span className="text-sm text-muted-foreground">Not specified</span>
+                   )}
+                 </div>
+               </div>
+               
+               <div className="flex items-center justify-between">
+                 <label className="text-xs font-medium text-muted-foreground">API Key</label>
+                 <div className="flex items-center space-x-2">
+                   <p className="text-sm">
+                     {agent.api_key ? 
+                       (showApiKey ? agent.api_key : '••••••••••••••••') : 
+                       'Not specified'
+                     }
+                   </p>
+                   {agent.api_key && (
+                     <button
+                       onClick={() => setShowApiKey(!showApiKey)}
+                       className="text-muted-foreground hover:text-foreground transition-colors"
+                     >
+                       {showApiKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                     </button>
+                   )}
+                 </div>
+               </div>
+               
+               <div className="flex items-center justify-between">
+                 <label className="text-xs font-medium text-muted-foreground flex items-center space-x-1">
+                   <Calendar className="h-3 w-3" />
+                   <span>Created</span>
+                 </label>
+                 <p className="text-sm">{new Date(agent.created_at).toLocaleDateString('id-ID')}</p>
+               </div>
+             </div>
+           </div>
+        </CollapsibleContent>
       </Collapsible>
 
       {/* System Prompt */}
       <Collapsible open={isSystemPromptOpen} onOpenChange={setIsSystemPromptOpen}>
-        <CollapsibleTrigger asChild>
-          <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
-            <CardHeader className="py-1">
-              <CardTitle className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-1">
-                  <MessageSquare className="h-3.5 w-3.5" />
-                  <span>System Prompt</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-5 px-1.5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditSystemPrompt();
-                    }}
-                  >
-                    <Edit className="h-2.5 w-2.5" />
-                  </Button>
-                  <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 ${isSystemPromptOpen ? 'rotate-180' : ''}`} />
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="py-1">
-                {agent.system_prompt ? (
-                  <div className="bg-muted/50 rounded-md p-1.5">
-                    <pre className="text-xs whitespace-pre-wrap font-mono max-h-24 overflow-y-auto leading-relaxed">{agent.system_prompt}</pre>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">No system prompt configured</p>
-                )}
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
+        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="h-4 w-4" />
+            <span>System Prompt</span>
+          </div>
+          <div className="flex items-center space-x-1">
+             <div 
+               className="inline-flex items-center justify-center h-6 w-6 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+               onClick={(e) => {
+                 e.stopPropagation();
+                 handleEditSystemPrompt();
+               }}
+             >
+               <Edit className="h-3 w-3" />
+             </div>
+             <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isSystemPromptOpen ? 'rotate-180' : ''}`} />
+           </div>
         </CollapsibleTrigger>
+        <CollapsibleContent className="px-3 pb-2">
+           <div className="pt-2">
+             {agent.system_prompt ? (
+               <div className="max-h-48 overflow-y-auto">
+                 <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed">{agent.system_prompt}</pre>
+               </div>
+             ) : (
+               <p className="text-sm text-muted-foreground italic">No system prompt configured</p>
+             )}
+           </div>
+         </CollapsibleContent>
       </Collapsible>
 
       {/* Basic Information Dialog */}
