@@ -1,77 +1,74 @@
-// Middleware untuk autentikasi dan proteksi route aplikasi
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          // This is used for setting cookies in the response
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: any) {
-          // This is used for removing cookies in the response
-          response.cookies.delete({
-            name,
-            ...options,
-          })
-        },
-      },
-    }
+  const { pathname } = request.nextUrl
+  
+  console.log(`[Middleware] Processing: ${pathname}`)
+  
+  // Check for client-side auth status cookie
+  const clientAuthStatus = request.cookies.get('client-auth-status')?.value
+  
+  // Get all cookies for debugging
+  const allCookies = request.cookies.getAll()
+  console.log('[Middleware] Available cookies:', allCookies.map(c => c.name))
+  console.log('[Middleware] Client auth status:', clientAuthStatus)
+  
+  // Check for Supabase session cookies
+  const hasSupabaseTokens = (
+    request.cookies.has('sb-access-token') ||
+    request.cookies.has('supabase-auth-token') ||
+    request.cookies.has('sb-refresh-token') ||
+    request.cookies.has('supabase-refresh-token') ||
+    allCookies.some(cookie => 
+      cookie.name.includes('supabase') && 
+      cookie.name.includes('token') &&
+      !cookie.name.includes('hmr')
+    )
   )
-
-  // Get the current session and refresh if needed
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession()
-    
-    // If there's an error getting the session, clear auth cookies
-    if (error) {
-      console.error('Session error in middleware:', error)
-      // Clear auth-related cookies
-      response.cookies.delete('sb-access-token')
-      response.cookies.delete('sb-refresh-token')
-    }
-    
-    // Check if we're accessing a protected route
-    const isProtectedRoute = request.nextUrl.pathname.startsWith('/(protected)')
-    const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || 
-                       request.nextUrl.pathname.startsWith('/register') ||
-                       request.nextUrl.pathname.startsWith('/forgot-password')
-    
-    // Redirect to login if accessing protected route without session
-    if (isProtectedRoute && !session) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    
-    // Redirect to dashboard if accessing auth routes with valid session
-    if (isAuthRoute && session) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  } catch (error) {
-    console.error('Middleware error:', error)
-    // Clear potentially corrupted auth cookies
-    response.cookies.delete('sb-access-token')
-    response.cookies.delete('sb-refresh-token')
+  
+  // Consider user authenticated if either cookies or client header indicates so
+  const isAuthenticated = hasSupabaseTokens || clientAuthStatus === 'authenticated'
+  
+  console.log('[Middleware] hasSupabaseTokens:', hasSupabaseTokens)
+  console.log('[Middleware] isAuthenticated:', isAuthenticated)
+  
+  // Define route types
+  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/auth')
+  const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/chat')
+  const isPublicRoute = pathname === '/' || pathname.startsWith('/api')
+  
+  console.log(`[Middleware] Route analysis - Auth: ${isAuthRoute}, Protected: ${isProtectedRoute}, Public: ${isPublicRoute}`)
+  
+  // Prevent redirect loops by checking for redirected parameter
+  const url = request.nextUrl.clone()
+  const hasRedirectedParam = url.searchParams.has('redirected')
+  
+  if (hasRedirectedParam) {
+    console.log('[Middleware] Redirected parameter detected, allowing request')
+    // Remove the redirected parameter to clean up URL
+    url.searchParams.delete('redirected')
+    return NextResponse.rewrite(url)
   }
-
-  return response
+  
+  // If user is authenticated but is on auth route, redirect to dashboard
+  if (isAuthenticated && isAuthRoute) {
+    console.log('[Middleware] Authenticated user on auth route, redirecting to dashboard')
+    url.pathname = '/dashboard'
+    url.searchParams.set('redirected', 'true')
+    return NextResponse.redirect(url)
+  }
+  
+  // If user is not authenticated and is on protected route, redirect to login
+  if (!isAuthenticated && isProtectedRoute) {
+    console.log('[Middleware] Unauthenticated user on protected route, redirecting to login')
+    url.pathname = '/login'
+    url.searchParams.set('redirected', 'true')
+    return NextResponse.redirect(url)
+  }
+  
+  console.log('[Middleware] Allowing request to proceed')
+  return NextResponse.next()
 }
 
 export const config = {
@@ -83,6 +80,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public (public files)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
-}
+};

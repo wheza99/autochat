@@ -38,9 +38,15 @@ export function LoginForm({
         toast.error('Login failed: ' + error.message)
       } else {
         toast.success('Login successful!')
-        router.push('/')
+        // Set localStorage flag for middleware detection
+        localStorage.setItem('supabase-auth-status', 'authenticated')
+        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
+        // Wait a bit for session to be established
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 100)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during login')
     } finally {
       setIsLoading(false)
@@ -54,7 +60,7 @@ export function LoginForm({
       if (error) {
         toast.error('Google login failed: ' + error.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during Google login')
     } finally {
       setIsLoading(false)
@@ -68,7 +74,7 @@ export function LoginForm({
       if (error) {
         toast.error('Apple login failed: ' + error.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during Apple login')
     } finally {
       setIsLoading(false)

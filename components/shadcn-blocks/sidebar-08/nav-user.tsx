@@ -2,12 +2,10 @@
 "use client"
 
 import {
-  BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
   User,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -57,7 +55,7 @@ export function NavUser({
         toast.success('Logout successful!')
         router.push('/login')
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during logout')
     }
   }

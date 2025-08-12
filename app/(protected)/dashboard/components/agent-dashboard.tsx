@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, Save, X, ChevronDown, Eye, EyeOff } from "lucide-react"
+import { Bot, Calendar, Phone, Settings, MessageSquare, Edit, ChevronDown, Eye, EyeOff } from "lucide-react"
 import { useAgent } from "@/contexts/agent-context"
 import { supabase } from "@/lib/supabase"
 
@@ -20,7 +20,7 @@ export function AgentDashboard() {
   const { selectedAgent, updateAgent } = useAgent()
   const [isBasicInfoOpen, setIsBasicInfoOpen] = useState(false)
   const [isSystemPromptOpen, setIsSystemPromptOpen] = useState(false)
-  const [isStatsOpen, setIsStatsOpen] = useState(false)
+
   const [isBasicInfoDialogOpen, setIsBasicInfoDialogOpen] = useState(false)
   const [isSystemPromptDialogOpen, setIsSystemPromptDialogOpen] = useState(false)
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false)
@@ -131,34 +131,11 @@ export function AgentDashboard() {
     }
   }
 
-  const handleBasicInfoInputChange = (field: string, value: string) => {
-    setBasicInfoForm(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const handleEditStats = () => {
-    if (selectedAgent) {
-      setStatsForm({
-        status: 'Active' // Default status since we don't have this field in database yet
-      })
-      setIsStatsDialogOpen(true)
-    }
-  }
-
   const handleSaveStats = async () => {
     // For now, this is just a placeholder since we don't have stats fields in database
     // In a real implementation, you would update the agent's status or other stats
     console.log('Stats saved:', statsForm)
     setIsStatsDialogOpen(false)
-  }
-
-  const handleStatsInputChange = (field: string, value: string) => {
-    setStatsForm(prev => ({
-      ...prev,
-      [field]: value
-    }))
   }
 
   if (!selectedAgent) {

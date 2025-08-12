@@ -18,10 +18,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { FileText, Plus, Search, Upload, Download, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
-import { AgentDashboard } from "./agent-dashboard";
 
 // Interface for documents from database
 interface Document {
@@ -44,7 +43,7 @@ export function DocumentSection() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch documents from Supabase
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -70,30 +69,11 @@ export function DocumentSection() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedAgent]);
 
   useEffect(() => {
     fetchDocuments();
-  }, [selectedAgent]);
-
-  // Helper function to get file type from mime_type or file name
-  const getFileType = (mimeType: string | null, fileName: string | null): string => {
-    if (mimeType) {
-      if (mimeType.includes('pdf')) return 'PDF';
-      if (mimeType.includes('word') || mimeType.includes('document')) return 'DOCX';
-      if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'XLSX';
-      if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'PPTX';
-      if (mimeType.includes('text')) return 'TXT';
-      if (mimeType.includes('csv')) return 'CSV';
-    }
-    
-    if (fileName) {
-      const extension = fileName.split('.').pop()?.toUpperCase();
-      return extension || 'FILE';
-    }
-    
-    return 'FILE';
-  };
+  }, [selectedAgent, fetchDocuments]);
 
   // Helper function to format date
   const formatDate = (dateString: string): string => {
@@ -135,7 +115,6 @@ export function DocumentSection() {
                   setUploadProgress(10);
                   // Generate unique filename with agent folder
                   const timestamp = Date.now();
-                  const fileExtension = file.name.split(".").pop();
                   const cleanFileName = `${timestamp}_${file.name.replace(
                     /[^a-zA-Z0-9.-]/g,
                     "_"
@@ -147,7 +126,7 @@ export function DocumentSection() {
 
                   // Upload to Supabase Storage first
                   setUploadProgress(25);
-                  const { data: uploadData, error: uploadError } =
+                  const { error: uploadError } =
                     await supabase.storage
                       .from("source")
                       .upload(fileName, file, {

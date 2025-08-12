@@ -7,7 +7,6 @@ import {
   Share,
   Trash2,
   Bot,
-  type LucideIcon,
 } from "lucide-react"
 import { useAgent } from "@/contexts/agent-context"
 

@@ -19,10 +19,18 @@ export default function AuthCallback() {
       }
 
       if (data.session) {
-        // Redirect to dashboard or home page after successful login
-        router.push('/')
+        // Set localStorage flag for middleware detection
+        localStorage.setItem('supabase-auth-status', 'authenticated')
+        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
+        // Redirect to dashboard after successful login
+        // Add small delay to ensure session is properly established
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 100)
       } else {
         // No session found, redirect back to login
+        localStorage.removeItem('supabase-auth-status')
+        localStorage.removeItem('supabase-auth-timestamp')
         router.push('/login')
       }
     }

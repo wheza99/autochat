@@ -14,8 +14,6 @@ import {
   Instagram, 
   Linkedin, 
   Mail, 
-  Phone, 
-  MapPin,
   ArrowRight
 } from "lucide-react";
 

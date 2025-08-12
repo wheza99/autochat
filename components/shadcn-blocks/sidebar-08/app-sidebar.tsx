@@ -3,7 +3,6 @@
 
 import * as React from "react";
 import {
-  BookOpen,
   Bot,
   Eye,
   EyeOff,
@@ -13,11 +12,8 @@ import {
   PieChart,
   Plus,
   Send,
-  Settings2,
-  SquareTerminal,
 } from "lucide-react";
 
-import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
 import { NavProjects } from "@/components/shadcn-blocks/sidebar-08/nav-projects";
 import { NavSecondary } from "@/components/shadcn-blocks/sidebar-08/nav-secondary";
 import { NavUser } from "@/components/shadcn-blocks/sidebar-08/nav-user";
@@ -36,6 +32,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { useAgent } from "@/contexts/agent-context";
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const data = {
   user: {
@@ -80,7 +85,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { loadAgents } = useAgent();
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState(false);
-  const [userProfile, setUserProfile] = React.useState<any>(null);
+  const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [newAgentForm, setNewAgentForm] = React.useState({
     name: '',
@@ -95,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (!user?.id) return;
     
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('user')
         .select('*')
         .eq('id', user.id)
@@ -105,8 +110,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (data) {
         setUserProfile(data);
       }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
+    } catch (err) {
+      console.error('Error loading user profile:', err);
     }
   }, [user?.id]);
 
@@ -141,9 +146,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Expose reload function globally for profile updates
   React.useEffect(() => {
-    (window as any).reloadUserProfile = loadUserProfile;
+    (window as Window & { reloadUserProfile?: () => Promise<void> }).reloadUserProfile = loadUserProfile;
     return () => {
-      delete (window as any).reloadUserProfile;
+      delete (window as Window & { reloadUserProfile?: () => Promise<void> }).reloadUserProfile;
     };
   }, [loadUserProfile]);
 
@@ -318,7 +323,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ? `${newAgentForm.phone.trim()}@s.whatsapp.net`
         : null;
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('agents')
         .insert({
           name: newAgentForm.name.trim(),

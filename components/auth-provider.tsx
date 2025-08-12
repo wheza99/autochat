@@ -33,10 +33,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
+      
+      // Update localStorage based on auth state
+      if (session && session.user) {
+        localStorage.setItem('supabase-auth-status', 'authenticated')
+        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
+      } else if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('supabase-auth-status')
+        localStorage.removeItem('supabase-auth-timestamp')
+      }
     })
 
     return () => subscription.unsubscribe()

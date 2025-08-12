@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { User, Session } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+import { AuthClient } from '@/lib/auth-client'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -8,6 +11,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -45,6 +49,10 @@ export function useAuth() {
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
+    if (!error) {
+      // Clear localStorage auth status
+      AuthClient.clearAuth()
+    }
     return { error }
   }
 

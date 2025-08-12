@@ -1,7 +1,7 @@
 // Halaman profil pengguna untuk edit informasi pribadi
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ArrowLeft, Save, User } from "lucide-react"
@@ -10,37 +10,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/hooks/use-auth"
 import { supabase } from "@/lib/supabase"
-
-interface UserProfile {
-  id: string
-  name: string
-  email: string
-  phone?: string
-  created_at?: string
-  updated_at?: string
-  deleted_at?: string
-}
 
 export default function ProfilePage() {
   const { user } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     phone: ""
   })
 
-  useEffect(() => {
-    if (user) {
-      loadProfile()
-    }
-  }, [user])
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user')
@@ -54,7 +37,6 @@ export default function ProfilePage() {
       }
 
       if (data) {
-        setProfile(data)
         setFormData({
           name: data.name || "",
           phone: data.phone && data.phone.trim() && data.phone !== "\\x" ? data.phone : ""
@@ -75,7 +57,6 @@ export default function ProfilePage() {
 
         if (createError) throw createError
         
-        setProfile(newProfile)
         setFormData({
           name: newProfile.name || "",
           phone: newProfile.phone && newProfile.phone.trim() && newProfile.phone !== "\\x" ? newProfile.phone : ""
@@ -85,7 +66,13 @@ export default function ProfilePage() {
         console.error('Error loading profile:', error)
         toast.error('Failed to load profile')
       }
-  }
+  }, [user?.id, user?.email, user?.user_metadata?.full_name])
+
+  useEffect(() => {
+    if (user) {
+      loadProfile()
+    }
+  }, [user, loadProfile])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,8 +94,9 @@ export default function ProfilePage() {
       toast.success('Profile updated successfully!')
       
       // Reload user profile in sidebar
-      if ((window as any).reloadUserProfile) {
-        await (window as any).reloadUserProfile()
+      const windowWithReload = window as Window & { reloadUserProfile?: () => Promise<void> }
+      if (windowWithReload.reloadUserProfile) {
+        await windowWithReload.reloadUserProfile()
       }
       
       // Redirect to dashboard

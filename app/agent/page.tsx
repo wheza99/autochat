@@ -1,7 +1,7 @@
 // Halaman chat agent dengan interface percakapan dan webhook
 "use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { ChatMessages } from '@/components/chat/chat-messages'
 import { ChatInput } from '@/components/chat/chat-input'
 import { useAuth } from '@/hooks/use-auth'
@@ -283,7 +283,9 @@ export default function Agent() {
   return (
     <AuthProvider>
       <AgentProvider>
-        <ChatInterface />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ChatInterface />
+        </Suspense>
       </AgentProvider>
     </AuthProvider>
   );
