@@ -30,6 +30,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { useAgent } from "@/contexts/agent-context";
+import { DeviceManagement } from "@/components/device-management";
+import { DeviceUsageCard } from "@/components/device-usage-card";
 
 interface UserProfile {
   id: string;
@@ -71,6 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth();
   const { loadAgents } = useAgent();
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = React.useState(false);
+  const [isDeviceManagementOpen, setIsDeviceManagementOpen] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState(false);
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [showApiKey, setShowApiKey] = React.useState(false);
@@ -180,16 +183,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <div className="px-2 pb-2">
           {/* Device Usage Card */}
-          <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-lg p-3 border mb-2">
-             <div className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">5 / 5 Device left</div>
-             <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-3">
-                <div className="bg-gray-600 dark:bg-gray-400 rounded-full h-2 w-full"></div>
-              </div>
-             <button className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg py-2 px-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300">
-               <span className="text-yellow-500">💎</span>
-               Upgrade
-             </button>
-           </div>
+          <DeviceUsageCard onManageClick={() => setIsDeviceManagementOpen(true)} />
         </div>
         <NavUser user={userData} />
       </SidebarFooter>
@@ -305,6 +299,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Device Management Dialog */}
+      <DeviceManagement 
+        open={isDeviceManagementOpen} 
+        onOpenChange={setIsDeviceManagementOpen} 
+      />
     </Sidebar>
   );
   
