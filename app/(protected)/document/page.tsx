@@ -1,4 +1,3 @@
-// Halaman dashboard utama dengan tabs dan sidebar
 "use client";
 
 import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";
@@ -16,20 +15,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-// Tabs removed - content moved to separate pages
 import { AgentProvider } from "@/contexts/agent-context";
-// WhatsApp section removed - dashboard now empty
-
-import { SidebarRight } from "./components/right-sidebar";
-
-// Message type definition
-
-
-
+import { DocumentSection } from "../dashboard/components/document-section";
 
 // Inner component that uses the agent context
-function DashboardContent() {
-
+function DocumentContent() {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -48,24 +38,18 @@ function DashboardContent() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                  <BreadcrumbPage>Documents</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
 
-        {/* Main Content Area - Empty Dashboard */}
+        {/* Main Content Area */}
         <div className="flex-1 p-6">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-muted-foreground mb-2">Dashboard</h2>
-              <p className="text-muted-foreground">Pilih menu di sidebar untuk mulai menggunakan fitur.</p>
-            </div>
-          </div>
+          <DocumentSection />
         </div>
       </SidebarInset>
-      <SidebarRight />
     </SidebarProvider>
   );
 }
@@ -73,7 +57,7 @@ function DashboardContent() {
 export default function Page() {
   return (
     <AgentProvider>
-      <DashboardContent />
+      <DocumentContent />
     </AgentProvider>
   );
 }
