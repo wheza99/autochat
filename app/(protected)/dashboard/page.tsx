@@ -20,7 +20,7 @@ import {
 import { AgentProvider } from "@/contexts/agent-context";
 // WhatsApp section removed - dashboard now empty
 
-import { SidebarRight } from "./components/right-sidebar";
+// Right sidebar removed as requested
 
 // Message type definition
 
@@ -46,10 +46,6 @@ function DashboardContent() {
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
-                </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
@@ -65,7 +61,6 @@ function DashboardContent() {
           </div>
         </div>
       </SidebarInset>
-      <SidebarRight />
     </SidebarProvider>
   );
 }
