@@ -1,7 +1,9 @@
 // Sidebar kanan yang menampilkan dashboard agent dan dokumen
 import * as React from "react";
-import { AgentDashboard } from "./agent-dashboard";
+import { AgentHeader } from "./agent-header";
+import { BasicInformationContent } from "./basic-information-content";
 import { DocumentSection } from "./document-section";
+import { WhatsAppSection } from "./whatsapp-section";
 import {
   Sidebar,
   SidebarContent,
@@ -10,42 +12,15 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Settings, FileText, MessageCircle } from "lucide-react";
 
-// Sample data for documents
-const data = {
-  documents: [
-    {
-      id: 1,
-      title: "Laporan Keuangan Q1 2024",
-      type: "PDF",
-      date: "2024-03-15",
-    },
-    {
-      id: 2,
-      title: "Proposal Proyek Urbana",
-      type: "DOCX",
-      date: "2024-03-10",
-    },
-    {
-      id: 3,
-      title: "Analisis Pasar",
-      type: "XLSX",
-      date: "2024-03-08",
-    },
-    {
-      id: 4,
-      title: "Rencana Strategis 2024",
-      type: "PDF",
-      date: "2024-03-05",
-    },
-    {
-      id: 5,
-      title: "Data Survei Pelanggan",
-      type: "CSV",
-      date: "2024-03-01",
-    },
-  ],
-};
+
 
 export function SidebarRight({
   ...props
@@ -58,10 +33,34 @@ export function SidebarRight({
     >
       <SidebarContent className="pt-2">
         <div className="px-2">
-          <AgentDashboard />
+          <AgentHeader />
         </div>
-        <div className="px-2 pt-8">
-          <DocumentSection />
+        <div className="px-2 pt-4">
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="basic" className="text-xs">
+                <Settings className="h-3 w-3 mr-1" />
+                Basic
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs">
+                <FileText className="h-3 w-3 mr-1" />
+                Docs
+              </TabsTrigger>
+              <TabsTrigger value="whatsapp" className="text-xs">
+                <MessageCircle className="h-3 w-3 mr-1" />
+                WhatsApp
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="basic" className="mt-4">
+              <BasicInformationContent />
+            </TabsContent>
+            <TabsContent value="documents" className="mt-4">
+              <DocumentSection />
+            </TabsContent>
+            <TabsContent value="whatsapp" className="mt-4">
+              <WhatsAppSection />
+            </TabsContent>
+          </Tabs>
         </div>
       </SidebarContent>
       <SidebarFooter>
