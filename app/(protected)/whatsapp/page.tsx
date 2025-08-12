@@ -27,7 +27,9 @@ import {
   Wifi,
   WifiOff
 } from "lucide-react";
-import { AgentProvider } from "@/contexts/agent-context";
+import { AgentProvider, useAgent } from "@/contexts/agent-context";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 import React from "react";
 
 // WhatsApp Connection Status Component
@@ -81,12 +83,30 @@ function WhatsAppConnectionStatus() {
 
 // QR Code Generator Component
 function QRCodeGenerator() {
+  const { user } = useAuth();
+  const { selectedAgent } = useAgent();
   const [qrData, setQrData] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [sessionData, setSessionData] = React.useState<any>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   const generateQRCode = async () => {
     setIsLoading(true);
+    setError(null);
+    
+    // Validasi user dan agent
+    if (!user?.id) {
+      setError('User tidak terautentikasi');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!selectedAgent?.id) {
+      setError('Silakan pilih agent terlebih dahulu');
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
       const response = await fetch('https://app.notif.my.id/ss/scanorpairing', {
@@ -99,12 +119,49 @@ function QRCodeGenerator() {
       
       if (response.ok) {
         const data = await response.json();
-        setQrData(data.qr);
-        setSessionData(data);
+        console.log('QR Code generated successfully:', data);
+        
+        // Check if the response has an error tag
+        if (data.tag === -2) {
+          setError(data.message || 'Device quota exceeded. Please delete a device or upgrade subscription.');
+          console.log('API returned error:', data.message);
+        } else {
+          // Simpan data ke Supabase terlebih dahulu
+          const deviceData = {
+            user_id: user.id,
+            api_key: data.apikey,
+            agent_id: selectedAgent.id,
+            session: data.session,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          const { data: deviceRecord, error: dbError } = await supabase
+            .from('device')
+            .insert([deviceData])
+            .select()
+            .single();
+          
+          if (dbError) {
+            console.error('Error saving device to database:', dbError);
+            setError(`Gagal menyimpan data device: ${dbError.message}`);
+          } else {
+            console.log('Device saved to database:', deviceRecord);
+            // Setelah berhasil simpan ke database, baru tampilkan QR code
+            setQrData(data.qr);
+            setSessionData(data);
+          }
+        }
       } else {
-        console.error('Failed to generate QR code');
+        const errorText = await response.text();
+        console.log('Failed to generate QR code - Status:', response.status, 'Response:', errorText);
+        setError(`Failed to generate QR code: ${response.status} ${response.statusText}`);
+        console.error('Failed to generate QR code:', errorText);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.log('Error generating QR code:', error);
+      setError(`Error generating QR code: ${errorMessage}`);
       console.error('Error generating QR code:', error);
     } finally {
       setIsLoading(false);
@@ -129,36 +186,49 @@ function QRCodeGenerator() {
           {isLoading ? 'Generating...' : 'Generate QR Code'}
         </Button>
         
-        <div className="flex flex-col items-center space-y-4">
-          {qrData ? (
-            <>
-              <div className="p-4 bg-white rounded-lg border">
-                <img 
-                  src={qrData} 
-                  alt="WhatsApp QR Code" 
-                  className="w-64 h-64 object-contain"
-                />
-              </div>
-              {sessionData && (
-                <div className="text-center space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Session: <span className="font-mono text-xs">{sessionData.session}</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    API Key: <span className="font-mono text-xs">{sessionData.apikey}</span>
-                  </p>
+        {(qrData || isLoading) && (
+          <div className="flex flex-col items-center space-y-4">
+            {qrData ? (
+              <>
+                <div className="p-4 bg-white rounded-lg border">
+                  <img 
+                    src={qrData} 
+                    alt="WhatsApp QR Code" 
+                    className="w-64 h-64 object-contain"
+                  />
                 </div>
-              )}
-            </>
-          ) : (
-            <div className="flex items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg">
-              <div className="text-center">
-                <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Click "Generate QR Code" to generate</p>
+                {sessionData && (
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Session: <span className="font-mono text-xs">{sessionData.session}</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      API Key: <span className="font-mono text-xs">{sessionData.apikey}</span>
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : isLoading ? (
+              <div className="flex items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg">
+                <div className="text-center">
+                  <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground animate-pulse" />
+                  <p className="text-sm text-muted-foreground">Generating QR Code...</p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+        
+        {error && (
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-full max-w-md p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <p className="text-sm text-red-800">{error}</p>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
