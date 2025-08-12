@@ -305,47 +305,88 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       
       {/* Add Agent Dialog */}
       <Dialog open={isAddAgentDialogOpen} onOpenChange={setIsAddAgentDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add New Agent</DialogTitle>
-            <DialogDescription>
-              Create a new AI agent with custom configuration.
+            <DialogTitle className="text-lg font-semibold">Add New Agent</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Create a new AI agent with custom configuration and WhatsApp integration.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="agent-name" className="text-right">
-                Name *
-              </Label>
-              <Input
-                id="agent-name"
-                value={newAgentForm.name}
-                onChange={(e) => setNewAgentForm(prev => ({ ...prev, name: e.target.value }))}
-                className="col-span-3"
-                placeholder="Enter agent name"
-              />
+          
+          <div className="space-y-6 py-4">
+            {/* Basic Information Section */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-foreground border-b pb-2">Basic Information</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="agent-name" className="text-sm font-medium">
+                    Agent Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="agent-name"
+                    value={newAgentForm.name}
+                    onChange={(e) => setNewAgentForm(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Enter a unique name for your agent"
+                    className="w-full"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="agent-model" className="text-sm font-medium">
+                    AI Model
+                  </Label>
+                  <Select value={newAgentForm.model} onValueChange={(value) => setNewAgentForm(prev => ({ ...prev, model: value }))}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select AI model for your agent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gpt-4">GPT-4 (Recommended)</SelectItem>
+                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                      <SelectItem value="claude-3">Claude 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="agent-prompt" className="text-sm font-medium">
+                    System Prompt
+                  </Label>
+                  <Textarea
+                    id="agent-prompt"
+                    value={newAgentForm.system_prompt}
+                    onChange={(e) => setNewAgentForm(prev => ({ ...prev, system_prompt: e.target.value }))}
+                    className="min-h-[120px] max-h-[200px] resize-none"
+                    placeholder="Define your agent's personality, role, and behavior instructions..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This prompt will guide how your agent responds to messages.
+                  </p>
+                </div>
+              </div>
             </div>
-            {/* WhatsApp QR Code Section */}
-            <div className="col-span-4">
-              <Card>
+
+            {/* WhatsApp Connection Section */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-foreground border-b pb-2">WhatsApp Integration</h3>
+              <Card className="border-dashed">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center space-x-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
                     <QrCode className="h-4 w-4" />
                     <span>WhatsApp Connection</span>
                     {isConnected && (
-                      <Badge variant="default" className="text-xs">
+                      <Badge variant="default" className="text-xs bg-green-100 text-green-800 border-green-200">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Connected
                       </Badge>
                     )}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Generate QR code to connect WhatsApp and auto-fill phone & API key
+                    Connect your WhatsApp account to automatically configure phone number and API key
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                   <Button 
-                    variant="outline" 
+                    variant={isConnected ? "secondary" : "outline"} 
                     size="sm" 
                     className="w-full"
                     onClick={generateQRCode}
@@ -353,116 +394,98 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   >
                     {isGeneratingQR ? (
                       <>
-                        <Loader2 className="h-3 w-3 mr-2 animate-spin" />
-                        Generating...
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating QR Code...
                       </>
                     ) : isConnected ? (
                       <>
-                        <CheckCircle className="h-3 w-3 mr-2" />
-                        Connected
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        WhatsApp Connected
                       </>
                     ) : (
                       <>
-                        <QrCode className="h-3 w-3 mr-2" />
+                        <QrCode className="h-4 w-4 mr-2" />
                         Generate QR Code
                       </>
                     )}
                   </Button>
                   
                   {qrData && !isConnected && (
-                    <div className="flex flex-col items-center space-y-2">
-                      <div className="p-2 bg-white rounded border">
+                    <div className="flex flex-col items-center space-y-3 p-4 bg-gray-50 rounded-lg">
+                      <div className="p-3 bg-white rounded-lg border shadow-sm">
                         <img 
                           src={qrData} 
                           alt="WhatsApp QR Code" 
-                          className="w-32 h-32 object-contain"
+                          className="w-40 h-40 object-contain"
                         />
                       </div>
-                      <p className="text-xs text-muted-foreground text-center">
-                        Scan with WhatsApp mobile app
-                      </p>
-                      {sessionData && (
-                        <p className="text-xs text-muted-foreground text-center font-mono">
-                          Session: {sessionData.session}
+                      <div className="text-center space-y-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          Scan with WhatsApp
                         </p>
-                      )}
+                        <p className="text-xs text-muted-foreground">
+                          Open WhatsApp → Settings → Linked Devices → Link a Device
+                        </p>
+                        {sessionData && (
+                          <p className="text-xs text-muted-foreground font-mono bg-gray-100 px-2 py-1 rounded">
+                            Session: {sessionData.session}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="agent-phone" className="text-right">
-                Phone
-              </Label>
-              <Input
-                id="agent-phone"
-                value={newAgentForm.phone}
-                onChange={(e) => setNewAgentForm(prev => ({ ...prev, phone: e.target.value }))}
-                className="col-span-3"
-                placeholder="Enter phone number or scan QR"
-                readOnly={isConnected}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="agent-model" className="text-right">
-                Model
-              </Label>
-              <Select value={newAgentForm.model} onValueChange={(value) => setNewAgentForm(prev => ({ ...prev, model: value }))}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select AI model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gpt-4">GPT-4</SelectItem>
-                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                  <SelectItem value="claude-3">Claude 3</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="agent-prompt" className="text-right pt-2">
-                System Prompt
-              </Label>
-              <Textarea
-                id="agent-prompt"
-                value={newAgentForm.system_prompt}
-                onChange={(e) => setNewAgentForm(prev => ({ ...prev, system_prompt: e.target.value }))}
-                className="col-span-3 min-h-[100px] max-h-[200px] overflow-y-auto resize-none"
-                placeholder="Enter system prompt instructions..."
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="agent-api-key" className="text-right">
-                API Key
-              </Label>
-              <div className="col-span-3 relative">
-                <Input
-                  id="agent-api-key"
-                  type={showApiKey ? "text" : "password"}
-                  value={newAgentForm.api_key}
-                  onChange={(e) => setNewAgentForm(prev => ({ ...prev, api_key: e.target.value }))}
-                  className="pr-10"
-                  placeholder="Enter API key or scan QR"
-                  readOnly={isConnected}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                >
-                  {showApiKey ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </Button>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="agent-phone" className="text-sm font-medium">
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="agent-phone"
+                    value={newAgentForm.phone}
+                    onChange={(e) => setNewAgentForm(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="Auto-filled from QR scan"
+                    readOnly={isConnected}
+                    className={isConnected ? "bg-gray-50" : ""}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="agent-api-key" className="text-sm font-medium">
+                    API Key
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="agent-api-key"
+                      type={showApiKey ? "text" : "password"}
+                      value={newAgentForm.api_key}
+                      onChange={(e) => setNewAgentForm(prev => ({ ...prev, api_key: e.target.value }))}
+                      className={`pr-10 ${isConnected ? "bg-gray-50" : ""}`}
+                      placeholder="Auto-filled from QR scan"
+                      readOnly={isConnected}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <DialogFooter>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
             <Button 
               variant="outline" 
               onClick={() => {
@@ -472,14 +495,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 resetQRState();
               }}
               disabled={isCreating}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button 
               onClick={handleCreateAgent}
               disabled={isCreating || !newAgentForm.name.trim()}
+              className="w-full sm:w-auto"
             >
-              {isCreating ? 'Creating...' : 'Create Agent'}
+              {isCreating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating Agent...
+                </>
+              ) : (
+                'Create Agent'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
