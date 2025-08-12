@@ -38,7 +38,13 @@ export function LoginForm({
         toast.error('Login failed: ' + error.message)
       } else {
         toast.success('Login successful!')
-        router.push('/')
+        // Set localStorage flag for middleware detection
+        localStorage.setItem('supabase-auth-status', 'authenticated')
+        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
+        // Wait a bit for session to be established
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 100)
       }
     } catch {
       toast.error('An error occurred during login')

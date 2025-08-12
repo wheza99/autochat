@@ -1,44 +1,74 @@
-// Middleware untuk autentikasi dan proteksi route aplikasi
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  // Check for authentication tokens in cookies
-  const accessToken = request.cookies.get("sb-access-token")?.value;
-  const refreshToken = request.cookies.get("sb-refresh-token")?.value;
-
-  // Simple token presence check (Edge Runtime compatible)
-  const hasValidTokens = accessToken && refreshToken;
-
-  // Check if we're accessing a protected route
-  const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/profile") ||
-    request.nextUrl.pathname.startsWith("/billing") ||
-    request.nextUrl.pathname.startsWith("/agent");
-
-  const isAuthRoute =
-    request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/register") ||
-    request.nextUrl.pathname.startsWith("/forgot-password");
-
-  // Redirect to login if accessing protected route without tokens
-  if (isProtectedRoute && !hasValidTokens) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  const { pathname } = request.nextUrl
+  
+  console.log(`[Middleware] Processing: ${pathname}`)
+  
+  // Check for client-side auth status cookie
+  const clientAuthStatus = request.cookies.get('client-auth-status')?.value
+  
+  // Get all cookies for debugging
+  const allCookies = request.cookies.getAll()
+  console.log('[Middleware] Available cookies:', allCookies.map(c => c.name))
+  console.log('[Middleware] Client auth status:', clientAuthStatus)
+  
+  // Check for Supabase session cookies
+  const hasSupabaseTokens = (
+    request.cookies.has('sb-access-token') ||
+    request.cookies.has('supabase-auth-token') ||
+    request.cookies.has('sb-refresh-token') ||
+    request.cookies.has('supabase-refresh-token') ||
+    allCookies.some(cookie => 
+      cookie.name.includes('supabase') && 
+      cookie.name.includes('token') &&
+      !cookie.name.includes('hmr')
+    )
+  )
+  
+  // Consider user authenticated if either cookies or client header indicates so
+  const isAuthenticated = hasSupabaseTokens || clientAuthStatus === 'authenticated'
+  
+  console.log('[Middleware] hasSupabaseTokens:', hasSupabaseTokens)
+  console.log('[Middleware] isAuthenticated:', isAuthenticated)
+  
+  // Define route types
+  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/auth')
+  const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/chat')
+  const isPublicRoute = pathname === '/' || pathname.startsWith('/api')
+  
+  console.log(`[Middleware] Route analysis - Auth: ${isAuthRoute}, Protected: ${isProtectedRoute}, Public: ${isPublicRoute}`)
+  
+  // Prevent redirect loops by checking for redirected parameter
+  const url = request.nextUrl.clone()
+  const hasRedirectedParam = url.searchParams.has('redirected')
+  
+  if (hasRedirectedParam) {
+    console.log('[Middleware] Redirected parameter detected, allowing request')
+    // Remove the redirected parameter to clean up URL
+    url.searchParams.delete('redirected')
+    return NextResponse.rewrite(url)
   }
-
-  // Redirect to dashboard if accessing auth routes with valid tokens
-  if (isAuthRoute && hasValidTokens) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  
+  // If user is authenticated but is on auth route, redirect to dashboard
+  if (isAuthenticated && isAuthRoute) {
+    console.log('[Middleware] Authenticated user on auth route, redirecting to dashboard')
+    url.pathname = '/dashboard'
+    url.searchParams.set('redirected', 'true')
+    return NextResponse.redirect(url)
   }
-
-  return response;
+  
+  // If user is not authenticated and is on protected route, redirect to login
+  if (!isAuthenticated && isProtectedRoute) {
+    console.log('[Middleware] Unauthenticated user on protected route, redirecting to login')
+    url.pathname = '/login'
+    url.searchParams.set('redirected', 'true')
+    return NextResponse.redirect(url)
+  }
+  
+  console.log('[Middleware] Allowing request to proceed')
+  return NextResponse.next()
 }
 
 export const config = {
