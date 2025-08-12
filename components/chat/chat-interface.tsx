@@ -195,13 +195,14 @@ function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-1 flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-1 flex-col h-full">
       {/* Chat Messages - Scrollable */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden p-4">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground text-lg">
-              Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!
+            <p className="text-muted-foreground text-sm text-center">
+              Halo, {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User"}!<br/>
+              Mulai percakapan dengan agent.
             </p>
           </div>
         ) : (
@@ -210,7 +211,7 @@ function ChatInterface() {
       </div>
 
       {/* Chat Input - Fixed at bottom */}
-      <div className="sticky bottom-0 bg-background border-t">
+      <div className="sticky bottom-0 bg-background border-t p-4">
         <ChatInput onSendMessage={handleSendMessage} phone={selectedAgent?.phone} />
       </div>
     </div>
