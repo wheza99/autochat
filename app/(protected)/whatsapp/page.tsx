@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { 
   QrCode,
@@ -120,56 +120,45 @@ function QRCodeGenerator() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button 
-              className="w-full" 
-              onClick={generateQRCode}
-              disabled={isLoading}
-            >
-              <QrCode className="h-4 w-4 mr-2" />
-              {isLoading ? 'Generating...' : 'Generate QR Code'}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>WhatsApp QR Code</DialogTitle>
-              <DialogDescription>
-                Scan this QR code with your WhatsApp mobile app to connect your bot.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col items-center space-y-4">
-              {qrData ? (
-                <>
-                  <div className="p-4 bg-white rounded-lg border">
-                    <img 
-                      src={qrData} 
-                      alt="WhatsApp QR Code" 
-                      className="w-64 h-64 object-contain"
-                    />
-                  </div>
-                  {sessionData && (
-                    <div className="text-center space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Session: <span className="font-mono text-xs">{sessionData.session}</span>
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        API Key: <span className="font-mono text-xs">{sessionData.apikey}</span>
-                      </p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg">
-                  <div className="text-center">
-                    <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Click "Generate QR Code" to generate</p>
-                  </div>
+        <Button 
+          className="w-full" 
+          onClick={generateQRCode}
+          disabled={isLoading}
+        >
+          <QrCode className="h-4 w-4 mr-2" />
+          {isLoading ? 'Generating...' : 'Generate QR Code'}
+        </Button>
+        
+        <div className="flex flex-col items-center space-y-4">
+          {qrData ? (
+            <>
+              <div className="p-4 bg-white rounded-lg border">
+                <img 
+                  src={qrData} 
+                  alt="WhatsApp QR Code" 
+                  className="w-64 h-64 object-contain"
+                />
+              </div>
+              {sessionData && (
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Session: <span className="font-mono text-xs">{sessionData.session}</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    API Key: <span className="font-mono text-xs">{sessionData.apikey}</span>
+                  </p>
                 </div>
               )}
+            </>
+          ) : (
+            <div className="flex items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg">
+              <div className="text-center">
+                <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Click "Generate QR Code" to generate</p>
+              </div>
             </div>
-          </DialogContent>
-        </Dialog>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
