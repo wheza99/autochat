@@ -150,15 +150,25 @@ export function ResetPasswordForm({
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Resetting...' : 'Reset password'}
               </Button>
+              <div className="text-center text-sm">
+                Remember your password?{" "}
+                <a href="/login" className="underline underline-offset-4">
+                  Sign in
+                </a>
+              </div>
             </div>
           </form>
         </CardContent>
       </Card>
       <div className="text-muted-foreground text-center text-xs text-balance">
-        Remember your password?{" "}
-        <a href="/login" className="underline underline-offset-4 hover:text-primary">
-          Sign in
-        </a>
+        By clicking continue, you agree to our{" "}
+        <a href="#" className="underline underline-offset-4 hover:text-primary">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="#" className="underline underline-offset-4 hover:text-primary">
+          Privacy Policy
+        </a>.
       </div>
     </div>
   )
