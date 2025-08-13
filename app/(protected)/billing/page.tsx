@@ -4,6 +4,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, CreditCard } from 'lucide-react'
+import { AppSidebar } from '@/components/shadcn-blocks/sidebar-08/app-sidebar'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
+import { Separator } from '@/components/ui/separator'
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,6 +40,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+import { AgentProvider } from '@/contexts/agent-context'
 
 interface BillingInfo {
   id: string
@@ -43,7 +59,7 @@ interface BillingInfo {
   updated_at?: string
 }
 
-export default function BillingPage() {
+function BillingContent() {
   const { user } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -186,22 +202,47 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-2xl">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Billing Information</h1>
-          <p className="text-muted-foreground">Manage your billing and payment information</p>
-        </div>
-      </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="/dashboard">
+                    Dashboard
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Billing</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+        <div className="container mx-auto py-6 px-4 max-w-2xl">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Billing Information</h1>
+              <p className="text-muted-foreground">Manage your billing and payment information</p>
+            </div>
+          </div>
 
       <Card>
         <CardHeader>
@@ -417,6 +458,16 @@ export default function BillingPage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <AgentProvider>
+      <BillingContent />
+    </AgentProvider>
   )
 }
