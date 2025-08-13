@@ -27,14 +27,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { AgentProvider } from "@/contexts/agent-context";
-import React from "react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import React, { useState } from "react";
 
 // Pricing plans data
 const pricingPlans = [
   {
     name: "Starter",
-    price: "$9",
-    period: "/month",
+    monthlyPrice: "$9",
+    yearlyPrice: "$90",
     description: "Perfect for small businesses just getting started",
     features: [
       "1 AutoChat Agent",
@@ -49,8 +52,8 @@ const pricingPlans = [
   },
   {
     name: "Professional",
-    price: "$29",
-    period: "/month",
+    monthlyPrice: "$29",
+    yearlyPrice: "$290",
     description: "Ideal for growing businesses",
     features: [
       "5 AutoChat Agents",
@@ -67,8 +70,8 @@ const pricingPlans = [
   },
   {
     name: "Enterprise",
-    price: "$99",
-    period: "/month",
+    monthlyPrice: "$99",
+    yearlyPrice: "$990",
     description: "Complete solution for large enterprises",
     features: [
       "Unlimited AutoChat Agents",
@@ -88,6 +91,13 @@ const pricingPlans = [
 
 // Main Pricing Content
 function PricingContent() {
+  const [isYearly, setIsYearly] = useState(false);
+  const [messageVolume, setMessageVolume] = useState([5]); // Default to 5k messages
+
+  const formatMessageCount = (value: number) => {
+    return `${value}k`;
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -129,6 +139,53 @@ function PricingContent() {
               </p>
             </div>
 
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-4 mb-12">
+              <Label htmlFor="billing-toggle" className={`text-sm font-medium ${!isYearly ? 'text-primary' : 'text-muted-foreground'}`}>
+                Monthly
+              </Label>
+              <Switch
+                id="billing-toggle"
+                checked={isYearly}
+                onCheckedChange={setIsYearly}
+              />
+              <Label htmlFor="billing-toggle" className={`text-sm font-medium ${isYearly ? 'text-primary' : 'text-muted-foreground'}`}>
+                Yearly
+              </Label>
+            </div>
+
+            {/* Message Volume Slider */}
+            <div className="max-w-2xl mx-auto mb-12">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-semibold mb-4">
+                  How many messages per month do you need?
+                </h3>
+              </div>
+              <div className="flex items-center gap-8 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="text-4xl font-bold text-primary">
+                    {formatMessageCount(messageVolume[0])}
+                  </div>
+                  <div className="text-sm text-muted-foreground text-center">messages/month</div>
+                </div>
+                <div className="flex-1">
+                  <Slider
+                     value={messageVolume}
+                     onValueChange={setMessageVolume}
+                     max={50000}
+                     min={1000}
+                     step={1000}
+                     className="w-full h-3"
+                   />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>1k</span>
+                    <span>25k</span>
+                    <span>50k</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Pricing Cards */}
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               {pricingPlans.map((plan, index) => (
@@ -148,8 +205,12 @@ function PricingContent() {
                     <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                     <CardDescription className="text-sm">{plan.description}</CardDescription>
                     <div className="mt-4">
-                      <span className="text-4xl font-bold">{plan.price}</span>
-                      <span className="text-muted-foreground">{plan.period}</span>
+                      <span className="text-4xl font-bold">
+                        {isYearly ? plan.yearlyPrice : plan.monthlyPrice}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {isYearly ? '/year' : '/month'}
+                      </span>
                     </div>
                   </CardHeader>
                   
