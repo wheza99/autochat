@@ -37,16 +37,20 @@ import React from "react";
 const DeviceDataContext = React.createContext<{
   refreshDeviceData: () => void;
   setRefreshDeviceData: (fn: () => void) => void;
+  refreshQRGenerator: () => void;
+  setRefreshQRGenerator: (fn: () => void) => void;
 }>({ 
   refreshDeviceData: () => {}, 
-  setRefreshDeviceData: () => {} 
+  setRefreshDeviceData: () => {},
+  refreshQRGenerator: () => {},
+  setRefreshQRGenerator: () => {}
 });
 
 // WhatsApp Connection Status Component
 function WhatsAppConnectionStatus() {
   const { user } = useAuth();
   const { selectedAgent } = useAgent();
-  const { setRefreshDeviceData } = React.useContext(DeviceDataContext);
+  const { setRefreshDeviceData, refreshQRGenerator } = React.useContext(DeviceDataContext);
   const [isConnected, setIsConnected] = React.useState(false);
   const [connectionInfo, setConnectionInfo] = React.useState<any>(null);
   const [deviceData, setDeviceData] = React.useState<any>(null);
@@ -55,7 +59,7 @@ function WhatsAppConnectionStatus() {
   const [isCheckingStatus, setIsCheckingStatus] = React.useState(false);
 
   // Check session status using API
-  const checkSessionStatus = async (apiKey: string) => {
+  const checkSessionStatus = React.useCallback(async (apiKey: string) => {
     if (!apiKey) {
       setSessionStatus('invalid');
       return;
@@ -92,7 +96,7 @@ function WhatsAppConnectionStatus() {
     } finally {
       setIsCheckingStatus(false);
     }
-  };
+  }, []);
 
   // Load device data from Supabase based on selected agent
   const loadDeviceData = React.useCallback(async () => {
@@ -165,13 +169,33 @@ function WhatsAppConnectionStatus() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {isConnected ? (
-            <Wifi className="h-5 w-5 text-green-600" />
-          ) : (
-            <WifiOff className="h-5 w-5 text-red-600" />
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {isConnected ? (
+              <Wifi className="h-5 w-5 text-green-600" />
+            ) : (
+              <WifiOff className="h-5 w-5 text-red-600" />
+            )}
+            WhatsApp Connection Status
+          </div>
+          {deviceData && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                 // First refresh the QR generator to close QR and check status
+                 refreshQRGenerator();
+                 // Also check session status to update the connection status display
+                 if (deviceData?.api_key) {
+                   await checkSessionStatus(deviceData.api_key);
+                 }
+               }}
+              disabled={isCheckingStatus}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={`h-4 w-4 ${isCheckingStatus ? 'animate-spin' : ''}`} />
+            </Button>
           )}
-          WhatsApp Connection Status
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -236,15 +260,7 @@ function WhatsAppConnectionStatus() {
                         {sessionStatus === 'invalid' && <AlertCircle className="h-3 w-3 mr-1" />}
                         {sessionStatus || 'Unknown'}
                       </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => checkSessionStatus(deviceData.api_key)}
-                        disabled={isCheckingStatus}
-                        className="h-6 w-6 p-0"
-                      >
-                        <RefreshCw className={`h-3 w-3 ${isCheckingStatus ? 'animate-spin' : ''}`} />
-                      </Button>
+
                     </>
                   )}
                 </div>
@@ -288,7 +304,7 @@ function WhatsAppConnectionStatus() {
 function QRCodeGenerator() {
   const { user } = useAuth();
   const { selectedAgent } = useAgent();
-  const { refreshDeviceData } = React.useContext(DeviceDataContext);
+  const { refreshDeviceData, setRefreshQRGenerator } = React.useContext(DeviceDataContext);
   const [qrData, setQrData] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [sessionData, setSessionData] = React.useState<any>(null);
@@ -332,7 +348,7 @@ function QRCodeGenerator() {
   }, [user?.id, selectedAgent?.id]);
 
   // Check session status using API
-  const checkSessionStatus = async (apiKey: string) => {
+  const checkSessionStatus = React.useCallback(async (apiKey: string) => {
     if (!apiKey) {
       setSessionStatus('invalid');
       return;
@@ -369,15 +385,40 @@ function QRCodeGenerator() {
     } finally {
       setIsCheckingStatus(false);
     }
-  };
+  }, []);
+
+  // Function to handle QR refresh from WhatsAppConnectionStatus
+  const handleQRRefresh = React.useCallback(() => {
+    // Always close QR code when refresh is called
+    setQrData(null);
+    setSessionData(null);
+    setError(null);
+    
+    // Reload device data to get latest status
+    if (deviceData?.api_key) {
+      checkSessionStatus(deviceData.api_key);
+    }
+  }, [deviceData?.api_key, checkSessionStatus]);
 
   // Load device data when component mounts or dependencies change
   React.useEffect(() => {
     loadDeviceData();
-  }, [loadDeviceData]);
+    // Register refresh function with context
+    setRefreshQRGenerator(handleQRRefresh);
+  }, [loadDeviceData, setRefreshQRGenerator, handleQRRefresh]);
+
+  // Listen for refresh from WhatsAppConnectionStatus and close QR if session is online
+  React.useEffect(() => {
+    if (sessionStatus === 'online' && qrData) {
+      // Close QR code when session becomes online
+      setQrData(null);
+      setSessionData(null);
+      setError(null);
+    }
+  }, [sessionStatus, qrData]);
 
   // Determine if generate button should be enabled
-  const isGenerateEnabled = !initialLoad && (!deviceData || sessionStatus === 'offline' || sessionStatus === 'invalid');
+  const isGenerateEnabled = !initialLoad && sessionStatus !== 'online' && (!deviceData || sessionStatus === 'offline' || sessionStatus === 'invalid');
 
   // Function to delete API key from notifikasee
   const deleteApiKeyFromNotifikasee = async (apiKey: string) => {
@@ -568,7 +609,7 @@ function QRCodeGenerator() {
           </p>
         )}
         
-        {(qrData || isLoading) && (
+        {(qrData || isLoading) && sessionStatus !== 'online' && (
           <div className="flex flex-col items-center space-y-4">
             {qrData ? (
               <>
@@ -621,11 +662,16 @@ function QRCodeGenerator() {
 // Main Dashboard Content
 function WhatsAppContent() {
   const [refreshDeviceDataFn, setRefreshDeviceDataFn] = React.useState<() => void>(() => () => {});
+  const [refreshQRGeneratorFn, setRefreshQRGeneratorFn] = React.useState<() => void>(() => () => {});
 
   const contextValue = {
     refreshDeviceData: refreshDeviceDataFn,
     setRefreshDeviceData: (fn: () => void) => {
       setRefreshDeviceDataFn(() => fn);
+    },
+    refreshQRGenerator: refreshQRGeneratorFn,
+    setRefreshQRGenerator: (fn: () => void) => {
+      setRefreshQRGeneratorFn(() => fn);
     }
   };
 
