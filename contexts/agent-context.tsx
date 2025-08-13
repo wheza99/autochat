@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/hooks/use-auth"
 
 interface Agent {
   id: string
@@ -12,6 +13,7 @@ interface Agent {
   created_at: string
   updated_at: string | null
   api_key: string | null
+  user_id: string | null
 }
 
 interface AgentContextType {
@@ -27,12 +29,19 @@ const AgentContext = createContext<AgentContextType | undefined>(undefined)
 export function AgentProvider({ children }: { children: ReactNode }) {
   const [agents, setAgents] = useState<Agent[]>([])
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const { user } = useAuth()
 
   const loadAgents = async () => {
     try {
+      if (!user?.id) {
+        setAgents([])
+        return
+      }
+
       const { data, error } = await supabase
         .from('agents')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
       
       if (error) {
@@ -63,8 +72,13 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    loadAgents()
-  }, [])
+    if (user?.id) {
+      loadAgents()
+    } else {
+      setAgents([])
+      setSelectedAgent(null)
+    }
+  }, [user?.id])
 
   // Auto-select first agent when agents are loaded and no agent is selected
   useEffect(() => {
