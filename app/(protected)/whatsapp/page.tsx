@@ -201,8 +201,8 @@ function WhatsAppConnectionStatus() {
       <CardContent>
         {deviceData && connectionInfo ? (
           <div className="space-y-3">
-            <Badge variant={isConnected ? "default" : "secondary"} className={isConnected ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200"}>
-              {isConnected ? (
+            <Badge variant={sessionStatus === 'online' ? "default" : "secondary"} className={sessionStatus === 'online' ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200"}>
+              {sessionStatus === 'online' ? (
                 <><CheckCircle className="h-3 w-3 mr-1" />Connected</>
               ) : (
                 <><AlertCircle className="h-3 w-3 mr-1" />Disconnected</>
