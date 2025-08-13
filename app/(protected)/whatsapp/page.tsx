@@ -780,6 +780,7 @@ function QRCodeGenerator() {
 
 // Main Dashboard Content
 function WhatsAppContent() {
+  const { selectedAgent, agents } = useAgent();
   const [refreshDeviceDataFn, setRefreshDeviceDataFn] = React.useState<() => void>(() => () => {});
   const [refreshQRGeneratorFn, setRefreshQRGeneratorFn] = React.useState<() => void>(() => () => {});
 
@@ -793,6 +794,9 @@ function WhatsAppContent() {
       setRefreshQRGeneratorFn(() => fn);
     }
   };
+
+  // Get current agent name for breadcrumb
+  const currentAgentName = selectedAgent ? selectedAgent.name : (agents.length > 0 ? agents[0].name : 'No Agent');
 
   return (
     <DeviceDataContext.Provider value={contextValue}>
@@ -810,7 +814,7 @@ function WhatsAppContent() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/dashboard">
-                      Dashboard
+                      {currentAgentName}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
