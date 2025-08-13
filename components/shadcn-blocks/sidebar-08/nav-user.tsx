@@ -50,15 +50,44 @@ export function NavUser({
 
   const handleLogout = async () => {
     try {
+      // Set logout cookie to indicate logout in progress
+      document.cookie = 'logout-in-progress=true; path=/; max-age=10'
+      
       const { error } = await signOut()
       if (error) {
         toast.error('Logout failed: ' + error.message)
+        // Clear logout cookie on error
+        document.cookie = 'logout-in-progress=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
       } else {
         toast.success('Logout successful!')
-        router.push('/login')
+        // Clear all auth-related cookies
+        const cookiesToClear = [
+          'client-auth-status',
+          'sb-access-token',
+          'supabase-auth-token',
+          'sb-refresh-token',
+          'supabase-refresh-token'
+        ]
+        
+        cookiesToClear.forEach(cookieName => {
+          document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        })
+        
+        // Clear any supabase cookies that might exist
+        document.cookie.split(';').forEach(cookie => {
+          const cookieName = cookie.split('=')[0].trim()
+          if (cookieName.includes('supabase') && cookieName.includes('token')) {
+            document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+          }
+        })
+        
+        // Redirect to home page (middleware will handle this)
+        router.push('/')
       }
     } catch {
       toast.error('An error occurred during logout')
+      // Clear logout cookie on error
+      document.cookie = 'logout-in-progress=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     }
   }
 

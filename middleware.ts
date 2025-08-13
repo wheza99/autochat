@@ -27,10 +27,14 @@ export async function middleware(request: NextRequest) {
     )
   )
   
-  // Consider user authenticated if either cookies or client header indicates so
-  const isAuthenticated = hasSupabaseTokens || clientAuthStatus === 'authenticated'
+  // Check for logout indicator
+  const isLoggingOut = request.cookies.get('logout-in-progress')?.value === 'true'
+  
+  // Consider user authenticated if either cookies or client header indicates so, but not if logging out
+  const isAuthenticated = !isLoggingOut && (hasSupabaseTokens || clientAuthStatus === 'authenticated')
   
   console.log('[Middleware] hasSupabaseTokens:', hasSupabaseTokens)
+  console.log('[Middleware] isLoggingOut:', isLoggingOut)
   console.log('[Middleware] isAuthenticated:', isAuthenticated)
   
   // Define route types
@@ -57,6 +61,17 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/dashboard'
     url.searchParams.set('redirected', 'true')
     return NextResponse.redirect(url)
+  }
+  
+  // Handle logout - redirect to home page and clear logout cookie
+  if (isLoggingOut) {
+    console.log('[Middleware] Logout in progress, redirecting to home page')
+    url.pathname = '/'
+    url.searchParams.set('redirected', 'true')
+    const response = NextResponse.redirect(url)
+    // Clear the logout cookie
+    response.cookies.delete('logout-in-progress')
+    return response
   }
   
   // If user is not authenticated and is on protected route, redirect to login
