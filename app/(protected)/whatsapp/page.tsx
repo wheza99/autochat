@@ -56,6 +56,7 @@ function WhatsAppConnectionStatus() {
   const [deviceData, setDeviceData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [sessionStatus, setSessionStatus] = React.useState<string | null>(null);
+  const [botNumber, setBotNumber] = React.useState<string | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = React.useState(false);
 
   // Check session status using API
@@ -82,6 +83,7 @@ function WhatsAppConnectionStatus() {
       if (response.ok) {
         const data = await response.json();
         setSessionStatus(data.status_session || 'offline');
+        setBotNumber(data.bot_number || 'N/A');
       } else {
         const errorData = await response.json().catch(() => null);
         if (errorData?.error?.message?.includes('Invalid apikey')) {
@@ -171,7 +173,7 @@ function WhatsAppConnectionStatus() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isConnected ? (
+            {sessionStatus === 'online' ? (
               <Wifi className="h-5 w-5 text-green-600" />
             ) : (
               <WifiOff className="h-5 w-5 text-red-600" />
@@ -212,7 +214,7 @@ function WhatsAppConnectionStatus() {
             <div className="space-y-2">
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Phone Number</p>
-                <p className="text-sm font-mono">{connectionInfo.phone || 'N/A'}</p>
+                <p className="text-sm font-mono">{(botNumber && botNumber.split('@')[0]) || 'N/A'}</p>
               </div>
               
               <div>
