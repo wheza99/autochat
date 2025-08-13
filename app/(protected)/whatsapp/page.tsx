@@ -26,7 +26,8 @@ import {
   AlertCircle,
   Wifi,
   WifiOff,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from "lucide-react";
 import { AgentProvider, useAgent } from "@/contexts/agent-context";
 import { useAuth } from "@/hooks/use-auth";
@@ -58,6 +59,7 @@ function WhatsAppConnectionStatus() {
   const [sessionStatus, setSessionStatus] = React.useState<string | null>(null);
   const [botNumber, setBotNumber] = React.useState<string | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   // Check session status using API
   const checkSessionStatus = React.useCallback(async (apiKey: string) => {
@@ -99,6 +101,76 @@ function WhatsAppConnectionStatus() {
       setIsCheckingStatus(false);
     }
   }, []);
+
+  // Delete device function
+  const deleteDevice = React.useCallback(async () => {
+    if (!deviceData?.api_key || !user?.id || !selectedAgent?.id) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // First, try to delete from notifikasee
+      const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
+      try {
+        const response = await fetch('https://app.notif.my.id/ss/delete', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${credentials}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            apikey: deviceData.api_key
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Device deleted from notifikasee:', data.message);
+        } else {
+          const errorData = await response.json().catch(() => null);
+          if (errorData?.error?.message?.includes('Invalid apikey')) {
+            console.log('API key already deleted or invalid in notifikasee');
+          } else {
+            console.error('Failed to delete from notifikasee:', errorData);
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting from notifikasee:', error);
+        // Continue with Supabase deletion even if notifikasee fails
+      }
+
+      // Delete from Supabase
+      const { error: supabaseError } = await supabase
+        .from('device')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('agent_id', selectedAgent.id)
+        .eq('api_key', deviceData.api_key);
+
+      if (supabaseError) {
+        console.error('Error deleting from Supabase:', supabaseError);
+        throw supabaseError;
+      }
+
+      console.log('Device deleted from Supabase successfully');
+      
+      // Reset local state
+      setDeviceData(null);
+      setConnectionInfo(null);
+      setIsConnected(false);
+      setSessionStatus(null);
+      setBotNumber(null);
+      
+      // Refresh QR generator
+      refreshQRGenerator();
+      
+    } catch (error) {
+      console.error('Error deleting device:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deviceData, user?.id, selectedAgent?.id, refreshQRGenerator]);
 
   // Load device data from Supabase based on selected agent
   const loadDeviceData = React.useCallback(async () => {
@@ -181,22 +253,33 @@ function WhatsAppConnectionStatus() {
             WhatsApp Connection Status
           </div>
           {deviceData && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={async () => {
-                 // First refresh the QR generator to close QR and check status
-                 refreshQRGenerator();
-                 // Also check session status to update the connection status display
-                 if (deviceData?.api_key) {
-                   await checkSessionStatus(deviceData.api_key);
-                 }
-               }}
-              disabled={isCheckingStatus}
-              className="h-8 w-8 p-0"
-            >
-              <RefreshCw className={`h-4 w-4 ${isCheckingStatus ? 'animate-spin' : ''}`} />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                   // First refresh the QR generator to close QR and check status
+                   refreshQRGenerator();
+                   // Also check session status to update the connection status display
+                   if (deviceData?.api_key) {
+                     await checkSessionStatus(deviceData.api_key);
+                   }
+                 }}
+                disabled={isCheckingStatus || isDeleting}
+                className="h-8 w-8 p-0"
+              >
+                <RefreshCw className={`h-4 w-4 ${isCheckingStatus ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={deleteDevice}
+                disabled={isCheckingStatus || isDeleting}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className={`h-4 w-4 ${isDeleting ? 'animate-pulse' : ''}`} />
+              </Button>
+            </div>
           )}
         </CardTitle>
       </CardHeader>
@@ -541,18 +624,52 @@ function QRCodeGenerator() {
           setError(data.message || 'Device quota exceeded. Please delete a device or upgrade subscription.');
           console.log('API returned error:', data.message);
         } else {
-          // Update data di Supabase (tidak insert data baru)
-          const { data: deviceRecord, error: dbError } = await supabase
+          // Cek apakah device sudah ada untuk user dan agent ini
+          const { data: existingDevice } = await supabase
             .from('device')
-            .update({
-              api_key: data.apikey,
-              session: data.session,
-              updated_at: new Date().toISOString()
-            })
+            .select('id')
             .eq('user_id', user.id)
             .eq('agent_id', selectedAgent.id)
-            .select()
             .single();
+
+          let deviceRecord, dbError;
+          
+          if (existingDevice) {
+            // Update existing device
+            const { data: updatedDevice, error } = await supabase
+              .from('device')
+              .update({
+                api_key: data.apikey,
+                session: data.session,
+                is_active: true,
+                updated_at: new Date().toISOString()
+              })
+              .eq('user_id', user.id)
+              .eq('agent_id', selectedAgent.id)
+              .select()
+              .single();
+            deviceRecord = updatedDevice;
+            dbError = error;
+          } else {
+            // Insert new device
+            const { data: newDevice, error } = await supabase
+              .from('device')
+              .insert({
+                user_id: user.id,
+                agent_id: selectedAgent.id,
+                api_key: data.apikey,
+                session: data.session,
+                device_name: `WhatsApp Device - ${selectedAgent.name || 'Agent'}`,
+                device_type: 'whatsapp',
+                is_active: true,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+              .select()
+              .single();
+            deviceRecord = newDevice;
+            dbError = error;
+          }
           
           if (dbError) {
             console.error('Error saving device to database:', dbError);
