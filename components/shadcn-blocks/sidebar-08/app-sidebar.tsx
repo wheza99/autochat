@@ -23,6 +23,7 @@ import {
   FileText,
   MessageCircle,
   MessageSquare,
+  Settings,
 } from "lucide-react";
 
 import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
@@ -83,6 +84,11 @@ const data = {
       title: "Agent Info",
       url: "/agent_info",
       icon: Info,
+    },
+    {
+      title: "System Prompt",
+      url: "/system_prompt",
+      icon: Settings,
     },
     {
       title: "Documents",
