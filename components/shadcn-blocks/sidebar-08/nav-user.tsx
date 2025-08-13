@@ -50,15 +50,70 @@ export function NavUser({
 
   const handleLogout = async () => {
     try {
-      const { error } = await signOut()
-      if (error) {
-        toast.error('Logout failed: ' + error.message)
-      } else {
-        toast.success('Logout successful!')
-        router.push('/login')
+      // Set logout cookie to indicate logout in progress
+      document.cookie = 'logout-in-progress=true; path=/; max-age=10'
+      
+      // Always clear auth state first to prevent race conditions
+      // Clear localStorage and cookies immediately
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('supabase-auth-status')
+        localStorage.removeItem('supabase-auth-timestamp')
       }
-    } catch {
+      
+      // Clear all auth-related cookies immediately
+      const cookiesToClear = [
+        'client-auth-status',
+        'sb-access-token',
+        'supabase-auth-token',
+        'sb-refresh-token',
+        'supabase-refresh-token'
+      ]
+      
+      cookiesToClear.forEach(cookieName => {
+        document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+      })
+      
+      // Clear any supabase cookies that might exist
+      document.cookie.split(';').forEach(cookie => {
+        const cookieName = cookie.split('=')[0].trim()
+        if (cookieName.includes('supabase') && cookieName.includes('token')) {
+          document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        }
+      })
+      
+      // Try to sign out from Supabase, but don't fail if session is missing
+      try {
+        const { error } = await signOut()
+        if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+          if (!error.message.includes('session')) {
+            console.warn('Logout warning:', error.message)
+          }
+        }
+      } catch (signOutError) {
+        // Ignore session-related errors during logout
+        console.warn('SignOut error (ignored):', signOutError)
+      }
+      
+      toast.success('Logout successful!')
+      
+      // Redirect to home page (middleware will handle this)
+      router.push('/')
+      
+    } catch (error) {
+      console.error('Logout error:', error)
       toast.error('An error occurred during logout')
+      
+      // Even on error, clear auth state and redirect
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('supabase-auth-status')
+        localStorage.removeItem('supabase-auth-timestamp')
+      }
+      
+      // Clear logout cookie on error
+      document.cookie = 'logout-in-progress=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      
+      // Force redirect to home page
+      router.push('/')
     }
   }
 

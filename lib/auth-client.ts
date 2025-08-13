@@ -41,6 +41,27 @@ export const AuthClient = {
     
     localStorage.removeItem('supabase-auth-status')
     localStorage.removeItem('supabase-auth-timestamp')
+    
+    // Clear auth-related cookies
+    const cookiesToClear = [
+      'client-auth-status',
+      'sb-access-token',
+      'supabase-auth-token',
+      'sb-refresh-token',
+      'supabase-refresh-token'
+    ]
+    
+    cookiesToClear.forEach(cookieName => {
+      document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    })
+    
+    // Clear any supabase cookies that might exist
+    document.cookie.split(';').forEach(cookie => {
+      const cookieName = cookie.split('=')[0].trim()
+      if (cookieName.includes('supabase') && cookieName.includes('token')) {
+        document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+      }
+    })
   },
   
   // Add auth header to requests

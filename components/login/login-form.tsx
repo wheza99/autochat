@@ -87,13 +87,13 @@ export function LoginForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>
-            Login with your Apple or Google account
+            Enter your email and password to login
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailLogin}>
             <div className="grid gap-6">
-              <div className="flex flex-col gap-4">
+              <div className="hidden">
                 <Button 
                   type="button"
                   variant="outline" 
@@ -125,7 +125,7 @@ export function LoginForm({
                   Login with Google
                 </Button>
               </div>
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t hidden">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   Or continue with
                 </span>
@@ -147,7 +147,7 @@ export function LoginForm({
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
                     <a
-                      href="#"
+                      href="/forgot-password"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                     >
                       Forgot your password?

@@ -93,13 +93,13 @@ export function RegisterForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create an account</CardTitle>
           <CardDescription>
-            Sign up with your Apple or Google account
+            Enter your details to create a new account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailRegister}>
             <div className="grid gap-6">
-              <div className="flex flex-col gap-4">
+              <div className="hidden">
                 <Button 
                   type="button"
                   variant="outline" 
@@ -131,7 +131,7 @@ export function RegisterForm({
                   Sign up with Google
                 </Button>
               </div>
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t hidden">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   Or continue with
                 </span>

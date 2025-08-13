@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { GalleryVerticalEnd } from "lucide-react"
+import { MessageCircle } from "lucide-react"
 import { useAuthContext } from '@/components/auth-provider'
 
 interface AuthLayoutProps {
@@ -28,9 +28,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         <div className="flex w-full max-w-sm flex-col gap-6">
           <div className="flex items-center gap-2 self-center font-medium">
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-4" />
+              <MessageCircle className="size-4" />
             </div>
-            Acme Inc.
+            AutoChat
           </div>
           <div className="text-center text-sm text-muted-foreground">
             Loading...
@@ -51,9 +51,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
+            <MessageCircle className="size-4" />
           </div>
-          Acme Inc.
+          AutoChat
         </a>
         {children}
       </div>
