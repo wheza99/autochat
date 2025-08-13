@@ -33,10 +33,20 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import React from "react";
 
+// Create a context for device data synchronization
+const DeviceDataContext = React.createContext<{
+  refreshDeviceData: () => void;
+  setRefreshDeviceData: (fn: () => void) => void;
+}>({ 
+  refreshDeviceData: () => {}, 
+  setRefreshDeviceData: () => {} 
+});
+
 // WhatsApp Connection Status Component
 function WhatsAppConnectionStatus() {
   const { user } = useAuth();
   const { selectedAgent } = useAgent();
+  const { setRefreshDeviceData } = React.useContext(DeviceDataContext);
   const [isConnected, setIsConnected] = React.useState(false);
   const [connectionInfo, setConnectionInfo] = React.useState<any>(null);
   const [deviceData, setDeviceData] = React.useState<any>(null);
@@ -129,7 +139,9 @@ function WhatsAppConnectionStatus() {
   // Load device data when component mounts or dependencies change
   React.useEffect(() => {
     loadDeviceData();
-  }, [loadDeviceData]);
+    // Register this component's refresh function with the context
+    setRefreshDeviceData(loadDeviceData);
+  }, [loadDeviceData, setRefreshDeviceData]);
 
   if (loading) {
     return (
@@ -276,6 +288,7 @@ function WhatsAppConnectionStatus() {
 function QRCodeGenerator() {
   const { user } = useAuth();
   const { selectedAgent } = useAgent();
+  const { refreshDeviceData } = React.useContext(DeviceDataContext);
   const [qrData, setQrData] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [sessionData, setSessionData] = React.useState<any>(null);
@@ -506,9 +519,10 @@ function QRCodeGenerator() {
             // Setelah berhasil simpan ke database, baru tampilkan QR code
             setQrData(data.qr);
             setSessionData(data);
-            // Reload device data to update the status
+            // Reload device data to update the status in both components
             setTimeout(() => {
               loadDeviceData();
+              refreshDeviceData(); // Also refresh the connection status component
             }, 1000);
           }
         }
@@ -606,50 +620,61 @@ function QRCodeGenerator() {
 
 // Main Dashboard Content
 function WhatsAppContent() {
+  const [refreshDeviceDataFn, setRefreshDeviceDataFn] = React.useState<() => void>(() => () => {});
+
+  const contextValue = {
+    refreshDeviceData: refreshDeviceDataFn,
+    setRefreshDeviceData: (fn: () => void) => {
+      setRefreshDeviceDataFn(() => fn);
+    }
+  };
+
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>WhatsApp</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">WhatsApp Management</h1>
-              <p className="text-muted-foreground">
-                Connect and manage your WhatsApp account
-              </p>
+    <DeviceDataContext.Provider value={contextValue}>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 data-[orientation=vertical]:h-4"
+              />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/dashboard">
+                      Dashboard
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>WhatsApp</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+          </header>
+          
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">WhatsApp Management</h1>
+                <p className="text-muted-foreground">
+                  Connect and manage your WhatsApp account
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              <WhatsAppConnectionStatus />
+              <QRCodeGenerator />
             </div>
           </div>
-          
-          <div className="grid gap-4 md:grid-cols-2">
-            <WhatsAppConnectionStatus />
-            <QRCodeGenerator />
-          </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    </DeviceDataContext.Provider>
   );
 }
 
