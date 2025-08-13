@@ -40,7 +40,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
-import { AgentProvider } from '@/contexts/agent-context'
+import { AgentProvider, useAgent } from '@/contexts/agent-context'
 
 interface BillingInfo {
   id: string
@@ -61,6 +61,7 @@ interface BillingInfo {
 
 function BillingContent() {
   const { user } = useAuth()
+  const { selectedAgent } = useAgent()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [billingInfo, setBillingInfo] = useState<BillingInfo | null>(null)
@@ -216,7 +217,7 @@ function BillingContent() {
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/dashboard">
-                    Dashboard
+                    {selectedAgent?.name || 'Dashboard'}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
