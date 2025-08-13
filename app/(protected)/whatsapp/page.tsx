@@ -34,8 +34,76 @@ import React from "react";
 
 // WhatsApp Connection Status Component
 function WhatsAppConnectionStatus() {
+  const { user } = useAuth();
+  const { selectedAgent } = useAgent();
   const [isConnected, setIsConnected] = React.useState(false);
   const [connectionInfo, setConnectionInfo] = React.useState<any>(null);
+  const [deviceData, setDeviceData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  // Load device data from Supabase based on selected agent
+  const loadDeviceData = React.useCallback(async () => {
+    if (!user?.id || !selectedAgent?.id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('device')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('agent_id', selectedAgent.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        console.error('Error loading device data:', error);
+      } else if (data) {
+        setDeviceData(data);
+        setConnectionInfo({
+          phone: data.phone_number,
+          session: data.session,
+          api_key: data.api_key
+        });
+        setIsConnected(data.is_active || false);
+      } else {
+        setDeviceData(null);
+        setConnectionInfo(null);
+        setIsConnected(false);
+      }
+    } catch (err) {
+      console.error('Error loading device data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id, selectedAgent?.id]);
+
+  // Load device data when component mounts or dependencies change
+  React.useEffect(() => {
+    loadDeviceData();
+  }, [loadDeviceData]);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wifi className="h-5 w-5 text-gray-400" />
+            WhatsApp Connection Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -50,27 +118,48 @@ function WhatsAppConnectionStatus() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {isConnected && connectionInfo ? (
-          <div className="space-y-2">
-            <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
-              <CheckCircle className="h-3 w-3 mr-1" />
-              Connected
+        {deviceData && connectionInfo ? (
+          <div className="space-y-3">
+            <Badge variant={isConnected ? "default" : "secondary"} className={isConnected ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200"}>
+              {isConnected ? (
+                <><CheckCircle className="h-3 w-3 mr-1" />Connected</>
+              ) : (
+                <><AlertCircle className="h-3 w-3 mr-1" />Disconnected</>
+              )}
             </Badge>
-            <p className="text-sm text-muted-foreground">
-              Phone: {connectionInfo.phone || 'N/A'}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Session: {connectionInfo.session || 'N/A'}
-            </p>
+            
+            <div className="space-y-2">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Phone Number</p>
+                <p className="text-sm font-mono">{connectionInfo.phone || 'N/A'}</p>
+              </div>
+              
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Session ID</p>
+                <p className="text-sm font-mono break-all">{connectionInfo.session || 'N/A'}</p>
+              </div>
+              
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">API Key</p>
+                <p className="text-sm font-mono break-all">{connectionInfo.api_key || 'N/A'}</p>
+              </div>
+              
+              {deviceData.last_active && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Last Active</p>
+                  <p className="text-sm">{new Date(deviceData.last_active).toLocaleString()}</p>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
-            <Badge variant="secondary" className="bg-red-100 text-red-800 border-red-200">
+            <Badge variant="secondary" className="bg-gray-100 text-gray-800 border-gray-200">
               <AlertCircle className="h-3 w-3 mr-1" />
-              Disconnected
+              No Device Found
             </Badge>
             <p className="text-sm text-muted-foreground">
-              Please scan QR code to connect WhatsApp
+              {!selectedAgent ? 'Please select an agent first' : 'No WhatsApp device connected for this agent'}
             </p>
           </div>
         )}
