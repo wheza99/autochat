@@ -54,8 +54,8 @@ const pricingPlans = [
   },
   {
     name: "Professional",
-    monthlyPrice: 400000,
-    yearlyPrice: 4000000,
+    monthlyPrice: 2000000,
+    yearlyPrice: 20000000,
     description: "Ideal for growing businesses",
     messageLimit: "5K",
     baseMessages: 5000,
@@ -98,7 +98,7 @@ function PricingContent() {
   const { selectedAgent } = useAgent();
   const router = useRouter();
   const [isYearly, setIsYearly] = useState(false);
-  const [messageVolume, setMessageVolume] = useState([5000]); // Default to 5k messages
+  const [messageVolume, setMessageVolume] = useState([1000]); // Default to 5k messages to show Professional plan base price
 
   const formatMessageCount = (value: number) => {
     return value.toLocaleString();
@@ -113,10 +113,8 @@ function PricingContent() {
     // Calculate price per message based on base plan
     const pricePerMessage = basePrice / baseMessages;
     
-    // If selected messages is less than base, use base price
-    // If selected messages is more than base, calculate proportionally
-    const effectiveMessages = Math.max(messageCount, baseMessages);
-    const calculatedPrice = Math.round(pricePerMessage * effectiveMessages);
+    // Calculate price based on selected message count
+    const calculatedPrice = Math.round(pricePerMessage * messageCount);
     
     return `Rp ${calculatedPrice.toLocaleString('id-ID')}`;
   };
@@ -284,7 +282,7 @@ function PricingContent() {
                       <div className="text-lg font-semibold text-primary">
                         {plan.messageLimit === 'Custom' || plan.messageLimit === 'Unlimited' 
                           ? plan.messageLimit 
-                          : `${formatMessageCount(Math.max(messageVolume[0], plan.baseMessages))}`
+                          : `${formatMessageCount(messageVolume[0])}`
                         } messages/month
                       </div>
                     </div>
