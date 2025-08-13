@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS public.device (
     updated_at TIMESTAMP WITHOUT TIME ZONE NULL,
     api_key TEXT NULL,
     CONSTRAINT device_pkey PRIMARY KEY (id)
-) TABLESPACE pg_default;
 
 -- Enable RLS (Row Level Security)
 ALTER TABLE public.device ENABLE ROW LEVEL SECURITY;

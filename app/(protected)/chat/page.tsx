@@ -1,4 +1,4 @@
-// Halaman dashboard utama dengan tabs dan sidebar
+// Halaman Chat untuk manajemen dan monitoring agent Chat
 "use client";
 
 import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";
@@ -16,20 +16,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-// Tabs removed - content moved to separate pages
+
 import { AgentProvider } from "@/contexts/agent-context";
-// WhatsApp section removed - dashboard now empty
+import ChatInterface from "@/components/chat/chat-interface";
+import React from "react";
 
-// Right sidebar removed as requested
-
-// Message type definition
-
-
-
-
-// Inner component that uses the agent context
-function DashboardContent() {
-
+// Main Dashboard Content
+function ChatContent() {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -44,31 +37,32 @@ function DashboardContent() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard">
+                    Dashboard
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Chat</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-
-        {/* Main Content Area - Empty Dashboard */}
-        <div className="flex-1 p-6">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-muted-foreground mb-2">Dashboard</h2>
-              <p className="text-muted-foreground">Pilih menu di sidebar untuk mulai menggunakan fitur.</p>
-            </div>
-          </div>
+        
+        <div className="flex flex-1 flex-col gap-4 p-4">
+          <ChatInterface />
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
 }
 
-export default function Page() {
+// Main Page Component
+export default function ChatPage() {
   return (
     <AgentProvider>
-      <DashboardContent />
+      <ChatContent />
     </AgentProvider>
   );
 }

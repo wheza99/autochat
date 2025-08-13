@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Bot,
   Eye,
@@ -13,8 +14,17 @@ import {
   QrCode,
   CheckCircle,
   Loader2,
+  ChevronsUpDown,
+  MoreHorizontal,
+  Trash2,
+  Share,
+  Folder,
+  Info,
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 
+import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
 import { NavProjects } from "@/components/shadcn-blocks/sidebar-08/nav-projects";
 import { NavSecondary } from "@/components/shadcn-blocks/sidebar-08/nav-secondary";
 import { NavUser } from "@/components/shadcn-blocks/sidebar-08/nav-user";
@@ -23,6 +33,10 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -30,13 +44,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { useAgent } from "@/contexts/agent-context";
-import { DeviceManagement } from "@/components/device-management";
-import { DeviceUsageCard } from "@/components/device-usage-card";
+// Device management components disabled as requested
+// import { DeviceManagement } from "@/components/device-management";
+// import { DeviceUsageCard } from "@/components/device-usage-card";
 
 interface UserProfile {
   id: string;
@@ -53,7 +77,18 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  navMain: [],
+  navMain: [
+    {
+      title: "Agent Info",
+      url: "/agent_info",
+      icon: Info,
+    },
+    {
+      title: "Documents",
+      url: "/document",
+      icon: FileText,
+    },
+  ],
   navSecondary: [],
   projects: [
     {
@@ -76,9 +111,11 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth();
-  const { loadAgents } = useAgent();
+  const { agents, selectedAgent, setSelectedAgent, loadAgents } = useAgent();
+  const { isMobile } = useSidebar();
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = React.useState(false);
-  const [isDeviceManagementOpen, setIsDeviceManagementOpen] = React.useState(false);
+  // Device management disabled as requested
+  // const [isDeviceManagementOpen, setIsDeviceManagementOpen] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState(false);
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [showApiKey, setShowApiKey] = React.useState(false);
@@ -272,34 +309,88 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <div className="flex items-center space-x-2 px-2 py-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-black">
-            <Bot className="h-4 w-4 text-white" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-semibold text-sm">AutoChat</span>
-          </div>
-        </div>
-        <div className="px-2 pb-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full justify-start text-xs h-8 bg-black text-white border-black hover:bg-gray-800 hover:text-white"
-            onClick={() => setIsAddAgentDialogOpen(true)}
-          >
-            <Plus className="h-3 w-3 mr-2" />
-            Add Agents
-          </Button>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <Bot className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {selectedAgent ? selectedAgent.name : agents.length > 0 ? agents[0].name : 'No Agents'}
+                    </span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                align="start"
+                side={isMobile ? "bottom" : "right"}
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  Agents
+                </DropdownMenuLabel>
+                {agents.length === 0 ? (
+                  <DropdownMenuItem disabled className="gap-2 p-2">
+                    <div className="flex size-6 items-center justify-center rounded-md border">
+                      <Bot className="size-3.5 shrink-0" />
+                    </div>
+                    No agents found
+                  </DropdownMenuItem>
+                ) : (
+                  agents.map((agent, index) => (
+                    <DropdownMenuItem
+                      key={agent.id}
+                      onClick={() => setSelectedAgent(agent)}
+                      className="gap-2 p-2"
+                    >
+                      <div className="flex size-6 items-center justify-center rounded-md border">
+                        <Bot className="size-3.5 shrink-0" />
+                      </div>
+                      {agent.name || 'Unnamed Agent'}
+                      <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  ))
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setIsAddAgentDialogOpen(true)} className="gap-2 p-2">
+                  <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="text-muted-foreground font-medium">Add Agent</div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Chat">
+              <Link href="/chat" className="gap-2 p-2">
+                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                  <MessageCircle className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">Chat</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects />
+        <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <div className="px-2 pb-2">
-          {/* Device Usage Card */}
+        {/* Device Usage Card - Hidden as requested */}
+        {/* <div className="px-2 pb-2">
           <DeviceUsageCard onManageClick={() => setIsDeviceManagementOpen(true)} />
-        </div>
+        </div> */}
         <NavUser user={userData} />
       </SidebarFooter>
       
@@ -517,11 +608,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </DialogContent>
       </Dialog>
       
-      {/* Device Management Dialog */}
-      <DeviceManagement 
+      {/* Device Management Dialog - Disabled as requested */}
+      {/* <DeviceManagement 
         open={isDeviceManagementOpen} 
         onOpenChange={setIsDeviceManagementOpen} 
-      />
+      /> */}
     </Sidebar>
   );
   
