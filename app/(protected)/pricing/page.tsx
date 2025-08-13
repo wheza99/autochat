@@ -92,7 +92,7 @@ const pricingPlans = [
 // Main Pricing Content
 function PricingContent() {
   const [isYearly, setIsYearly] = useState(false);
-  const [messageVolume, setMessageVolume] = useState([5000]); // Default to 5k messages
+  const [messageVolume, setMessageVolume] = useState([1000]); // Default to 1k messages
 
   const formatMessageCount = (value: number) => {
     return value.toLocaleString();
