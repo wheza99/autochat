@@ -25,7 +25,8 @@ import {
   CheckCircle,
   AlertCircle,
   Wifi,
-  WifiOff
+  WifiOff,
+  RefreshCw
 } from "lucide-react";
 import { AgentProvider, useAgent } from "@/contexts/agent-context";
 import { useAuth } from "@/hooks/use-auth";
@@ -40,6 +41,48 @@ function WhatsAppConnectionStatus() {
   const [connectionInfo, setConnectionInfo] = React.useState<any>(null);
   const [deviceData, setDeviceData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [sessionStatus, setSessionStatus] = React.useState<string | null>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = React.useState(false);
+
+  // Check session status using API
+  const checkSessionStatus = async (apiKey: string) => {
+    if (!apiKey) {
+      setSessionStatus('invalid');
+      return;
+    }
+
+    setIsCheckingStatus(true);
+    try {
+      const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
+      const response = await fetch('https://app.notif.my.id/ss/info', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apikey: apiKey
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSessionStatus(data.status_session || 'offline');
+      } else {
+        const errorData = await response.json().catch(() => null);
+        if (errorData?.error?.message?.includes('Invalid apikey')) {
+          setSessionStatus('invalid');
+        } else {
+          setSessionStatus('offline');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking session status:', error);
+      setSessionStatus('offline');
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
 
   // Load device data from Supabase based on selected agent
   const loadDeviceData = React.useCallback(async () => {
@@ -69,6 +112,8 @@ function WhatsAppConnectionStatus() {
           api_key: data.api_key
         });
         setIsConnected(data.is_active || false);
+        // Check session status when device data is loaded
+        checkSessionStatus(data.api_key);
       } else {
         setDeviceData(null);
         setConnectionInfo(null);
@@ -151,6 +196,63 @@ function WhatsAppConnectionStatus() {
                 </div>
               )}
             </div>
+            
+            {/* Session Status Display */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Session Status:</span>
+                <div className="flex items-center gap-2">
+                  {isCheckingStatus ? (
+                    <div className="flex items-center gap-1">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+                      <span className="text-xs text-muted-foreground">Checking...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Badge 
+                        variant={sessionStatus === 'online' ? 'default' : 'secondary'}
+                        className={
+                          sessionStatus === 'online' 
+                            ? 'bg-green-100 text-green-800 border-green-200'
+                            : sessionStatus === 'offline'
+                            ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                            : 'bg-red-100 text-red-800 border-red-200'
+                        }
+                      >
+                        {sessionStatus === 'online' && <CheckCircle className="h-3 w-3 mr-1" />}
+                        {sessionStatus === 'offline' && <AlertCircle className="h-3 w-3 mr-1" />}
+                        {sessionStatus === 'invalid' && <AlertCircle className="h-3 w-3 mr-1" />}
+                        {sessionStatus || 'Unknown'}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => checkSessionStatus(deviceData.api_key)}
+                        disabled={isCheckingStatus}
+                        className="h-6 w-6 p-0"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${isCheckingStatus ? 'animate-spin' : ''}`} />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+              {sessionStatus === 'online' && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  ✅ WhatsApp is connected and active. No need to generate new QR code.
+                </p>
+              )}
+              {sessionStatus === 'offline' && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  ⚠️ Session is offline. You can generate a new QR code to reconnect.
+                </p>
+              )}
+              {sessionStatus === 'invalid' && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  ❌ API key is invalid. Please generate a new QR code.
+                </p>
+              )}
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
@@ -178,6 +280,91 @@ function QRCodeGenerator() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [sessionData, setSessionData] = React.useState<any>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [sessionStatus, setSessionStatus] = React.useState<string | null>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = React.useState(false);
+  const [initialLoad, setInitialLoad] = React.useState(true);
+  const [deviceData, setDeviceData] = React.useState<any>(null);
+
+  // Load device data from Supabase
+  const loadDeviceData = React.useCallback(async () => {
+    if (!user?.id || !selectedAgent?.id) {
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('device')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('agent_id', selectedAgent.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading device data:', error);
+      } else if (data) {
+        setDeviceData(data);
+        // Check session status when device data is loaded
+        checkSessionStatus(data.api_key);
+        setInitialLoad(false);
+      } else {
+        setDeviceData(null);
+        setSessionStatus(null);
+        setInitialLoad(false);
+      }
+    } catch (err) {
+      console.error('Error loading device data:', err);
+    }
+  }, [user?.id, selectedAgent?.id]);
+
+  // Check session status using API
+  const checkSessionStatus = async (apiKey: string) => {
+    if (!apiKey) {
+      setSessionStatus('invalid');
+      return;
+    }
+
+    setIsCheckingStatus(true);
+    try {
+      const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
+      const response = await fetch('https://app.notif.my.id/ss/info', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apikey: apiKey
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSessionStatus(data.status_session || 'offline');
+      } else {
+        const errorData = await response.json().catch(() => null);
+        if (errorData?.error?.message?.includes('Invalid apikey')) {
+          setSessionStatus('invalid');
+        } else {
+          setSessionStatus('offline');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking session status:', error);
+      setSessionStatus('offline');
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
+
+  // Load device data when component mounts or dependencies change
+  React.useEffect(() => {
+    loadDeviceData();
+  }, [loadDeviceData]);
+
+  // Determine if generate button should be enabled
+  const isGenerateEnabled = !initialLoad && (!deviceData || sessionStatus === 'offline' || sessionStatus === 'invalid');
 
   const generateQRCode = async () => {
     setIsLoading(true);
@@ -239,6 +426,10 @@ function QRCodeGenerator() {
             // Setelah berhasil simpan ke database, baru tampilkan QR code
             setQrData(data.qr);
             setSessionData(data);
+            // Reload device data to update the status
+            setTimeout(() => {
+              loadDeviceData();
+            }, 1000);
           }
         }
       } else {
@@ -266,14 +457,22 @@ function QRCodeGenerator() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+
+        
         <Button 
           className="w-full" 
           onClick={generateQRCode}
-          disabled={isLoading}
+          disabled={isLoading || !isGenerateEnabled}
         >
           <QrCode className="h-4 w-4 mr-2" />
           {isLoading ? 'Generating...' : 'Generate QR Code'}
         </Button>
+        
+        {!isGenerateEnabled && sessionStatus === 'online' && (
+          <p className="text-xs text-center text-muted-foreground">
+            QR code generation is disabled because the session is already online.
+          </p>
+        )}
         
         {(qrData || isLoading) && (
           <div className="flex flex-col items-center space-y-4">
