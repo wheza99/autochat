@@ -366,6 +366,68 @@ function QRCodeGenerator() {
   // Determine if generate button should be enabled
   const isGenerateEnabled = !initialLoad && (!deviceData || sessionStatus === 'offline' || sessionStatus === 'invalid');
 
+  // Function to delete API key from notifikasee
+  const deleteApiKeyFromNotifikasee = async (apiKey: string) => {
+    try {
+      const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
+      const response = await fetch('https://app.notif.my.id/ss/delete', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apikey: apiKey
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('API key deleted from notifikasee:', data.message);
+        return true;
+      } else {
+        const errorData = await response.json().catch(() => null);
+        if (errorData?.error?.message?.includes('Invalid apikey')) {
+          console.log('API key already deleted or invalid in notifikasee');
+          return true; // Consider as success since it's already gone
+        }
+        console.error('Failed to delete API key from notifikasee:', errorData);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error deleting API key from notifikasee:', error);
+      return false;
+    }
+  };
+
+  // Function to update device in Supabase (clear api_key and session)
+  const updateDeviceInSupabase = async () => {
+    if (!user?.id || !selectedAgent?.id) return false;
+    
+    try {
+      const { error } = await supabase
+        .from('device')
+        .update({
+          api_key: null,
+          session: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .eq('agent_id', selectedAgent.id);
+
+      if (error) {
+        console.error('Error updating device in Supabase:', error);
+        return false;
+      }
+      
+      console.log('Device updated in Supabase successfully');
+      return true;
+    } catch (error) {
+      console.error('Error updating device in Supabase:', error);
+      return false;
+    }
+  };
+
   const generateQRCode = async () => {
     setIsLoading(true);
     setError(null);
@@ -381,6 +443,27 @@ function QRCodeGenerator() {
       setError('Silakan pilih agent terlebih dahulu');
       setIsLoading(false);
       return;
+    }
+    
+    // Delete existing API key if session is offline or invalid
+    if (deviceData && deviceData.api_key && (sessionStatus === 'offline' || sessionStatus === 'invalid')) {
+      console.log('Deleting existing API key before generating new one...');
+      
+      // Delete from notifikasee first
+      const notifikaseeDeleted = await deleteApiKeyFromNotifikasee(deviceData.api_key);
+      
+      // Update device in Supabase (clear api_key and session)
+      const supabaseUpdated = await updateDeviceInSupabase();
+      
+      if (!notifikaseeDeleted && !supabaseUpdated) {
+        setError('Failed to clear existing credentials. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Reset device data after deletion
+      setDeviceData(null);
+      setSessionStatus(null);
     }
     
     try {
@@ -402,19 +485,16 @@ function QRCodeGenerator() {
           setError(data.message || 'Device quota exceeded. Please delete a device or upgrade subscription.');
           console.log('API returned error:', data.message);
         } else {
-          // Simpan data ke Supabase terlebih dahulu
-          const deviceData = {
-            user_id: user.id,
-            api_key: data.apikey,
-            agent_id: selectedAgent.id,
-            session: data.session,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          
+          // Update data di Supabase (tidak insert data baru)
           const { data: deviceRecord, error: dbError } = await supabase
             .from('device')
-            .insert([deviceData])
+            .update({
+              api_key: data.apikey,
+              session: data.session,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+            .eq('agent_id', selectedAgent.id)
             .select()
             .single();
           
