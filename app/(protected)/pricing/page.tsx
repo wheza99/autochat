@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
-import { AgentProvider } from "@/contexts/agent-context";
+import { AgentProvider, useAgent } from "@/contexts/agent-context";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -91,6 +91,7 @@ const pricingPlans = [
 
 // Main Pricing Content
 function PricingContent() {
+  const { selectedAgent } = useAgent();
   const [isYearly, setIsYearly] = useState(false);
   const [messageVolume, setMessageVolume] = useState([1000]); // Default to 1k messages
 
@@ -111,12 +112,16 @@ function PricingContent() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {selectedAgent && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="/agent_info">
+                        {selectedAgent.name}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
                 <BreadcrumbItem>
                   <BreadcrumbPage>Pricing</BreadcrumbPage>
                 </BreadcrumbItem>
