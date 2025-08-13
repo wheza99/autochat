@@ -22,6 +22,7 @@ import {
   Info,
   FileText,
   MessageCircle,
+  MessageSquare,
 } from "lucide-react";
 
 import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
@@ -87,6 +88,11 @@ const data = {
       title: "Documents",
       url: "/document",
       icon: FileText,
+    },
+    {
+      title: "WhatsApp",
+      url: "/whatsapp",
+      icon: MessageSquare,
     },
   ],
   navSecondary: [],
@@ -370,16 +376,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </DropdownMenu>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Chat">
-              <Link href="/chat" className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                  <MessageCircle className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Chat</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
+            <div className="px-2 py-1">
+              <Button asChild className="w-full justify-start">
+                <Link href="/chat">
+                  <MessageCircle className="size-4 mr-2" />
+                  Chat
+                </Link>
+              </Button>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
