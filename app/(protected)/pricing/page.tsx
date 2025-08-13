@@ -253,36 +253,6 @@ function PricingContent() {
               ))}
             </div>
 
-            {/* FAQ Section */}
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
-              <div className="grid md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
-                <div>
-                  <h3 className="font-semibold mb-2">Is there a free trial?</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Yes, we provide a 14-day free trial for all plans without requiring a credit card.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Can I upgrade or downgrade anytime?</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Absolutely! You can change your subscription plan anytime according to your business needs.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">What about technical support?</h3>
-                  <p className="text-muted-foreground text-sm">
-                    All plans receive technical support. Professional and Enterprise plans get higher priority.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Is my data secure?</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Yes, we use enterprise-grade encryption and comply with international security standards.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </SidebarInset>
