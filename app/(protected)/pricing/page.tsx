@@ -36,12 +36,12 @@ import React, { useState } from "react";
 const pricingPlans = [
   {
     name: "Starter",
-    monthlyPrice: "$9",
-    yearlyPrice: "$90",
+    monthlyPrice: "$10",
+    yearlyPrice: "$100",
     description: "Perfect for small businesses just getting started",
+    messageLimit: "1k",
     features: [
-      "1 AutoChat Agent",
-      "1,000 messages per month",
+      "1 Agent Whatsapp",
       "Email support",
       "Basic message templates",
       "Basic analytics"
@@ -52,12 +52,12 @@ const pricingPlans = [
   },
   {
     name: "Professional",
-    monthlyPrice: "$29",
-    yearlyPrice: "$290",
+    monthlyPrice: "$50",
+    yearlyPrice: "$500",
     description: "Ideal for growing businesses",
+    messageLimit: "10k",
     features: [
-      "5 AutoChat Agents",
-      "10,000 messages per month",
+      "5 Agents Whatsapps",
       "Priority support",
       "Advanced message templates",
       "Complete analytics",
@@ -70,12 +70,12 @@ const pricingPlans = [
   },
   {
     name: "Enterprise",
-    monthlyPrice: "$99",
-    yearlyPrice: "$990",
+    monthlyPrice: "Contact Us",
+    yearlyPrice: "Contact Us",
     description: "Complete solution for large enterprises",
+    messageLimit: "Custom",
     features: [
-      "Unlimited AutoChat Agents",
-      "Unlimited messages",
+      "Unlimited Agents Whatsapp",
       "24/7 support",
       "Custom templates",
       "Enterprise analytics",
@@ -92,10 +92,10 @@ const pricingPlans = [
 // Main Pricing Content
 function PricingContent() {
   const [isYearly, setIsYearly] = useState(false);
-  const [messageVolume, setMessageVolume] = useState([5]); // Default to 5k messages
+  const [messageVolume, setMessageVolume] = useState([5000]); // Default to 5k messages
 
   const formatMessageCount = (value: number) => {
-    return `${value}k`;
+    return value.toLocaleString();
   };
 
   return (
@@ -172,15 +172,22 @@ function PricingContent() {
                   <Slider
                      value={messageVolume}
                      onValueChange={setMessageVolume}
-                     max={50000}
+                     max={10000}
                      min={1000}
                      step={1000}
                      className="w-full h-3"
                    />
                   <div className="flex justify-between text-xs text-muted-foreground mt-2">
                     <span>1k</span>
-                    <span>25k</span>
-                    <span>50k</span>
+                    <span>2k</span>
+                    <span>3k</span>
+                    <span>4k</span>
+                    <span>5k</span>
+                    <span>6k</span>
+                    <span>7k</span>
+                    <span>8k</span>
+                    <span>9k</span>
+                    <span>10k</span>
                   </div>
                 </div>
               </div>
@@ -191,7 +198,7 @@ function PricingContent() {
               {pricingPlans.map((plan, index) => (
                 <Card 
                   key={index} 
-                  className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}
+                  className={`relative flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}
                 >
                   {plan.popular && (
                     <Badge 
@@ -206,16 +213,26 @@ function PricingContent() {
                     <CardDescription className="text-sm">{plan.description}</CardDescription>
                     <div className="mt-4">
                       <span className="text-4xl font-bold">
-                        {isYearly ? plan.yearlyPrice : plan.monthlyPrice}
+                        {typeof (isYearly ? plan.yearlyPrice : plan.monthlyPrice) === 'string' 
+                          ? (isYearly ? plan.yearlyPrice : plan.monthlyPrice)
+                          : `$${isYearly ? plan.yearlyPrice : plan.monthlyPrice}`
+                        }
                       </span>
-                      <span className="text-muted-foreground">
-                        {isYearly ? '/year' : '/month'}
-                      </span>
+                      {typeof (isYearly ? plan.yearlyPrice : plan.monthlyPrice) !== 'string' && (
+                        <span className="text-muted-foreground">
+                          {isYearly ? '/year' : '/month'}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Message Limit Display */}
+                    <div className="mt-4 p-3 border rounded-lg bg-muted/50">
+                      <div className="text-lg font-semibold text-primary">{plan.messageLimit} messages/month</div>
                     </div>
                   </CardHeader>
                   
-                  <CardContent>
-                    <ul className="space-y-3 mb-6">
+                  <CardContent className="flex-1 flex flex-col">
+                    <ul className="space-y-3 mb-6 flex-1">
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-center gap-3">
                           <Check className="h-4 w-4 text-primary flex-shrink-0" />
@@ -225,7 +242,7 @@ function PricingContent() {
                     </ul>
                     
                     <Button 
-                      className="w-full" 
+                      className="w-full mt-auto" 
                       variant={plan.buttonVariant}
                       size="lg"
                     >
