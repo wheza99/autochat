@@ -55,7 +55,7 @@ const pricingPlans = [
     monthlyPrice: "$50",
     yearlyPrice: "$500",
     description: "Ideal for growing businesses",
-    messageLimit: "10k",
+    messageLimit: "5K",
     features: [
       "5 Agents Whatsapps",
       "Priority support",
