@@ -28,10 +28,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { AgentProvider } from "@/contexts/agent-context"
+import { AgentProvider, useAgent } from "@/contexts/agent-context"
 
 function ProfileContent() {
   const { user } = useAuth()
+  const { selectedAgent } = useAgent()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -155,12 +156,16 @@ function ProfileContent() {
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {selectedAgent && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="/agent_info">
+                        {selectedAgent.name}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
                 <BreadcrumbItem>
                   <BreadcrumbPage>Profile</BreadcrumbPage>
                 </BreadcrumbItem>

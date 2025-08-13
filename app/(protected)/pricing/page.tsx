@@ -26,20 +26,22 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
-import { AgentProvider } from "@/contexts/agent-context";
+import { AgentProvider, useAgent } from "@/contexts/agent-context";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 // Pricing plans data
 const pricingPlans = [
   {
     name: "Starter",
-    monthlyPrice: "$10",
-    yearlyPrice: "$100",
+    monthlyPrice: 100000,
+    yearlyPrice: 1000000,
     description: "Perfect for small businesses just getting started",
     messageLimit: "1k",
+    baseMessages: 1000,
     features: [
       "1 Agent Whatsapp",
       "Email support",
@@ -47,15 +49,16 @@ const pricingPlans = [
       "Basic analytics"
     ],
     popular: false,
-    buttonText: "Start Free",
+    buttonText: "Upgrade Now",
     buttonVariant: "outline" as const
   },
   {
     name: "Professional",
-    monthlyPrice: "$50",
-    yearlyPrice: "$500",
+    monthlyPrice: 2000000,
+    yearlyPrice: 20000000,
     description: "Ideal for growing businesses",
     messageLimit: "5K",
+    baseMessages: 5000,
     features: [
       "5 Agents Whatsapps",
       "Priority support",
@@ -74,6 +77,7 @@ const pricingPlans = [
     yearlyPrice: "Contact Us",
     description: "Complete solution for large enterprises",
     messageLimit: "Custom",
+    baseMessages: 0,
     features: [
       "Unlimited Agents Whatsapp",
       "24/7 support",
@@ -91,11 +95,58 @@ const pricingPlans = [
 
 // Main Pricing Content
 function PricingContent() {
+  const { selectedAgent } = useAgent();
+  const router = useRouter();
   const [isYearly, setIsYearly] = useState(false);
-  const [messageVolume, setMessageVolume] = useState([1000]); // Default to 1k messages
+  const [messageVolume, setMessageVolume] = useState([1000]); // Default to 5k messages to show Professional plan base price
 
   const formatMessageCount = (value: number) => {
     return value.toLocaleString();
+  };
+
+  // Calculate dynamic pricing based on message volume
+  const calculatePrice = (basePrice: number | string, messageCount: number, baseMessages: number) => {
+    if (typeof basePrice === 'string') {
+      return basePrice;
+    }
+    
+    // Calculate price per message based on base plan
+    const pricePerMessage = basePrice / baseMessages;
+    
+    // Calculate price based on selected message count
+    const calculatedPrice = Math.round(pricePerMessage * messageCount);
+    
+    return `Rp ${calculatedPrice.toLocaleString('id-ID')}`;
+  };
+
+  // Handle checkout navigation
+  const handleCheckout = (plan: any) => {
+    if (plan.buttonText === 'Contact Sales') {
+      // Handle contact sales differently
+      return;
+    }
+    
+    const basePrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    const price = calculatePrice(basePrice, messageVolume[0], plan.baseMessages);
+    const numericPrice = typeof price === 'string' && price !== 'Contact Us' 
+      ? parseFloat(price.replace('Rp ', '').replace(/\./g, '')) 
+      : 0;
+    
+    // Calculate tax (11%)
+    const tax = Math.round(numericPrice * 0.11 * 100) / 100;
+    const total = numericPrice + tax;
+    
+    // Navigate to checkout with query parameters
+    const searchParams = new URLSearchParams({
+      plan: plan.name,
+      price: numericPrice.toString(),
+      tax: tax.toString(),
+      total: total.toString(),
+      messages: messageVolume[0].toString(),
+      billing: isYearly ? 'yearly' : 'monthly'
+    });
+    
+    router.push(`/checkout?${searchParams.toString()}`);
   };
 
   return (
@@ -111,12 +162,16 @@ function PricingContent() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {selectedAgent && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="/agent_info">
+                        {selectedAgent.name}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
                 <BreadcrumbItem>
                   <BreadcrumbPage>Pricing</BreadcrumbPage>
                 </BreadcrumbItem>
@@ -213,10 +268,7 @@ function PricingContent() {
                     <CardDescription className="text-sm">{plan.description}</CardDescription>
                     <div className="mt-4">
                       <span className="text-4xl font-bold">
-                        {typeof (isYearly ? plan.yearlyPrice : plan.monthlyPrice) === 'string' 
-                          ? (isYearly ? plan.yearlyPrice : plan.monthlyPrice)
-                          : `$${isYearly ? plan.yearlyPrice : plan.monthlyPrice}`
-                        }
+                        {calculatePrice(isYearly ? plan.yearlyPrice : plan.monthlyPrice, messageVolume[0], plan.baseMessages)}
                       </span>
                       {typeof (isYearly ? plan.yearlyPrice : plan.monthlyPrice) !== 'string' && (
                         <span className="text-muted-foreground">
@@ -227,7 +279,12 @@ function PricingContent() {
                     
                     {/* Message Limit Display */}
                     <div className="mt-4 p-3 border rounded-lg bg-muted/50">
-                      <div className="text-lg font-semibold text-primary">{plan.messageLimit} messages/month</div>
+                      <div className="text-lg font-semibold text-primary">
+                        {plan.messageLimit === 'Custom' || plan.messageLimit === 'Unlimited' 
+                          ? plan.messageLimit 
+                          : `${formatMessageCount(messageVolume[0])}`
+                        } messages/month
+                      </div>
                     </div>
                   </CardHeader>
                   
@@ -245,6 +302,7 @@ function PricingContent() {
                       className="w-full mt-auto" 
                       variant={plan.buttonVariant}
                       size="lg"
+                      onClick={() => handleCheckout(plan)}
                     >
                       {plan.buttonText}
                     </Button>

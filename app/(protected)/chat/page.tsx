@@ -17,12 +17,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-import { AgentProvider } from "@/contexts/agent-context";
+import { AgentProvider, useAgent } from "@/contexts/agent-context";
 import ChatInterface from "@/components/chat/chat-interface";
 import React from "react";
 
 // Main Dashboard Content
 function ChatContent() {
+  const { selectedAgent } = useAgent();
+  
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -36,12 +38,16 @@ function ChatContent() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {selectedAgent && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="/agent_info">
+                        {selectedAgent.name}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
                 <BreadcrumbItem>
                   <BreadcrumbPage>Chat</BreadcrumbPage>
                 </BreadcrumbItem>
@@ -54,7 +60,7 @@ function ChatContent() {
           <ChatInterface />
         </div>
       </SidebarInset>
-    </SidebarProvider>
+    </SidebarProvider>    
   );
 }
 

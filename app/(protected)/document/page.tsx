@@ -15,11 +15,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { AgentProvider } from "@/contexts/agent-context";
+import { AgentProvider, useAgent } from "@/contexts/agent-context";
 import { DocumentSection } from "../dashboard/components/document-section";
 
 // Inner component that uses the agent context
 function DocumentContent() {
+  const { selectedAgent } = useAgent();
+  
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -33,10 +35,16 @@ function DocumentContent() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {selectedAgent && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="/agent_info">
+                        {selectedAgent.name}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
                 <BreadcrumbItem>
                   <BreadcrumbPage>Documents</BreadcrumbPage>
                 </BreadcrumbItem>

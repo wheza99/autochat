@@ -1,4 +1,4 @@
-// Komponen form reset password untuk mengubah password baru
+// Halaman reset password untuk mengubah password baru
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -19,10 +19,7 @@ import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Eye, EyeOff } from "lucide-react"
 
-export function ResetPasswordForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -78,7 +75,7 @@ export function ResetPasswordForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6")}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Reset your password</CardTitle>

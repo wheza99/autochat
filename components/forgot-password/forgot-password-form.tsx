@@ -60,27 +60,45 @@ export function ForgotPasswordForm({
           </CardHeader>
           <CardContent>
             <div className="grid gap-6">
-              <div className="text-center text-sm text-muted-foreground">
-                Didn't receive the email? Check your spam folder or try again.
+              <div className="grid gap-6">
+                <div className="text-center text-sm text-muted-foreground">
+                  Didn't receive the email? Check your spam folder or try again.
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setIsEmailSent(false)}
+                >
+                  Try again
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full"
+                  onClick={() => router.push('/login')}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to login
+                </Button>
               </div>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => setIsEmailSent(false)}
-              >
-                Try again
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full"
-                onClick={() => router.push('/login')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to login
-              </Button>
+              <div className="text-center text-sm">
+                Remember your password?{" "}
+                <a href="/login" className="underline underline-offset-4">
+                  Sign in
+                </a>
+              </div>
             </div>
           </CardContent>
         </Card>
+        <div className="text-muted-foreground text-center text-xs text-balance">
+          By clicking continue, you agree to our{" "}
+          <a href="#" className="underline underline-offset-4 hover:text-primary">
+            Terms of Service
+          </a>{" "}
+          and{" "}
+          <a href="#" className="underline underline-offset-4 hover:text-primary">
+            Privacy Policy
+          </a>.
+        </div>
       </div>
     )
   }
@@ -97,40 +115,52 @@ export function ForgotPasswordForm({
         <CardContent>
           <form onSubmit={handleForgotPassword}>
             <div className="grid gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+              <div className="grid gap-6">
+                <div className="grid gap-3">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Send reset link'}
+                </Button>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  className="w-full"
+                  onClick={() => router.push('/login')}
                   disabled={isLoading}
-                />
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to login
+                </Button>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Sending...' : 'Send reset link'}
-              </Button>
-              <Button 
-                type="button"
-                variant="ghost" 
-                className="w-full"
-                onClick={() => router.push('/login')}
-                disabled={isLoading}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to login
-              </Button>
+              <div className="text-center text-sm">
+                Remember your password?{" "}
+                <a href="/login" className="underline underline-offset-4">
+                  Sign in
+                </a>
+              </div>
             </div>
           </form>
         </CardContent>
       </Card>
       <div className="text-muted-foreground text-center text-xs text-balance">
-        Remember your password?{" "}
-        <a href="/login" className="underline underline-offset-4 hover:text-primary">
-          Sign in
-        </a>
+        By clicking continue, you agree to our{" "}
+        <a href="#" className="underline underline-offset-4 hover:text-primary">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="#" className="underline underline-offset-4 hover:text-primary">
+          Privacy Policy
+        </a>.
       </div>
     </div>
   )
