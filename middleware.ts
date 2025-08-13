@@ -69,8 +69,22 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/'
     url.searchParams.set('redirected', 'true')
     const response = NextResponse.redirect(url)
-    // Clear the logout cookie
+    
+    // Clear the logout cookie and all auth-related cookies
     response.cookies.delete('logout-in-progress')
+    response.cookies.delete('client-auth-status')
+    response.cookies.delete('sb-access-token')
+    response.cookies.delete('supabase-auth-token')
+    response.cookies.delete('sb-refresh-token')
+    response.cookies.delete('supabase-refresh-token')
+    
+    // Clear any other supabase cookies
+    allCookies.forEach(cookie => {
+      if (cookie.name.includes('supabase') && cookie.name.includes('token')) {
+        response.cookies.delete(cookie.name)
+      }
+    })
+    
     return response
   }
   

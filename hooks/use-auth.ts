@@ -48,12 +48,34 @@ export function useAuth() {
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (!error) {
-      // Clear localStorage auth status
+    try {
+      const { error } = await supabase.auth.signOut()
+      
+      // Always clear auth status regardless of Supabase response
+      // This prevents issues when session is already expired/missing
       AuthClient.clearAuth()
+      
+      // Only return error if it's not a session-related error
+       if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+         if (!error.message.toLowerCase().includes('session')) {
+           return { error }
+         }
+       }
+      
+      // Consider logout successful even if session was missing
+      return { error: null }
+    } catch (catchError) {
+      // Always clear auth on any error
+      AuthClient.clearAuth()
+      
+      // Don't throw session-related errors
+       const errorMessage = catchError instanceof Error ? catchError.message : 'Unknown error'
+       if (errorMessage.toLowerCase().includes('session')) {
+         return { error: null }
+       }
+      
+      return { error: catchError }
     }
-    return { error }
   }
 
   const signInWithGoogle = async () => {
