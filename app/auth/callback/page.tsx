@@ -1,42 +1,51 @@
 // Halaman callback untuk menangani proses autentikasi OAuth
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function AuthCallback() {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      const { data, error } = await supabase.auth.getSession()
-      
+      const { data, error } = await supabase.auth.getSession();
+
       if (error) {
-        console.error('Error during auth callback:', error)
-        router.push('/login?error=auth_callback_error')
-        return
+        console.error("Error during auth callback:", error);
+        router.push("/login?error=auth_callback_error");
+        return;
       }
 
       if (data.session) {
-        // Set localStorage flag for middleware detection
-        localStorage.setItem('supabase-auth-status', 'authenticated')
-        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
+        // Set localStorage flag for client-side detection
+        localStorage.setItem("supabase-auth-status", "authenticated");
+        localStorage.setItem("supabase-auth-timestamp", Date.now().toString());
+
+        // Set cookie for middleware detection
+        document.cookie = `client-auth-status=authenticated; path=/; max-age=${
+          24 * 60 * 60
+        }; SameSite=Lax`;
+
         // Redirect to dashboard after successful login
-        // Add small delay to ensure session is properly established
+        // Add small delay to ensure session is properly established and cookies are set
         setTimeout(() => {
-          router.push('/dashboard')
-        }, 100)
+          router.push("/dashboard");
+        }, 200);
       } else {
         // No session found, redirect back to login
-        localStorage.removeItem('supabase-auth-status')
-        localStorage.removeItem('supabase-auth-timestamp')
-        router.push('/login')
+        localStorage.removeItem("supabase-auth-status");
+        localStorage.removeItem("supabase-auth-timestamp");
+        // Clear auth cookie
+        document.cookie =
+          "client-auth-status=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        router.push("/login");
       }
-    }
+    };
 
-    handleAuthCallback()
-  }, [router])
+    handleAuthCallback();
+  }, [router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -45,5 +54,5 @@ export default function AuthCallback() {
         <p className="text-muted-foreground">Processing login...</p>
       </div>
     </div>
-  )
+  );
 }

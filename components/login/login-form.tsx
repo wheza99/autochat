@@ -1,85 +1,91 @@
 // Komponen form login dengan autentikasi email dan sosial
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useAuth } from "@/hooks/use-auth"
-import { toast } from "sonner"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth()
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
+  const router = useRouter();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const { error } = await signIn(email, password)
-      
+      const { error } = await signIn(email, password);
+
       if (error) {
-        toast.error('Login failed: ' + error.message)
+        toast.error("Login failed: " + error.message);
       } else {
-        toast.success('Login successful!')
-        // Set localStorage flag for middleware detection
-        localStorage.setItem('supabase-auth-status', 'authenticated')
-        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
-        // Wait a bit for session to be established
+        toast.success("Login successful!");
+        // Set localStorage flag for client-side detection
+        localStorage.setItem("supabase-auth-status", "authenticated");
+        localStorage.setItem("supabase-auth-timestamp", Date.now().toString());
+
+        // Set cookie for middleware detection
+        document.cookie = `client-auth-status=authenticated; path=/; max-age=${
+          24 * 60 * 60
+        }; SameSite=Lax`;
+
+        // Wait a bit for session to be established and cookies to be set
         setTimeout(() => {
-          router.push('/dashboard')
-        }, 100)
+          router.push("/dashboard");
+        }, 200);
       }
     } catch {
-      toast.error('An error occurred during login')
+      toast.error("An error occurred during login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const { error } = await signInWithGoogle()
+      const { error } = await signInWithGoogle();
       if (error) {
-        toast.error('Google login failed: ' + error.message)
+        toast.error("Google login failed: " + error.message);
       }
     } catch {
-      toast.error('An error occurred during Google login')
+      toast.error("An error occurred during Google login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleAppleLogin = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const { error } = await signInWithApple()
+      const { error } = await signInWithApple();
       if (error) {
-        toast.error('Apple login failed: ' + error.message)
+        toast.error("Apple login failed: " + error.message);
       }
     } catch {
-      toast.error('An error occurred during Apple login')
+      toast.error("An error occurred during Apple login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -94,9 +100,9 @@ export function LoginForm({
           <form onSubmit={handleEmailLogin}>
             <div className="grid gap-6">
               <div className="hidden">
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="w-full"
                   onClick={handleAppleLogin}
                   disabled={isLoading}
@@ -109,9 +115,9 @@ export function LoginForm({
                   </svg>
                   Login with Apple
                 </Button>
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="w-full"
                   onClick={handleGoogleLogin}
                   disabled={isLoading}
@@ -153,17 +159,17 @@ export function LoginForm({
                       Forgot your password?
                     </a>
                   </div>
-                  <Input 
-                    id="password" 
-                    type="password" 
+                  <Input
+                    id="password"
+                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required 
+                    required
                     disabled={isLoading}
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
               </div>
               <div className="text-center text-sm">
@@ -181,5 +187,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  )
+  );
 }

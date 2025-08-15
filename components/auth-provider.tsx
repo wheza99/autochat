@@ -1,67 +1,74 @@
 // Provider autentikasi untuk mengelola state user dan session
-'use client'
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { createContext, useContext, useEffect, useState } from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 interface AuthContextType {
-  user: User | null
-  session: Session | null
-  loading: boolean
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: true,
-})
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-      
-      // Update localStorage based on auth state
-      if (session && session.user) {
-        localStorage.setItem('supabase-auth-status', 'authenticated')
-        localStorage.setItem('supabase-auth-timestamp', Date.now().toString())
-      } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('supabase-auth-status')
-        localStorage.removeItem('supabase-auth-timestamp')
-      }
-    })
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
 
-    return () => subscription.unsubscribe()
-  }, [])
+      // Update localStorage and cookies based on auth state
+      if (session && session.user) {
+        localStorage.setItem("supabase-auth-status", "authenticated");
+        localStorage.setItem("supabase-auth-timestamp", Date.now().toString());
+        // Set cookie for middleware detection
+        document.cookie = `client-auth-status=authenticated; path=/; max-age=${
+          24 * 60 * 60
+        }; SameSite=Lax`;
+      } else if (event === "SIGNED_OUT") {
+        localStorage.removeItem("supabase-auth-status");
+        localStorage.removeItem("supabase-auth-timestamp");
+        // Clear auth cookie
+        document.cookie =
+          "client-auth-status=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, session, loading }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export const useAuthContext = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider')
+    throw new Error("useAuthContext must be used within an AuthProvider");
   }
-  return context
-}
+  return context;
+};
