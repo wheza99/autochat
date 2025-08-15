@@ -66,6 +66,11 @@ export function WhatsAppConnectionStatus() {
       setIsCheckingStatus(true);
       try {
         const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
         const response = await fetch("https://app.notif.my.id/ss/info", {
           method: "POST",
           headers: {
@@ -75,7 +80,10 @@ export function WhatsAppConnectionStatus() {
           body: JSON.stringify({
             apikey: apiKey,
           }),
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
@@ -116,12 +124,17 @@ export function WhatsAppConnectionStatus() {
         }
       } catch (error) {
         console.error("Error checking session status:", error);
-        setSessionStatus("offline");
+        if (error instanceof Error && error.name === "AbortError") {
+          console.log("Session status check timed out");
+          setSessionStatus("timeout");
+        } else {
+          setSessionStatus("offline");
+        }
       } finally {
         setIsCheckingStatus(false);
       }
     },
-    [user?.id, selectedAgent?.id, deviceData]
+    [user?.id, selectedAgent?.id]
   );
 
   // Load device data from Supabase based on selected agent
@@ -154,7 +167,11 @@ export function WhatsAppConnectionStatus() {
         });
         setIsConnected(data.is_active || false);
         // Check session status when device data is loaded, pass the fresh data
-        checkSessionStatus(data.api_key, data);
+        try {
+          await checkSessionStatus(data.api_key, data);
+        } catch (statusError) {
+          console.error("Error checking session status:", statusError);
+        }
       } else {
         setDeviceData(null);
         setConnectionInfo(null);
@@ -321,6 +338,8 @@ export function WhatsAppConnectionStatus() {
               className={
                 sessionStatus === "online"
                   ? "bg-green-100 text-green-800 border-green-200"
+                  : sessionStatus === "timeout"
+                  ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                   : "bg-red-100 text-red-800 border-red-200"
               }
             >
@@ -328,6 +347,11 @@ export function WhatsAppConnectionStatus() {
                 <>
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Connected
+                </>
+              ) : sessionStatus === "timeout" ? (
+                <>
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Connection Timeout
                 </>
               ) : (
                 <>
