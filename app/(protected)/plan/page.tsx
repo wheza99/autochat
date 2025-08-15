@@ -18,13 +18,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -34,10 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CreditCard, Calendar, Download } from "lucide-react";
+import { CreditCard, Calendar } from "lucide-react";
 import { AgentProvider } from "@/contexts/agent-context";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
 // Interface untuk subscription plan
@@ -60,14 +53,15 @@ interface BillingHistory {
 
 function PlanBillingContent() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan | null>(null);
+  const [, setLoading] = useState(false);
+  const [subscriptionPlan, setSubscriptionPlan] =
+    useState<SubscriptionPlan | null>(null);
   const [billingHistory, setBillingHistory] = useState<BillingHistory[]>([]);
 
   // Load subscription data
   const loadSubscriptionData = useCallback(async () => {
     if (!user?.id) return;
-    
+
     setLoading(true);
     try {
       // Simulate subscription data - replace with actual API call
@@ -76,7 +70,7 @@ function PlanBillingContent() {
         name: "Pro",
         status: "active",
         expire_date: "2025/09/12 10:15",
-        created_at: "2025/08/13 10:15"
+        created_at: "2025/08/13 10:15",
       });
 
       // Simulate billing history - replace with actual API call
@@ -86,12 +80,12 @@ function PlanBillingContent() {
           name: "Pro Plan",
           amount: "$10",
           date: "2025/08/13 10:15",
-          status: "completed"
-        }
+          status: "completed",
+        },
       ]);
     } catch (error) {
-      console.error('Error loading subscription data:', error);
-      toast.error('Failed to load subscription data');
+      console.error("Error loading subscription data:", error);
+      toast.error("Failed to load subscription data");
     } finally {
       setLoading(false);
     }
@@ -103,12 +97,13 @@ function PlanBillingContent() {
 
   const handleResubscribe = () => {
     // Redirect to pricing page or handle resubscription
-    window.location.href = '/pricing';
+    window.location.href = "/pricing";
   };
 
   const handleObtainInvoice = (billingId: string) => {
     // Handle invoice download
-    toast.success('Invoice download started');
+    console.log("Downloading invoice for billing ID:", billingId);
+    toast.success("Invoice download started");
   };
 
   return (
@@ -136,33 +131,43 @@ function PlanBillingContent() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Plan:</span>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 text-green-800 border-green-200"
+                    >
                       {subscriptionPlan.name}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Expire at:</span>
-                    <span className="text-sm font-medium">{subscriptionPlan.expire_date}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Expire at:
+                    </span>
+                    <span className="text-sm font-medium">
+                      {subscriptionPlan.expire_date}
+                    </span>
                   </div>
                 </div>
-                <Button 
+                <Button
                   onClick={handleResubscribe}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   Resubscribe
                 </Button>
               </div>
-              
+
               <div className="p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  Your Pro plan will expire soon. Resubscribe to restore your benefits.
+                  Your Pro plan will expire soon. Resubscribe to restore your
+                  benefits.
                 </p>
               </div>
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No active subscription found</p>
+              <p className="text-muted-foreground">
+                No active subscription found
+              </p>
               <Button onClick={handleResubscribe} className="mt-4">
                 Subscribe Now
               </Button>
@@ -190,7 +195,9 @@ function PlanBillingContent() {
               <TableBody>
                 {billingHistory.map((billing) => (
                   <TableRow key={billing.id}>
-                    <TableCell className="font-medium">{billing.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {billing.name}
+                    </TableCell>
                     <TableCell>{billing.amount}</TableCell>
                     <TableCell>{billing.date}</TableCell>
                     <TableCell>

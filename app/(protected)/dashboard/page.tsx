@@ -7,8 +7,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -24,12 +22,8 @@ import { AgentProvider } from "@/contexts/agent-context";
 
 // Message type definition
 
-
-
-
 // Inner component that uses the agent context
 function DashboardContent() {
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -55,8 +49,12 @@ function DashboardContent() {
         <div className="flex-1 p-6">
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-muted-foreground mb-2">Dashboard</h2>
-              <p className="text-muted-foreground">Pilih menu di sidebar untuk mulai menggunakan fitur.</p>
+              <h2 className="text-2xl font-semibold text-muted-foreground mb-2">
+                Dashboard
+              </h2>
+              <p className="text-muted-foreground">
+                Pilih menu di sidebar untuk mulai menggunakan fitur.
+              </p>
             </div>
           </div>
         </div>

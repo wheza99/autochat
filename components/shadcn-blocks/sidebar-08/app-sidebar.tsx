@@ -13,10 +13,6 @@ import {
   Plus,
   Loader2,
   ChevronsUpDown,
-  MoreHorizontal,
-  Trash2,
-  Share,
-  Folder,
   Info,
   FileText,
   MessageCircle,
@@ -25,8 +21,7 @@ import {
 } from "lucide-react";
 
 import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
-import { NavProjects } from "@/components/shadcn-blocks/sidebar-08/nav-projects";
-import { NavSecondary } from "@/components/shadcn-blocks/sidebar-08/nav-secondary";
+
 import { NavUser } from "@/components/shadcn-blocks/sidebar-08/nav-user";
 import {
   Sidebar,
@@ -39,11 +34,24 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -126,34 +134,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Device management disabled as requested
   // const [isDeviceManagementOpen, setIsDeviceManagementOpen] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState(false);
-  const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = React.useState<UserProfile | null>(
+    null
+  );
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [newAgentForm, setNewAgentForm] = React.useState({
-    name: '',
-    phone: '',
-    model: '',
-    system_prompt: '',
-    api_key: ''
+    name: "",
+    phone: "",
+    model: "",
+    system_prompt: "",
+    api_key: "",
   });
-
 
   // Load user profile from database
   const loadUserProfile = React.useCallback(async () => {
     if (!user?.id) return;
-    
+
     try {
       const { data } = await supabase
-        .from('user')
-        .select('*')
-        .eq('id', user.id)
-        .is('deleted_at', null)
+        .from("user")
+        .select("*")
+        .eq("id", user.id)
+        .is("deleted_at", null)
         .single();
-      
+
       if (data) {
         setUserProfile(data);
       }
     } catch (err) {
-      console.error('Error loading user profile:', err);
+      console.error("Error loading user profile:", err);
     }
   }, [user?.id]);
 
@@ -173,7 +182,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
 
     // Use database profile if available, otherwise fallback to auth user
-    const displayName = userProfile?.name ||
+    const displayName =
+      userProfile?.name ||
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||
       user.email?.split("@")[0] ||
@@ -188,13 +198,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Expose reload function globally for profile updates
   React.useEffect(() => {
-    (window as Window & { reloadUserProfile?: () => Promise<void> }).reloadUserProfile = loadUserProfile;
+    (
+      window as Window & { reloadUserProfile?: () => Promise<void> }
+    ).reloadUserProfile = loadUserProfile;
     return () => {
-      delete (window as Window & { reloadUserProfile?: () => Promise<void> }).reloadUserProfile;
+      delete (window as Window & { reloadUserProfile?: () => Promise<void> })
+        .reloadUserProfile;
     };
   }, [loadUserProfile]);
-
-
 
   if (loading) {
     return (
@@ -224,7 +235,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {selectedAgent ? selectedAgent.name : agents.length > 0 ? agents[0].name : 'No Agents'}
+                      {selectedAgent
+                        ? selectedAgent.name
+                        : agents.length > 0
+                        ? agents[0].name
+                        : "No Agents"}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
@@ -256,17 +271,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <div className="flex size-6 items-center justify-center rounded-md border">
                         <Bot className="size-3.5 shrink-0" />
                       </div>
-                      {agent.name || 'Unnamed Agent'}
+                      {agent.name || "Unnamed Agent"}
                       <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                     </DropdownMenuItem>
                   ))
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setIsAddAgentDialogOpen(true)} className="gap-2 p-2">
+                <DropdownMenuItem
+                  onClick={() => setIsAddAgentDialogOpen(true)}
+                  className="gap-2 p-2"
+                >
                   <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                     <Plus className="size-4" />
                   </div>
-                  <div className="text-muted-foreground font-medium">Add Agent</div>
+                  <div className="text-muted-foreground font-medium">
+                    Add Agent
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -293,21 +313,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div> */}
         <NavUser user={userData} />
       </SidebarFooter>
-      
+
       {/* Add Agent Dialog */}
-      <Dialog open={isAddAgentDialogOpen} onOpenChange={setIsAddAgentDialogOpen}>
+      <Dialog
+        open={isAddAgentDialogOpen}
+        onOpenChange={setIsAddAgentDialogOpen}
+      >
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">Add New Agent</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">
+              Add New Agent
+            </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              Create a new AI agent with custom configuration and WhatsApp integration.
+              Create a new AI agent with custom configuration and WhatsApp
+              integration.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-6 py-4">
             {/* Basic Information Section */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-foreground border-b pb-2">Basic Information</h3>
+              <h3 className="text-sm font-medium text-foreground border-b pb-2">
+                Basic Information
+              </h3>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="agent-name" className="text-sm font-medium">
@@ -316,28 +344,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Input
                     id="agent-name"
                     value={newAgentForm.name}
-                    onChange={(e) => setNewAgentForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setNewAgentForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                     placeholder="Enter a unique name for your agent"
                     className="w-full"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="agent-model" className="text-sm font-medium">
                     AI Model
                   </Label>
-                  <Select value={newAgentForm.model} onValueChange={(value) => setNewAgentForm(prev => ({ ...prev, model: value }))}>
+                  <Select
+                    value={newAgentForm.model}
+                    onValueChange={(value) =>
+                      setNewAgentForm((prev) => ({ ...prev, model: value }))
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select AI model for your agent" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="gpt-4">GPT-4 (Recommended)</SelectItem>
-                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                      <SelectItem value="gpt-3.5-turbo">
+                        GPT-3.5 Turbo
+                      </SelectItem>
                       <SelectItem value="claude-3">Claude 3</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="agent-prompt" className="text-sm font-medium">
                     System Prompt
@@ -345,7 +385,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Textarea
                     id="agent-prompt"
                     value={newAgentForm.system_prompt}
-                    onChange={(e) => setNewAgentForm(prev => ({ ...prev, system_prompt: e.target.value }))}
+                    onChange={(e) =>
+                      setNewAgentForm((prev) => ({
+                        ...prev,
+                        system_prompt: e.target.value,
+                      }))
+                    }
                     className="min-h-[120px] max-h-[200px] resize-none"
                     placeholder="Define your agent's personality, role, and behavior instructions..."
                   />
@@ -358,7 +403,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
             {/* Additional Configuration Section */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-foreground border-b pb-2">Additional Configuration</h3>
+              <h3 className="text-sm font-medium text-foreground border-b pb-2">
+                Additional Configuration
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="agent-phone" className="text-sm font-medium">
@@ -367,13 +414,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Input
                     id="agent-phone"
                     value={newAgentForm.phone}
-                    onChange={(e) => setNewAgentForm(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setNewAgentForm((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                     placeholder="Enter phone number (optional)"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="agent-api-key" className="text-sm font-medium">
+                  <Label
+                    htmlFor="agent-api-key"
+                    className="text-sm font-medium"
+                  >
                     API Key
                   </Label>
                   <div className="relative">
@@ -381,7 +436,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       id="agent-api-key"
                       type={showApiKey ? "text" : "password"}
                       value={newAgentForm.api_key}
-                      onChange={(e) => setNewAgentForm(prev => ({ ...prev, api_key: e.target.value }))}
+                      onChange={(e) =>
+                        setNewAgentForm((prev) => ({
+                          ...prev,
+                          api_key: e.target.value,
+                        }))
+                      }
                       className="pr-10"
                       placeholder="Enter API key (optional)"
                     />
@@ -403,13 +463,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </div>
             </div>
           </div>
-          
+
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setIsAddAgentDialogOpen(false);
-                setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '', api_key: '' });
+                setNewAgentForm({
+                  name: "",
+                  phone: "",
+                  model: "",
+                  system_prompt: "",
+                  api_key: "",
+                });
                 setShowApiKey(false);
               }}
               disabled={isCreating}
@@ -417,7 +483,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateAgent}
               disabled={isCreating || !newAgentForm.name.trim()}
               className="w-full sm:w-auto"
@@ -428,13 +494,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   Creating Agent...
                 </>
               ) : (
-                'Create Agent'
+                "Create Agent"
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Device Management Dialog - Disabled as requested */}
       {/* <DeviceManagement 
         open={isDeviceManagementOpen} 
@@ -442,23 +508,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       /> */}
     </Sidebar>
   );
-  
+
   async function handleCreateAgent() {
     if (!newAgentForm.name.trim()) {
-      alert('Agent name is required');
+      alert("Agent name is required");
       return;
     }
-    
+
     setIsCreating(true);
-    
+
     try {
       // Format phone number with WhatsApp suffix if provided
-      const formattedPhone = newAgentForm.phone.trim() 
+      const formattedPhone = newAgentForm.phone.trim()
         ? `${newAgentForm.phone.trim()}@s.whatsapp.net`
         : null;
-      
+
       const { error } = await supabase
-        .from('agents')
+        .from("agents")
         .insert({
           name: newAgentForm.name.trim(),
           phone: formattedPhone,
@@ -466,29 +532,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           system_prompt: newAgentForm.system_prompt.trim() || null,
           api_key: newAgentForm.api_key.trim() || null,
           user_id: user?.id,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         })
         .select()
         .single();
-      
+
       if (error) {
-        console.error('Error creating agent:', error);
-        alert('Failed to create agent. Please try again.');
+        console.error("Error creating agent:", error);
+        alert("Failed to create agent. Please try again.");
         return;
       }
-      
+
       // Refresh agents list
       await loadAgents();
-      
+
       // Reset form and close dialog
-      setNewAgentForm({ name: '', phone: '', model: '', system_prompt: '', api_key: '' });
+      setNewAgentForm({
+        name: "",
+        phone: "",
+        model: "",
+        system_prompt: "",
+        api_key: "",
+      });
       setIsAddAgentDialogOpen(false);
       setShowApiKey(false);
-      
-      alert('Agent created successfully!');
+
+      alert("Agent created successfully!");
     } catch (error) {
-      console.error('Unexpected error:', error);
-      alert('An error occurred. Please try again.');
+      console.error("Unexpected error:", error);
+      alert("An error occurred. Please try again.");
     } finally {
       setIsCreating(false);
     }

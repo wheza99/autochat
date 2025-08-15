@@ -23,7 +23,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Plus, Search, Upload, Download, Trash2, MoreVertical } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  Search,
+  Upload,
+  Download,
+  Trash2,
+  MoreVertical,
+} from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
@@ -52,26 +60,26 @@ export function DocumentSection() {
   const fetchDocuments = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       if (!selectedAgent) {
         setDocuments([]);
         setLoading(false);
         return;
       }
-      
+
       const { data, error } = await supabase
-        .from('source')
-        .select('*')
-        .eq('agent_id', selectedAgent.id)
-        .order('created_at', { ascending: false });
+        .from("source")
+        .select("*")
+        .eq("agent_id", selectedAgent.id)
+        .order("created_at", { ascending: false });
 
       if (error) {
-        console.error('Error fetching documents:', error);
+        console.error("Error fetching documents:", error);
       } else {
         setDocuments(data || []);
       }
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error("Error fetching documents:", error);
     } finally {
       setLoading(false);
     }
@@ -83,7 +91,7 @@ export function DocumentSection() {
 
   // Helper function to format date
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US');
+    return new Date(dateString).toLocaleDateString("en-US");
   };
 
   const filteredDocuments = documents.filter((doc) =>
@@ -96,7 +104,12 @@ export function DocumentSection() {
         <h3 className="text-sm font-semibold">Documents</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" disabled={!selectedAgent} className="h-7 px-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!selectedAgent}
+              className="h-7 px-2"
+            >
               <Plus className="h-3 w-3 mr-1" />
               <span className="text-xs">Add</span>
             </Button>
@@ -132,13 +145,12 @@ export function DocumentSection() {
 
                   // Upload to Supabase Storage first
                   setUploadProgress(25);
-                  const { error: uploadError } =
-                    await supabase.storage
-                      .from("source")
-                      .upload(fileName, file, {
-                        cacheControl: "3600",
-                        upsert: false,
-                      });
+                  const { error: uploadError } = await supabase.storage
+                    .from("source")
+                    .upload(fileName, file, {
+                      cacheControl: "3600",
+                      upsert: false,
+                    });
                   setUploadProgress(50);
 
                   if (uploadError) {
@@ -155,20 +167,20 @@ export function DocumentSection() {
                   // Save document metadata to database first to get source_id
                   setUploadProgress(65);
                   const { data: documentData, error: dbError } = await supabase
-                    .from('source')
+                    .from("source")
                     .insert({
                       name: file.name,
                       url: urlData.publicUrl,
                       file_path: fileName,
                       mime_type: file.type,
-                      agent_id: selectedAgent?.id
+                      agent_id: selectedAgent?.id,
                     })
                     .select()
                     .single();
 
                   if (dbError) {
-                    console.error('Error saving to database:', dbError);
-                    alert('Failed to save metadata to database');
+                    console.error("Error saving to database:", dbError);
+                    alert("Failed to save metadata to database");
                     // Delete uploaded file from storage if database save fails
                     await supabase.storage.from("source").remove([fileName]);
                     return;
@@ -197,7 +209,7 @@ export function DocumentSection() {
                     alert("File successfully uploaded and saved!");
                     // Refresh documents list
                     fetchDocuments();
-                    
+
                     // Reset form safely
                     const form = e.currentTarget;
                     if (form) {
@@ -208,7 +220,10 @@ export function DocumentSection() {
                   } else {
                     alert("Failed to upload file to n8n");
                     // Delete from database and storage if n8n fails
-                    await supabase.from('source').delete().eq('id', documentData.id);
+                    await supabase
+                      .from("source")
+                      .delete()
+                      .eq("id", documentData.id);
                     await supabase.storage.from("source").remove([fileName]);
                   }
                 } catch (error) {
@@ -249,20 +264,28 @@ export function DocumentSection() {
                     <Label className="text-sm">Upload Progress</Label>
                     <Progress value={uploadProgress} className="w-full" />
                     <p className="text-xs text-muted-foreground text-center">
-                      {uploadProgress}% - {uploadProgress < 25 ? 'Preparing file...' : 
-                       uploadProgress < 50 ? 'Uploading to storage...' :
-                       uploadProgress < 65 ? 'Saving metadata...' :
-                       uploadProgress < 95 ? 'Processing RAG...' : 'Finalizing...'}
+                      {uploadProgress}% -{" "}
+                      {uploadProgress < 25
+                        ? "Preparing file..."
+                        : uploadProgress < 50
+                        ? "Uploading to storage..."
+                        : uploadProgress < 65
+                        ? "Saving metadata..."
+                        : uploadProgress < 95
+                        ? "Processing RAG..."
+                        : "Finalizing..."}
                     </p>
                   </div>
                 )}
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline" disabled={isUploading}>Cancel</Button>
+                  <Button variant="outline" disabled={isUploading}>
+                    Cancel
+                  </Button>
                 </DialogClose>
                 <Button type="submit" disabled={isUploading}>
-                  {isUploading ? 'Uploading...' : 'Upload File'}
+                  {isUploading ? "Uploading..." : "Upload File"}
                 </Button>
               </DialogFooter>
             </form>
@@ -284,138 +307,162 @@ export function DocumentSection() {
         <div className="space-y-1">
           {loading ? (
             <div className="flex items-center justify-center py-4">
-              <div className="text-xs text-muted-foreground">Loading documents...</div>
+              <div className="text-xs text-muted-foreground">
+                Loading documents...
+              </div>
             </div>
           ) : filteredDocuments.length === 0 ? (
             <div className="flex items-center justify-center py-4">
               <div className="text-xs text-muted-foreground">
-                {searchTerm ? 'No documents found' : 'No documents yet'}
+                {searchTerm ? "No documents found" : "No documents yet"}
               </div>
             </div>
           ) : (
-            filteredDocuments.map((doc, index) => (
-               <div
-                  key={doc.id}
-                  className="p-3 hover:bg-accent transition-colors border-b border-border"
-                >
-                 <div className="flex items-start gap-3">
-                   <FileText className="h-5 w-5 text-muted-foreground mt-1" />
-                   <div className="flex-1 min-w-0">
-                     <h4 className="font-medium text-sm truncate">
-                       {(doc.name || 'Untitled Document').length > 25 
-                         ? (doc.name || 'Untitled Document').substring(0, 25) + '...' 
-                         : (doc.name || 'Untitled Document')}
-                     </h4>
-                     <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs bg-secondary px-2 py-1 rounded">
-                          {doc.mime_type || 'Unknown'}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDate(doc.created_at)}
-                        </span>
-                      </div>
-                   </div>
-                   <div className="flex items-center">
-                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild>
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           className="h-8 w-8 p-0"
-                           onClick={(e) => e.stopPropagation()}
-                         >
-                           <MoreVertical className="h-4 w-4" />
-                         </Button>
-                       </DropdownMenuTrigger>
+            filteredDocuments.map((doc) => (
+              <div
+                key={doc.id}
+                className="p-3 hover:bg-accent transition-colors border-b border-border"
+              >
+                <div className="flex items-start gap-3">
+                  <FileText className="h-5 w-5 text-muted-foreground mt-1" />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm truncate">
+                      {(doc.name || "Untitled Document").length > 25
+                        ? (doc.name || "Untitled Document").substring(0, 25) +
+                          "..."
+                        : doc.name || "Untitled Document"}
+                    </h4>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs bg-secondary px-2 py-1 rounded">
+                        {doc.mime_type || "Unknown"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(doc.created_at)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             if (doc.url) {
-                               window.open(doc.url, '_blank');
-                             }
-                           }}
-                         >
-                           <FileText className="h-4 w-4 mr-2" />
-                           View Document
-                         </DropdownMenuItem>
-                         <DropdownMenuItem
-                           onClick={async (e) => {
-                             e.stopPropagation();
-                             if (doc.url && doc.name) {
-                               try {
-                                 const response = await fetch(doc.url);
-                                 const blob = await response.blob();
-                                 const url = window.URL.createObjectURL(blob);
-                                 const a = document.createElement('a');
-                                 a.style.display = 'none';
-                                 a.href = url;
-                                 a.download = doc.name;
-                                 document.body.appendChild(a);
-                                 a.click();
-                                 window.URL.revokeObjectURL(url);
-                                 document.body.removeChild(a);
-                               } catch (error) {
-                                 console.error('Error downloading file:', error);
-                                 alert('Failed to download file');
-                               }
-                             }
-                           }}
-                         >
-                           <Download className="h-4 w-4 mr-2" />
-                           Download
-                         </DropdownMenuItem>
-                         <DropdownMenuItem
-                           onClick={async (e) => {
-                             e.stopPropagation();
-                             if (confirm('Are you sure you want to delete this document?')) {
-                               try {
-                                 // Delete from documents table first (based on source_id in metadata)
-                                 const { error: documentsError } = await supabase
-                                   .from('documents')
-                                   .delete()
-                                   .contains('metadata', { source_id: doc.id });
-                                 
-                                 if (documentsError) {
-                                   console.error('Error deleting from documents table:', documentsError);
-                                 }
-                                 
-                                 // Delete from Supabase storage
-                                 if (doc.file_path) {
-                                   const { error: storageError } = await supabase.storage
-                                     .from('source')
-                                     .remove([doc.file_path]);
-                                   
-                                   if (storageError) {
-                                     console.error('Error deleting from storage:', storageError);
-                                   }
-                                 }
-                                 
-                                 // Delete from source database
-                                 const { error: dbError } = await supabase
-                                   .from('source')
-                                   .delete()
-                                   .eq('id', doc.id);
-                                 
-                                 if (dbError) {
-                                   console.error('Error deleting from database:', dbError);
-                                   alert('Failed to delete document from database');
-                                 } else {
-                                   alert('Document successfully deleted!');
-                                   // Refresh documents list
-                                   fetchDocuments();
-                                 }
-                               } catch (error) {
-                                 console.error('Error deleting document:', error);
-                                 alert('An error occurred while deleting document');
-                               }
-                             }
-                           }}
-                           className="text-destructive focus:text-destructive"
-                         >
-                           <Trash2 className="h-4 w-4 mr-2" />
-                           Delete
-                         </DropdownMenuItem>
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (doc.url) {
+                              window.open(doc.url, "_blank");
+                            }
+                          }}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          View Document
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (doc.url && doc.name) {
+                              try {
+                                const response = await fetch(doc.url);
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.style.display = "none";
+                                a.href = url;
+                                a.download = doc.name;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                document.body.removeChild(a);
+                              } catch (error) {
+                                console.error("Error downloading file:", error);
+                                alert("Failed to download file");
+                              }
+                            }
+                          }}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (
+                              confirm(
+                                "Are you sure you want to delete this document?"
+                              )
+                            ) {
+                              try {
+                                // Delete from documents table first (based on source_id in metadata)
+                                const { error: documentsError } = await supabase
+                                  .from("documents")
+                                  .delete()
+                                  .contains("metadata", { source_id: doc.id });
+
+                                if (documentsError) {
+                                  console.error(
+                                    "Error deleting from documents table:",
+                                    documentsError
+                                  );
+                                }
+
+                                // Delete from Supabase storage
+                                if (doc.file_path) {
+                                  const { error: storageError } =
+                                    await supabase.storage
+                                      .from("source")
+                                      .remove([doc.file_path]);
+
+                                  if (storageError) {
+                                    console.error(
+                                      "Error deleting from storage:",
+                                      storageError
+                                    );
+                                  }
+                                }
+
+                                // Delete from source database
+                                const { error: dbError } = await supabase
+                                  .from("source")
+                                  .delete()
+                                  .eq("id", doc.id);
+
+                                if (dbError) {
+                                  console.error(
+                                    "Error deleting from database:",
+                                    dbError
+                                  );
+                                  alert(
+                                    "Failed to delete document from database"
+                                  );
+                                } else {
+                                  alert("Document successfully deleted!");
+                                  // Refresh documents list
+                                  fetchDocuments();
+                                }
+                              } catch (error) {
+                                console.error(
+                                  "Error deleting document:",
+                                  error
+                                );
+                                alert(
+                                  "An error occurred while deleting document"
+                                );
+                              }
+                            }
+                          }}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

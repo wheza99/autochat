@@ -2,18 +2,46 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MessageCircle, Phone, CheckCircle, XCircle, Settings, QrCode } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  MessageCircle,
+  Phone,
+  CheckCircle,
+  XCircle,
+  Settings,
+  QrCode,
+} from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
 import { useState } from "react";
+import Image from "next/image";
+
+// Types for session data
+interface SessionData {
+  qr: string;
+  session: string;
+  apikey: string;
+}
 
 export function WhatsAppSection() {
   const { selectedAgent } = useAgent();
   const [qrData, setQrData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionData, setSessionData] = useState<SessionData | null>(null);
 
   if (!selectedAgent) {
     return (
@@ -21,36 +49,40 @@ export function WhatsAppSection() {
         <div className="text-center">
           <MessageCircle className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
           <h2 className="text-lg font-semibold mb-1">Select an Agent</h2>
-          <p className="text-sm text-muted-foreground">Choose an agent to view WhatsApp settings</p>
+          <p className="text-sm text-muted-foreground">
+            Choose an agent to view WhatsApp settings
+          </p>
         </div>
       </div>
     );
   }
 
   const isConnected = selectedAgent.phone ? true : false;
-  const phoneNumber = selectedAgent.phone ? selectedAgent.phone.replace('@s.whatsapp.net', '') : null;
+  const phoneNumber = selectedAgent.phone
+    ? selectedAgent.phone.replace("@s.whatsapp.net", "")
+    : null;
 
   const generateQRCode = async () => {
     setIsLoading(true);
     try {
-      const credentials = btoa('wheza99@gmail.com:b4ZXVkenVp7xMPe');
-      const response = await fetch('https://app.notif.my.id/ss/scanorpairing', {
-        method: 'POST',
+      const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+      const response = await fetch("https://app.notif.my.id/ss/scanorpairing", {
+        method: "POST",
         headers: {
-          'Authorization': `Basic ${credentials}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Basic ${credentials}`,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setQrData(data.qr);
         setSessionData(data);
       } else {
-        console.error('Failed to generate QR code');
+        console.error("Failed to generate QR code");
       }
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error("Error generating QR code:", error);
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +101,10 @@ export function WhatsAppSection() {
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Status</span>
-            <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+            <Badge
+              variant={isConnected ? "default" : "secondary"}
+              className="text-xs"
+            >
               {isConnected ? (
                 <>
                   <CheckCircle className="h-3 w-3 mr-1" />
@@ -83,10 +118,12 @@ export function WhatsAppSection() {
               )}
             </Badge>
           </div>
-          
+
           {phoneNumber && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Phone Number</span>
+              <span className="text-sm text-muted-foreground">
+                Phone Number
+              </span>
               <div className="flex items-center space-x-1">
                 <Phone className="h-3 w-3 text-muted-foreground" />
                 <span className="text-sm font-mono">{phoneNumber}</span>
@@ -105,62 +142,71 @@ export function WhatsAppSection() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="w-full justify-start text-xs h-8"
             disabled={!isConnected}
           >
             <MessageCircle className="h-3 w-3 mr-2" />
             Send Test Message
           </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
+
+          <Button
+            variant="outline"
+            size="sm"
             className="w-full justify-start text-xs h-8"
           >
             <Settings className="h-3 w-3 mr-2" />
             Configure Webhook
           </Button>
-          
+
           <Dialog>
             <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="w-full justify-start text-xs h-8"
                 onClick={generateQRCode}
                 disabled={isLoading}
               >
                 <QrCode className="h-3 w-3 mr-2" />
-                {isLoading ? 'Generating...' : 'Show QR Code'}
+                {isLoading ? "Generating..." : "Show QR Code"}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>WhatsApp QR Code</DialogTitle>
                 <DialogDescription>
-                  Scan this QR code with your WhatsApp mobile app to connect your bot.
+                  Scan this QR code with your WhatsApp mobile app to connect
+                  your bot.
                 </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col items-center space-y-4">
                 {qrData ? (
                   <>
                     <div className="p-4 bg-white rounded-lg border">
-                      <img 
-                        src={qrData} 
-                        alt="WhatsApp QR Code" 
+                      <Image
+                        src={qrData}
+                        alt="WhatsApp QR Code"
+                        width={256}
+                        height={256}
                         className="w-64 h-64 object-contain"
                       />
                     </div>
                     {sessionData && (
                       <div className="text-center space-y-2">
                         <p className="text-sm text-muted-foreground">
-                          Session: <span className="font-mono text-xs">{sessionData.session}</span>
+                          Session:{" "}
+                          <span className="font-mono text-xs">
+                            {sessionData.session}
+                          </span>
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          API Key: <span className="font-mono text-xs">{sessionData.apikey}</span>
+                          API Key:{" "}
+                          <span className="font-mono text-xs">
+                            {sessionData.apikey}
+                          </span>
                         </p>
                       </div>
                     )}
@@ -169,17 +215,19 @@ export function WhatsAppSection() {
                   <div className="flex items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg">
                     <div className="text-center">
                       <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Click "Show QR Code" to generate</p>
+                      <p className="text-sm text-muted-foreground">
+                        Click &quot;Show QR Code&quot; to generate
+                      </p>
                     </div>
                   </div>
                 )}
               </div>
             </DialogContent>
           </Dialog>
-          
-          <Button 
-            variant={isConnected ? "destructive" : "default"} 
-            size="sm" 
+
+          <Button
+            variant={isConnected ? "destructive" : "default"}
+            size="sm"
             className="w-full justify-start text-xs h-8"
           >
             {isConnected ? (
@@ -210,10 +258,12 @@ export function WhatsAppSection() {
             </div>
             <div className="text-center">
               <div className="text-lg font-bold text-green-600">0</div>
-              <div className="text-xs text-muted-foreground">Messages Received</div>
+              <div className="text-xs text-muted-foreground">
+                Messages Received
+              </div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center">
               <div className="text-lg font-bold text-blue-600">0</div>

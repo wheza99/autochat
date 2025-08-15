@@ -1,78 +1,78 @@
 // Halaman reset password untuk mengubah password baru
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useAuth } from "@/hooks/use-auth"
-import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
-import { Eye, EyeOff, MessageCircle } from "lucide-react"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { Eye, EyeOff, MessageCircle } from "lucide-react";
 
-export default function ResetPasswordPage() {
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const { updatePassword } = useAuth()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+function ResetPasswordContent() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { updatePassword } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Check if we have the necessary tokens from the URL
-    const accessToken = searchParams.get('access_token')
-    const refreshToken = searchParams.get('refresh_token')
-    
+    const accessToken = searchParams.get("access_token");
+    const refreshToken = searchParams.get("refresh_token");
+
     if (accessToken && refreshToken) {
       // Set the session with the tokens from the URL
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
-      })
+      });
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match')
-      return
+      toast.error("Passwords do not match");
+      return;
     }
-    
+
     if (password.length < 6) {
-      toast.error('Password must be at least 6 characters')
-      return
+      toast.error("Password must be at least 6 characters");
+      return;
     }
-    
-    setIsLoading(true)
+
+    setIsLoading(true);
 
     try {
-      const { error } = await updatePassword(password)
-      
+      const { error } = await updatePassword(password);
+
       if (error) {
-        toast.error('Failed to reset password: ' + error.message)
+        toast.error("Failed to reset password: " + error.message);
       } else {
-        toast.success('Password reset successful!')
-        router.push('/login')
+        toast.success("Password reset successful!");
+        router.push("/login");
       }
     } catch {
-      toast.error('An error occurred while resetting password')
+      toast.error("An error occurred while resetting password");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -87,9 +87,7 @@ export default function ResetPasswordPage() {
           <Card>
             <CardHeader className="text-center">
               <CardTitle className="text-xl">Reset your password</CardTitle>
-              <CardDescription>
-                Enter your new password below
-              </CardDescription>
+              <CardDescription>Enter your new password below</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleResetPassword}>
@@ -124,7 +122,9 @@ export default function ResetPasswordPage() {
                     </div>
                   </div>
                   <div className="grid gap-3">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">
+                      Confirm New Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -141,7 +141,9 @@ export default function ResetPasswordPage() {
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         disabled={isLoading}
                       >
                         {showConfirmPassword ? (
@@ -153,7 +155,7 @@ export default function ResetPasswordPage() {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Resetting...' : 'Reset password'}
+                    {isLoading ? "Resetting..." : "Reset password"}
                   </Button>
                   <div className="text-center text-sm">
                     Remember your password?{" "}
@@ -167,16 +169,37 @@ export default function ResetPasswordPage() {
           </Card>
           <div className="text-muted-foreground text-center text-xs text-balance">
             By clicking continue, you agree to our{" "}
-            <a href="#" className="underline underline-offset-4 hover:text-primary">
+            <a
+              href="#"
+              className="underline underline-offset-4 hover:text-primary"
+            >
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="#" className="underline underline-offset-4 hover:text-primary">
+            <a
+              href="#"
+              className="underline underline-offset-4 hover:text-primary"
+            >
               Privacy Policy
-            </a>.
+            </a>
+            .
           </div>
         </div>
       </div>
     </div>
-  )
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+          <div>Loading...</div>
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
+  );
 }

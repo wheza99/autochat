@@ -46,11 +46,11 @@ const pricingPlans = [
       "1 Agent Whatsapp",
       "Email support",
       "Basic message templates",
-      "Basic analytics"
+      "Basic analytics",
     ],
     popular: false,
     buttonText: "Upgrade Now",
-    buttonVariant: "outline" as const
+    buttonVariant: "outline" as const,
   },
   {
     name: "Professional",
@@ -65,11 +65,11 @@ const pricingPlans = [
       "Advanced message templates",
       "Complete analytics",
       "API integration",
-      "Automatic backup"
+      "Automatic backup",
     ],
     popular: true,
     buttonText: "Upgrade Now",
-    buttonVariant: "default" as const
+    buttonVariant: "default" as const,
   },
   {
     name: "Enterprise",
@@ -85,12 +85,12 @@ const pricingPlans = [
       "Enterprise analytics",
       "Full integration",
       "Dedicated account manager",
-      "99.9% SLA"
+      "99.9% SLA",
     ],
     popular: false,
     buttonText: "Contact Sales",
-    buttonVariant: "outline" as const
-  }
+    buttonVariant: "outline" as const,
+  },
 ];
 
 // Main Pricing Content
@@ -105,37 +105,46 @@ function PricingContent() {
   };
 
   // Calculate dynamic pricing based on message volume
-  const calculatePrice = (basePrice: number | string, messageCount: number, baseMessages: number) => {
-    if (typeof basePrice === 'string') {
+  const calculatePrice = (
+    basePrice: number | string,
+    messageCount: number,
+    baseMessages: number
+  ) => {
+    if (typeof basePrice === "string") {
       return basePrice;
     }
-    
+
     // Calculate price per message based on base plan
     const pricePerMessage = basePrice / baseMessages;
-    
+
     // Calculate price based on selected message count
     const calculatedPrice = Math.round(pricePerMessage * messageCount);
-    
-    return `Rp ${calculatedPrice.toLocaleString('id-ID')}`;
+
+    return `Rp ${calculatedPrice.toLocaleString("id-ID")}`;
   };
 
   // Handle checkout navigation
-  const handleCheckout = (plan: any) => {
-    if (plan.buttonText === 'Contact Sales') {
+  const handleCheckout = (plan: (typeof pricingPlans)[0]) => {
+    if (plan.buttonText === "Contact Sales") {
       // Handle contact sales differently
       return;
     }
-    
+
     const basePrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-    const price = calculatePrice(basePrice, messageVolume[0], plan.baseMessages);
-    const numericPrice = typeof price === 'string' && price !== 'Contact Us' 
-      ? parseFloat(price.replace('Rp ', '').replace(/\./g, '')) 
-      : 0;
-    
+    const price = calculatePrice(
+      basePrice,
+      messageVolume[0],
+      plan.baseMessages
+    );
+    const numericPrice =
+      typeof price === "string" && price !== "Contact Us"
+        ? parseFloat(price.replace("Rp ", "").replace(/\./g, ""))
+        : 0;
+
     // Calculate tax (11%)
     const tax = Math.round(numericPrice * 0.11 * 100) / 100;
     const total = numericPrice + tax;
-    
+
     // Navigate to checkout with query parameters
     const searchParams = new URLSearchParams({
       plan: plan.name,
@@ -143,9 +152,9 @@ function PricingContent() {
       tax: tax.toString(),
       total: total.toString(),
       messages: messageVolume[0].toString(),
-      billing: isYearly ? 'yearly' : 'monthly'
+      billing: isYearly ? "yearly" : "monthly",
     });
-    
+
     router.push(`/checkout?${searchParams.toString()}`);
   };
 
@@ -189,14 +198,19 @@ function PricingContent() {
                 Choose the Right Plan for Your Business
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Enhance your customer service with intelligent AutoChat agents. 
+                Enhance your customer service with intelligent AutoChat agents.
                 Start free and upgrade as your business grows.
               </p>
             </div>
 
             {/* Billing Toggle */}
             <div className="flex items-center justify-center gap-4 mb-12">
-              <Label htmlFor="billing-toggle" className={`text-sm font-medium ${!isYearly ? 'text-primary' : 'text-muted-foreground'}`}>
+              <Label
+                htmlFor="billing-toggle"
+                className={`text-sm font-medium ${
+                  !isYearly ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
                 Monthly
               </Label>
               <Switch
@@ -204,7 +218,12 @@ function PricingContent() {
                 checked={isYearly}
                 onCheckedChange={setIsYearly}
               />
-              <Label htmlFor="billing-toggle" className={`text-sm font-medium ${isYearly ? 'text-primary' : 'text-muted-foreground'}`}>
+              <Label
+                htmlFor="billing-toggle"
+                className={`text-sm font-medium ${
+                  isYearly ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
                 Yearly
               </Label>
             </div>
@@ -221,17 +240,19 @@ function PricingContent() {
                   <div className="text-4xl font-bold text-primary">
                     {formatMessageCount(messageVolume[0])}
                   </div>
-                  <div className="text-sm text-muted-foreground text-center">messages/month</div>
+                  <div className="text-sm text-muted-foreground text-center">
+                    messages/month
+                  </div>
                 </div>
                 <div className="flex-1">
                   <Slider
-                     value={messageVolume}
-                     onValueChange={setMessageVolume}
-                     max={10000}
-                     min={1000}
-                     step={1000}
-                     className="w-full h-3"
-                   />
+                    value={messageVolume}
+                    onValueChange={setMessageVolume}
+                    max={10000}
+                    min={1000}
+                    step={1000}
+                    className="w-full h-3"
+                  />
                   <div className="flex justify-between text-xs text-muted-foreground mt-2">
                     <span>1k</span>
                     <span>2k</span>
@@ -251,55 +272,69 @@ function PricingContent() {
             {/* Pricing Cards */}
             <div className="grid md:grid-cols-3 gap-8 mb-12">
               {pricingPlans.map((plan, index) => (
-                <Card 
-                  key={index} 
-                  className={`relative flex flex-col h-full ${plan.popular ? 'border-primary shadow-lg scale-105' : ''}`}
+                <Card
+                  key={index}
+                  className={`relative flex flex-col h-full ${
+                    plan.popular ? "border-primary shadow-lg scale-105" : ""
+                  }`}
                 >
                   {plan.popular && (
-                    <Badge 
-                      className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground"
-                    >
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
                       Most Popular
                     </Badge>
                   )}
-                  
+
                   <CardHeader className="text-center pb-4">
-                    <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                    <CardDescription className="text-sm">{plan.description}</CardDescription>
+                    <CardTitle className="text-2xl font-bold">
+                      {plan.name}
+                    </CardTitle>
+                    <CardDescription className="text-sm">
+                      {plan.description}
+                    </CardDescription>
                     <div className="mt-4">
                       <span className="text-4xl font-bold">
-                        {calculatePrice(isYearly ? plan.yearlyPrice : plan.monthlyPrice, messageVolume[0], plan.baseMessages)}
+                        {calculatePrice(
+                          isYearly ? plan.yearlyPrice : plan.monthlyPrice,
+                          messageVolume[0],
+                          plan.baseMessages
+                        )}
                       </span>
-                      {typeof (isYearly ? plan.yearlyPrice : plan.monthlyPrice) !== 'string' && (
+                      {typeof (isYearly
+                        ? plan.yearlyPrice
+                        : plan.monthlyPrice) !== "string" && (
                         <span className="text-muted-foreground">
-                          {isYearly ? '/year' : '/month'}
+                          {isYearly ? "/year" : "/month"}
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Message Limit Display */}
                     <div className="mt-4 p-3 border rounded-lg bg-muted/50">
                       <div className="text-lg font-semibold text-primary">
-                        {plan.messageLimit === 'Custom' || plan.messageLimit === 'Unlimited' 
-                          ? plan.messageLimit 
-                          : `${formatMessageCount(messageVolume[0])}`
-                        } messages/month
+                        {plan.messageLimit === "Custom" ||
+                        plan.messageLimit === "Unlimited"
+                          ? plan.messageLimit
+                          : `${formatMessageCount(messageVolume[0])}`}{" "}
+                        messages/month
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="flex-1 flex flex-col">
                     <ul className="space-y-3 mb-6 flex-1">
                       {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center gap-3">
+                        <li
+                          key={featureIndex}
+                          className="flex items-center gap-3"
+                        >
                           <Check className="h-4 w-4 text-primary flex-shrink-0" />
                           <span className="text-sm">{feature}</span>
                         </li>
                       ))}
                     </ul>
-                    
-                    <Button 
-                      className="w-full mt-auto" 
+
+                    <Button
+                      className="w-full mt-auto"
                       variant={plan.buttonVariant}
                       size="lg"
                       onClick={() => handleCheckout(plan)}
@@ -310,7 +345,6 @@ function PricingContent() {
                 </Card>
               ))}
             </div>
-
           </div>
         </div>
       </SidebarInset>
