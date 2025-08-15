@@ -24,6 +24,7 @@ interface DeviceData {
   agent_id: string;
   api_key: string;
   session_name: string;
+  device_id?: string;
   created_at: string;
   updated_at: string;
   last_active?: string;
@@ -55,45 +56,73 @@ export function WhatsAppConnectionStatus() {
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   // Check session status using API
-  const checkSessionStatus = React.useCallback(async (apiKey: string) => {
-    if (!apiKey) {
-      setSessionStatus("invalid");
-      return;
-    }
-
-    setIsCheckingStatus(true);
-    try {
-      const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
-      const response = await fetch("https://app.notif.my.id/ss/info", {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          apikey: apiKey,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSessionStatus(data.status_session || "offline");
-        setBotNumber(data.bot_number || "N/A");
-      } else {
-        const errorData = await response.json().catch(() => null);
-        if (errorData?.error?.message?.includes("Invalid apikey")) {
-          setSessionStatus("invalid");
-        } else {
-          setSessionStatus("offline");
-        }
+  const checkSessionStatus = React.useCallback(
+    async (apiKey: string, currentDeviceData?: DeviceData | null) => {
+      if (!apiKey) {
+        setSessionStatus("invalid");
+        return;
       }
-    } catch (error) {
-      console.error("Error checking session status:", error);
-      setSessionStatus("offline");
-    } finally {
-      setIsCheckingStatus(false);
-    }
-  }, []);
+
+      setIsCheckingStatus(true);
+      try {
+        const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+        const response = await fetch("https://app.notif.my.id/ss/info", {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${credentials}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            apikey: apiKey,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSessionStatus(data.status_session || "offline");
+          setBotNumber(data.bot_number || "N/A");
+
+          // Use currentDeviceData parameter or fallback to state
+          const deviceToCheck = currentDeviceData || deviceData;
+
+          // Update existing device only if device_id is null
+          if (deviceToCheck && !deviceToCheck.device_id && data.bot_number) {
+            console.log("updating device id with:", data.bot_number);
+            const { data: updatedDevice, error } = await supabase
+              .from("device")
+              .update({
+                device_id: data.bot_number,
+              })
+              .eq("user_id", user?.id)
+              .eq("agent_id", selectedAgent?.id)
+              .select()
+              .single();
+
+            if (error) {
+              console.error("Error updating device:", error);
+            } else {
+              console.log("Device updated successfully:", updatedDevice);
+              // Update local device data
+              setDeviceData(updatedDevice);
+            }
+          }
+        } else {
+          const errorData = await response.json().catch(() => null);
+          if (errorData?.error?.message?.includes("Invalid apikey")) {
+            setSessionStatus("invalid");
+          } else {
+            setSessionStatus("offline");
+          }
+        }
+      } catch (error) {
+        console.error("Error checking session status:", error);
+        setSessionStatus("offline");
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    },
+    [user?.id, selectedAgent?.id, deviceData]
+  );
 
   // Load device data from Supabase based on selected agent
   const loadDeviceData = React.useCallback(async () => {
@@ -124,8 +153,8 @@ export function WhatsAppConnectionStatus() {
           api_key: data.api_key,
         });
         setIsConnected(data.is_active || false);
-        // Check session status when device data is loaded
-        checkSessionStatus(data.api_key);
+        // Check session status when device data is loaded, pass the fresh data
+        checkSessionStatus(data.api_key, data);
       } else {
         setDeviceData(null);
         setConnectionInfo(null);
@@ -257,7 +286,7 @@ export function WhatsAppConnectionStatus() {
                   refreshQRGenerator();
                   // Also check session status to update the connection status display
                   if (deviceData?.api_key) {
-                    await checkSessionStatus(deviceData.api_key);
+                    await checkSessionStatus(deviceData.api_key, deviceData);
                   }
                 }}
                 disabled={isCheckingStatus || isDeleting}
