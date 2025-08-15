@@ -353,6 +353,38 @@ export function QRCodeGenerator() {
               refreshDeviceData(); // Also refresh the connection status component
             }, 1000);
           }
+
+          try {
+            console.log("api key:", data.apikey);
+
+            const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+            const response = await fetch(
+              "https://app.notif.my.id/ss/updatewebhook",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Basic ${credentials}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  apikey: data.apikey,
+                  webhook: "https://api.autochat.agency/webhook/whatsapp",
+                }),
+              }
+            );
+
+            console.log("response:", response);
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log("Webhook updated successfully:", data);
+            } else {
+              const errorData = await response.json().catch(() => null);
+              console.error("Failed to update webhook:", errorData);
+            }
+          } catch (error) {
+            console.error("Error updating webhook:", error);
+          }
         }
       } else {
         const errorText = await response.text();
