@@ -52,16 +52,15 @@ interface AddAgentDialogProps {
 const pricingPlans = [
   {
     name: "Starter",
-    monthlyPrice: 100000,
-    yearlyPrice: 1000000,
+    monthlyPrice: 480000,
+    yearlyPrice: 4800000,
     description: "Perfect for small businesses just getting started",
-    messageLimit: "1k",
-    baseMessages: 1000,
+    messageLimit: "5k",
+    baseMessages: 5000,
     features: [
       "1 Agent Whatsapp",
+      "5000 Messages Limit per Month",
       "Email support",
-      "Basic message templates",
-      "Basic analytics",
     ],
     popular: false,
     buttonText: "Select Plan",
@@ -72,15 +71,12 @@ const pricingPlans = [
     monthlyPrice: 2000000,
     yearlyPrice: 20000000,
     description: "Ideal for growing businesses",
-    messageLimit: "5K",
-    baseMessages: 5000,
+    messageLimit: "50K",
+    baseMessages: 50000,
     features: [
-      "5 Agents Whatsapps",
+      "1 Agent Whatsapp",
+      "5000 Messages Limit per Month",
       "Priority support",
-      "Advanced message templates",
-      "Complete analytics",
-      "API integration",
-      "Automatic backup",
     ],
     popular: true,
     buttonText: "Select Plan",
@@ -94,13 +90,9 @@ const pricingPlans = [
     messageLimit: "Custom",
     baseMessages: 0,
     features: [
-      "Unlimited Agents Whatsapp",
-      "24/7 support",
-      "Custom templates",
-      "Enterprise analytics",
-      "Full integration",
+      "1 Agent Whatsapp",
+      "Unlimited Messages using Your Own API Key",
       "Dedicated account manager",
-      "99.9% SLA",
     ],
     popular: false,
     buttonText: "Contact Sales",
@@ -140,10 +132,10 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
     }
 
     // Calculate price per message based on base plan
-    const pricePerMessage = basePrice / baseMessages;
+    const pricePerMessage = basePrice;
 
     // Calculate price based on selected message count
-    const calculatedPrice = Math.round(pricePerMessage * messageCount);
+    const calculatedPrice = Math.round(basePrice);
 
     return `Rp ${calculatedPrice.toLocaleString("id-ID")}`;
   };
@@ -493,7 +485,7 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
                       {plan.description}
                     </CardDescription>
                     <div className="mt-3">
-                      <span className="text-2xl font-bold">
+                      <span className="text-xl font-bold">
                         {calculatePrice(
                           isYearly ? plan.yearlyPrice : plan.monthlyPrice,
                           messageVolume[0],
