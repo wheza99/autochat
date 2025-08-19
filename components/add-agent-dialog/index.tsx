@@ -90,11 +90,7 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
   };
 
   // Calculate dynamic pricing based on message volume
-  const calculatePrice = (
-    basePrice: number | string,
-    messageCount: number,
-    baseMessages: number
-  ) => {
+  const calculatePrice = (basePrice: number | string) => {
     if (typeof basePrice === "string") {
       return basePrice;
     }
