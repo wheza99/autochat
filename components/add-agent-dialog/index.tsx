@@ -9,6 +9,7 @@ import { useAgent } from "@/contexts/agent-context";
 import { DialogHeaderStep } from "./dialog-header-step";
 import { AgentFormStep } from "./agent-form-step";
 import { PricingStep } from "./pricing-step";
+import { PaymentStep } from "./payment-step";
 import { DialogFooterStep } from "./dialog-footer-step";
 import { AgentForm, AddAgentDialogProps, PricingPlan } from "./types";
 
@@ -71,6 +72,9 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
   const [isCreating, setIsCreating] = React.useState(false);
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [isYearly, setIsYearly] = React.useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = React.useState(false);
+  const [paymentData, setPaymentData] = React.useState<any>(null);
+  const [paymentError, setPaymentError] = React.useState<string | null>(null);
 
   const [selectedPlan, setSelectedPlan] = React.useState<string | null>(null);
   const [newAgentForm, setNewAgentForm] = React.useState<AgentForm>({
@@ -101,19 +105,63 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
     return `Rp ${calculatedPrice.toLocaleString("id-ID")}`;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1) {
       if (!newAgentForm.name.trim()) {
         alert("Agent name is required");
         return;
       }
       setCurrentStep(2);
+    } else if (currentStep === 2) {
+      if (!selectedPlan) {
+        alert("Please select a pricing plan");
+        return;
+      }
+      await handlePayment();
     }
   };
 
   const handleBack = () => {
     if (currentStep === 2) {
       setCurrentStep(1);
+    } else if (currentStep === 3) {
+      setCurrentStep(2);
+      setPaymentData(null);
+      setPaymentError(null);
+    }
+  };
+
+  const handlePayment = async () => {
+    setCurrentStep(3);
+    setIsProcessingPayment(true);
+    setPaymentError(null);
+
+    try {
+      const merchantRef = `INV${Date.now()}`;
+      const response = await fetch("/api/payment/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer_name: newAgentForm.name.trim(),
+          amount: 100000, // Default amount, bisa disesuaikan dengan plan
+          merchant_ref: merchantRef,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setPaymentData(result.data);
+      } else {
+        setPaymentError(result.message || "Payment creation failed");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      setPaymentError("Terjadi kesalahan saat memproses pembayaran");
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -129,6 +177,11 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
 
     if (!selectedPlan) {
       alert("Please select a pricing plan");
+      return;
+    }
+
+    if (!paymentData) {
+      alert("Payment must be completed first");
       return;
     }
 
@@ -174,6 +227,9 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
       setCurrentStep(1);
       setSelectedPlan(null);
       setShowApiKey(false);
+      setPaymentData(null);
+      setPaymentError(null);
+      setIsProcessingPayment(false);
       onOpenChange(false);
 
       alert("Agent created successfully!");
@@ -196,6 +252,9 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
     setCurrentStep(1);
     setSelectedPlan(null);
     setShowApiKey(false);
+    setPaymentData(null);
+    setPaymentError(null);
+    setIsProcessingPayment(false);
     onOpenChange(false);
   };
 
@@ -222,6 +281,14 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
             pricingPlans={pricingPlans}
             calculatePrice={calculatePrice}
             formatMessageCount={formatMessageCount}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <PaymentStep
+            isProcessing={isProcessingPayment}
+            paymentData={paymentData}
+            error={paymentError}
           />
         )}
 

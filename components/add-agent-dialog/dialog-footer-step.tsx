@@ -23,26 +23,35 @@ export function DialogFooterStep({
       >
         {currentStep === 1 ? "Cancel" : "Back"}
       </Button>
-      <Button
-        onClick={currentStep === 1 ? handleNext : handleCreateAgent}
-        disabled={
-          isCreating ||
-          (currentStep === 1 && !newAgentForm.name.trim()) ||
-          (currentStep === 2 && !selectedPlan)
-        }
-        className="w-full sm:w-auto"
-      >
-        {isCreating ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Creating Agent...
-          </>
-        ) : currentStep === 1 ? (
-          "Next"
-        ) : (
-          "Create Agent"
-        )}
-      </Button>
+      {currentStep < 3 && (
+        <Button
+          onClick={handleNext}
+          disabled={
+            isCreating ||
+            (currentStep === 1 && !newAgentForm.name.trim()) ||
+            (currentStep === 2 && !selectedPlan)
+          }
+          className="w-full sm:w-auto"
+        >
+          {currentStep === 1 ? "Next" : "Proceed to Payment"}
+        </Button>
+      )}
+      {currentStep === 3 && (
+        <Button
+          onClick={handleCreateAgent}
+          disabled={isCreating}
+          className="w-full sm:w-auto"
+        >
+          {isCreating ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Creating Agent...
+            </>
+          ) : (
+            "Create Agent"
+          )}
+        </Button>
+      )}
     </DialogFooter>
   );
 }
