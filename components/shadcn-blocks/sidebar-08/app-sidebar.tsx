@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
 
@@ -86,24 +87,9 @@ const data = {
   },
   navMain: [
     {
-      title: "Agent Info",
-      url: "/agent_info",
-      icon: Info,
-    },
-    {
-      title: "System Prompt",
-      url: "/system_prompt",
-      icon: Settings,
-    },
-    {
-      title: "Documents",
-      url: "/document",
-      icon: FileText,
-    },
-    {
-      title: "WhatsApp",
-      url: "/whatsapp",
-      icon: MessageSquare,
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: PieChart,
     },
   ],
   navSecondary: [],
@@ -130,6 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth();
   const { agents, selectedAgent, setSelectedAgent, loadAgents } = useAgent();
   const { isMobile } = useSidebar();
+  const router = useRouter();
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = React.useState(false);
   // Device management disabled as requested
   // const [isDeviceManagementOpen, setIsDeviceManagementOpen] = React.useState(false);
@@ -265,7 +252,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   agents.map((agent, index) => (
                     <DropdownMenuItem
                       key={agent.id}
-                      onClick={() => setSelectedAgent(agent)}
+                      onClick={() => {
+                        setSelectedAgent(agent);
+                        router.push(`/dashboard?agent_id=${agent.id}`);
+                      }}
                       className="gap-2 p-2"
                     >
                       <div className="flex size-6 items-center justify-center rounded-md border">
@@ -293,11 +283,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <div className="px-2 py-1">
-              <Button asChild className="w-full justify-start">
-                <Link href="/chat">
-                  <MessageCircle className="size-4 mr-2" />
-                  Chat
-                </Link>
+              <Button 
+                onClick={() => {
+                  if (selectedAgent) {
+                    router.push(`/dashboard?agent_id=${selectedAgent.id}`);
+                  } else {
+                    router.push('/dashboard');
+                  }
+                }}
+                className="w-full justify-start"
+              >
+                <PieChart className="size-4 mr-2" />
+                Dashboard
               </Button>
             </div>
           </SidebarMenuItem>
