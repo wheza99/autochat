@@ -2,27 +2,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import {
-  Bot,
-  Eye,
-  EyeOff,
-  Frame,
-  Map,
-  PieChart,
-  Plus,
-  Loader2,
-  ChevronsUpDown,
-  Info,
-  FileText,
-  MessageCircle,
-  MessageSquare,
-  Settings,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-
-import { NavMain } from "@/components/shadcn-blocks/sidebar-08/nav-main";
-
+import { Eye, EyeOff, Plus, Loader2, Bot } from "lucide-react";
+import { NavAgents } from "@/components/shadcn-blocks/sidebar-08/nav-agents";
 import { NavUser } from "@/components/shadcn-blocks/sidebar-08/nav-user";
 import {
   Sidebar,
@@ -30,9 +11,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,22 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { useAgent } from "@/contexts/agent-context";
-// Device management components disabled as requested
-// import { DeviceManagement } from "@/components/device-management";
-// import { DeviceUsageCard } from "@/components/device-usage-card";
 
 interface UserProfile {
   id: string;
@@ -79,47 +45,10 @@ interface UserProfile {
   updated_at?: string;
 }
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: PieChart,
-    },
-  ],
-  navSecondary: [],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth();
-  const { agents, selectedAgent, setSelectedAgent, loadAgents } = useAgent();
-  const { isMobile } = useSidebar();
-  const router = useRouter();
+  const { loadAgents } = useAgent();
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = React.useState(false);
-  // Device management disabled as requested
-  // const [isDeviceManagementOpen, setIsDeviceManagementOpen] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState(false);
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(
     null
@@ -132,8 +61,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     system_prompt: "",
     api_key: "",
   });
-
-  // Load user profile from database
   const loadUserProfile = React.useCallback(async () => {
     if (!user?.id) return;
 
@@ -212,99 +139,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                >
-                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <Bot className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">
-                      {selectedAgent
-                        ? selectedAgent.name
-                        : agents.length > 0
-                        ? agents[0].name
-                        : "No Agents"}
-                    </span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                align="start"
-                side={isMobile ? "bottom" : "right"}
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="text-muted-foreground text-xs">
-                  Agents
-                </DropdownMenuLabel>
-                {agents.length === 0 ? (
-                  <DropdownMenuItem disabled className="gap-2 p-2">
-                    <div className="flex size-6 items-center justify-center rounded-md border">
-                      <Bot className="size-3.5 shrink-0" />
-                    </div>
-                    No agents found
-                  </DropdownMenuItem>
-                ) : (
-                  agents.map((agent, index) => (
-                    <DropdownMenuItem
-                      key={agent.id}
-                      onClick={() => {
-                        setSelectedAgent(agent);
-                        router.push(`/dashboard?agent_id=${agent.id}`);
-                      }}
-                      className="gap-2 p-2"
-                    >
-                      <div className="flex size-6 items-center justify-center rounded-md border">
-                        <Bot className="size-3.5 shrink-0" />
-                      </div>
-                      {agent.name || "Unnamed Agent"}
-                      <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                  ))
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setIsAddAgentDialogOpen(true)}
-                  className="gap-2 p-2"
-                >
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                    <Plus className="size-4" />
-                  </div>
-                  <div className="text-muted-foreground font-medium">
-                    Add Agent
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <div className="px-2 py-1">
-              <Button
-                onClick={() => {
-                  if (selectedAgent) {
-                    router.push(`/dashboard?agent_id=${selectedAgent.id}`);
-                  } else {
-                    router.push("/dashboard");
-                  }
-                }}
-                className="w-full justify-start"
-              >
-                <PieChart className="size-4 mr-2" />
-                Dashboard
-              </Button>
-            </div>
+            <a href="#">
+              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-12 items-center justify-center rounded-lg">
+                <Bot className="size-8" />
+              </div>
+              <div className="flex flex-col gap-0.5 leading-none pb-4">
+                <span className="text-lg">Ragna</span>
+                <span className="text-xs">Manage RAG dengan sempurna</span>
+              </div>
+            </a>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       {/* Content */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="px-2 py-1">
+              <Button
+                onClick={() => setIsAddAgentDialogOpen(true)}
+                className="w-full justify-start"
+              >
+                <Plus className="size-4 mr-2" />
+                New Agent
+              </Button>
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <NavAgents />
       </SidebarContent>
 
       {/* Account */}
@@ -502,12 +365,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Device Management Dialog - Disabled as requested */}
-      {/* <DeviceManagement 
-        open={isDeviceManagementOpen} 
-        onOpenChange={setIsDeviceManagementOpen} 
-      /> */}
     </Sidebar>
   );
 
