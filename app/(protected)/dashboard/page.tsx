@@ -86,12 +86,16 @@ function DashboardContent() {
               </p>
             </div>
           ) : (
-            <div className="md:flex gap-4">
+            <div className="lg:flex gap-4">
+              <div className="flex-1 lg:hidden">
+                <BasicInformationContent />
+                <WhatsAppSection />
+              </div>
               <div className="flex-2">
                 <SystemPromptSection />
                 <DocumentSection />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 lg:block">
                 <BasicInformationContent />
                 <WhatsAppSection />
               </div>

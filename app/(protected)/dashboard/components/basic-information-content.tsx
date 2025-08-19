@@ -31,6 +31,8 @@ import {
   Edit,
   Eye,
   EyeOff,
+  Info,
+  BotIcon,
 } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
@@ -125,9 +127,9 @@ export function BasicInformationContent() {
       {/* Basic Information */}
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-          <CardTitle className="flex items-center space-x-3 text-xl font-semibold">
-            <Settings className="h-6 w-6" />
-            <span>Basic Information</span>
+          <CardTitle className="flex items-center space-x-3 text-md font-semibold">
+            <BotIcon className="h-6 w-6" />
+            <span>Agent Info</span>
           </CardTitle>
           <Button
             variant="outline"
