@@ -1,28 +1,28 @@
 // Komponen navigasi utama sidebar
-"use client"
+"use client";
 
-import { type LucideIcon } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useAgent } from "@/contexts/agent-context"
+import { type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAgent } from "@/contexts/agent-context";
 
 import {
   SidebarGroup,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavMain({
   items,
 }: {
   items: {
-    title: string
-    url: string
-    icon: LucideIcon
-    isActive?: boolean
-    badge?: string
-  }[]
+    title: string;
+    url: string;
+    icon: LucideIcon;
+    isActive?: boolean;
+    badge?: string;
+  }[];
 }) {
   const { selectedAgent } = useAgent();
   const router = useRouter();
@@ -40,7 +40,7 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton 
+            <SidebarMenuButton
               onClick={() => handleNavigation(item.url)}
               tooltip={item.title}
             >
@@ -56,5 +56,5 @@ export function NavMain({
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

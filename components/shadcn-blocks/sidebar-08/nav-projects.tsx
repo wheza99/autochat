@@ -1,14 +1,8 @@
 // Komponen navigasi untuk menampilkan dan mengelola daftar agent
-"use client"
+"use client";
 
-import {
-  Folder,
-  MoreHorizontal,
-  Share,
-  Trash2,
-  Bot,
-} from "lucide-react"
-import { useAgent } from "@/contexts/agent-context"
+import { Folder, MoreHorizontal, Share, Trash2, Bot } from "lucide-react";
+import { useAgent } from "@/contexts/agent-context";
 
 import {
   DropdownMenu,
@@ -16,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -25,11 +19,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavProjects() {
-  const { isMobile } = useSidebar()
-  const { agents, selectedAgent, setSelectedAgent } = useAgent()
+  const { isMobile } = useSidebar();
+  const { agents, selectedAgent, setSelectedAgent } = useAgent();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -45,12 +39,12 @@ export function NavProjects() {
         ) : (
           agents.map((agent) => (
             <SidebarMenuItem key={agent.id}>
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 onClick={() => setSelectedAgent(agent)}
                 isActive={selectedAgent?.id === agent.id}
               >
                 <Bot />
-                <span>{agent.name || 'Unnamed Agent'}</span>
+                <span>{agent.name || "Unnamed Agent"}</span>
               </SidebarMenuButton>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -84,5 +78,5 @@ export function NavProjects() {
         )}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

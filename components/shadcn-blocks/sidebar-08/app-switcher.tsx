@@ -1,8 +1,8 @@
 // Komponen switcher untuk memilih agent berdasarkan user yang login
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronsUpDown, Bot, Plus } from "lucide-react"
+import * as React from "react";
+import { Check, ChevronsUpDown, Bot, Plus } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -11,20 +11,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { useAgent } from "@/contexts/agent-context"
-import { useAuth } from "@/hooks/use-auth"
+} from "@/components/ui/sidebar";
+import { useAgent } from "@/contexts/agent-context";
+import { useAuth } from "@/hooks/use-auth";
 
 export function AppSwitcher() {
-  const { agents, selectedAgent, setSelectedAgent } = useAgent()
-  const { user } = useAuth()
-  
-  const currentAgent = selectedAgent || (agents.length > 0 ? agents[0] : null)
+  const { agents, selectedAgent, setSelectedAgent } = useAgent();
+  const { user } = useAuth();
+
+  const currentAgent = selectedAgent || (agents.length > 0 ? agents[0] : null);
 
   if (!user) {
     return (
@@ -41,7 +41,7 @@ export function AppSwitcher() {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-    )
+    );
   }
 
   return (
@@ -58,10 +58,12 @@ export function AppSwitcher() {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {currentAgent ? currentAgent.name : 'No Agents'}
+                  {currentAgent ? currentAgent.name : "No Agents"}
                 </span>
                 <span className="truncate text-xs">
-                  {currentAgent ? (currentAgent.model || 'No Model') : 'Create an agent'}
+                  {currentAgent
+                    ? currentAgent.model || "No Model"
+                    : "Create an agent"}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -96,7 +98,7 @@ export function AppSwitcher() {
                   {agent.name}
                   <div className="ml-auto flex items-center gap-2">
                     <div className="text-xs text-muted-foreground">
-                      {agent.model || 'No Model'}
+                      {agent.model || "No Model"}
                     </div>
                     {selectedAgent?.id === agent.id && (
                       <Check className="size-4" />
@@ -116,5 +118,5 @@ export function AppSwitcher() {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

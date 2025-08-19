@@ -208,6 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
+      {/* Header */}
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -283,12 +284,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <div className="px-2 py-1">
-              <Button 
+              <Button
                 onClick={() => {
                   if (selectedAgent) {
                     router.push(`/dashboard?agent_id=${selectedAgent.id}`);
                   } else {
-                    router.push('/dashboard');
+                    router.push("/dashboard");
                   }
                 }}
                 className="w-full justify-start"
@@ -300,9 +301,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
+      {/* Content */}
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
+
+      {/* Account */}
       <SidebarFooter>
         {/* Device Usage Card - Hidden as requested */}
         {/* <div className="px-2 pb-2">
