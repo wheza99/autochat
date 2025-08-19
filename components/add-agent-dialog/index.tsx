@@ -138,6 +138,14 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
 
     try {
       const merchantRef = `INV${Date.now()}`;
+      const selectedPlanData = pricingPlans.find(
+        (plan) => plan.name === selectedPlan
+      );
+      const amount =
+        typeof selectedPlanData?.monthlyPrice === "number"
+          ? selectedPlanData.monthlyPrice
+          : 1000000;
+
       const response = await fetch("/api/payment/create", {
         method: "POST",
         headers: {
@@ -145,8 +153,28 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
         },
         body: JSON.stringify({
           customer_name: newAgentForm.name.trim(),
-          amount: 100000, // Default amount, bisa disesuaikan dengan plan
+          customer_email: "customer@example.com", // Default email, bisa diambil dari form
+          customer_phone: newAgentForm.phone || "081234567890", // Menggunakan phone dari form atau default
+          amount: amount,
           merchant_ref: merchantRef,
+          order_items: [
+            {
+              sku: `PLAN_${selectedPlan?.toUpperCase()}`,
+              name: `${selectedPlan} Plan - AutoChat Agent`,
+              price: amount / 2,
+              quantity: 1,
+              product_url: "https://autochat.com/plans",
+              image_url: "https://autochat.com/images/plan.jpg",
+            },
+            {
+              sku: "SETUP_FEE",
+              name: "Setup Fee",
+              price: amount / 2,
+              quantity: 1,
+              product_url: "https://autochat.com/setup",
+              image_url: "https://autochat.com/images/setup.jpg",
+            },
+          ],
         }),
       });
 
