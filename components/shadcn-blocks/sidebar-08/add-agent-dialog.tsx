@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
+
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { useAgent } from "@/contexts/agent-context";
@@ -107,7 +107,7 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
   const [isCreating, setIsCreating] = React.useState(false);
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [isYearly, setIsYearly] = React.useState(false);
-  const [messageVolume, setMessageVolume] = React.useState([1000]);
+
   const [selectedPlan, setSelectedPlan] = React.useState<string | null>(null);
   const [newAgentForm, setNewAgentForm] = React.useState<AgentForm>({
     name: "",
@@ -130,9 +130,6 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
     if (typeof basePrice === "string") {
       return basePrice;
     }
-
-    // Calculate price per message based on base plan
-    const pricePerMessage = basePrice;
 
     // Calculate price based on selected message count
     const calculatedPrice = Math.round(basePrice);
@@ -454,7 +451,7 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
                       <span className="text-xl font-bold">
                         {calculatePrice(
                           isYearly ? plan.yearlyPrice : plan.monthlyPrice,
-                          messageVolume[0],
+                          plan.baseMessages,
                           plan.baseMessages
                         )}
                       </span>
@@ -474,7 +471,7 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
                         plan.messageLimit === "Unlimited"
                           ? `${plan.messageLimit} messages`
                           : `${formatMessageCount(
-                              messageVolume[0]
+                              plan.baseMessages
                             )} messages/month`}
                       </div>
                     </div>

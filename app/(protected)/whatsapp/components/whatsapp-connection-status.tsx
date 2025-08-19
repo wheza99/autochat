@@ -134,7 +134,7 @@ export function WhatsAppConnectionStatus() {
         setIsCheckingStatus(false);
       }
     },
-    [user?.id, selectedAgent?.id]
+    [user?.id, selectedAgent?.id, deviceData]
   );
 
   // Load device data from Supabase based on selected agent

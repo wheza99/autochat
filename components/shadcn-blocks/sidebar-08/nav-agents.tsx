@@ -4,6 +4,7 @@
 import { Bot } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAgent } from "@/contexts/agent-context";
+import type { Agent } from "@/contexts/agent-context";
 
 import {
   SidebarGroup,
@@ -17,7 +18,7 @@ export function NavAgents() {
   const { agents, selectedAgent, setSelectedAgent } = useAgent();
   const router = useRouter();
 
-  const handleAgentClick = (agent: any) => {
+  const handleAgentClick = (agent: Agent) => {
     setSelectedAgent(agent);
     router.push(`/dashboard?agent_id=${agent.id}`);
   };
