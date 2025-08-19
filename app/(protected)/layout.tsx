@@ -1,24 +1,24 @@
 // Layout untuk halaman yang memerlukan autentikasi pengguna
-'use client'
+"use client";
 
-import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuthContext } from '@/components/auth-provider'
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/components/auth-provider";
 
 interface ProtectedLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
-  const { user, loading } = useAuthContext()
-  const router = useRouter()
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
 
   useEffect(() => {
     // If user is not logged in, redirect to login page
     if (!loading && !user) {
-      router.push('/login')
+      router.push("/login");
     }
-  }, [user, loading, router])
+  }, [user, loading, router]);
 
   // Show loading while checking authentication status
   if (loading) {
@@ -31,14 +31,14 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // If user is not logged in, don't render children (will redirect)
   if (!user) {
-    return null
+    return null;
   }
 
   // Render protected page for logged in users
-  return <>{children}</>
+  return <>{children}</>;
 }

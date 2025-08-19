@@ -21,7 +21,7 @@ import { BasicInformationContent } from "../dashboard/components/basic-informati
 // Inner component that uses the agent context
 function AgentInfoContent() {
   const { selectedAgent } = useAgent();
-  
+
   return (
     <SidebarProvider>
       <AppSidebar />

@@ -24,7 +24,7 @@ import React from "react";
 // Main Dashboard Content
 function ChatContent() {
   const { selectedAgent } = useAgent();
-  
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -55,12 +55,12 @@ function ChatContent() {
             </Breadcrumb>
           </div>
         </header>
-        
+
         <div className="flex flex-1 flex-col gap-4 p-4">
           <ChatInterface />
         </div>
       </SidebarInset>
-    </SidebarProvider>    
+    </SidebarProvider>
   );
 }
 

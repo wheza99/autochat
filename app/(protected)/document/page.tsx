@@ -21,7 +21,7 @@ import { DocumentSection } from "../dashboard/components/document-section";
 // Inner component that uses the agent context
 function DocumentContent() {
   const { selectedAgent } = useAgent();
-  
+
   return (
     <SidebarProvider>
       <AppSidebar />

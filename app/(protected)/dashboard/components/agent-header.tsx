@@ -14,7 +14,9 @@ export function AgentHeader() {
         <div className="text-center">
           <Bot className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
           <h2 className="text-sm font-semibold mb-1">Select an Agent</h2>
-          <p className="text-xs text-muted-foreground">Choose an agent from the sidebar</p>
+          <p className="text-xs text-muted-foreground">
+            Choose an agent from the sidebar
+          </p>
         </div>
       </div>
     );
@@ -31,8 +33,12 @@ export function AgentHeader() {
             <Bot className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold truncate">{agent.name || 'Unnamed Agent'}</h1>
-            <p className="text-xs text-muted-foreground truncate">ID: {agent.id.slice(0, 8)}...</p>
+            <h1 className="text-lg font-bold truncate">
+              {agent.name || "Unnamed Agent"}
+            </h1>
+            <p className="text-xs text-muted-foreground truncate">
+              ID: {agent.id.slice(0, 8)}...
+            </p>
           </div>
         </div>
       </div>
