@@ -91,15 +91,6 @@ export function SystemPromptSection() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">System Prompt</h1>
-        <p className="text-muted-foreground">
-          Configure the system prompt for{" "}
-          <span className="font-medium">{selectedAgent.name}</span>
-        </p>
-      </div>
-
       {/* System Prompt Editor */}
       <Card>
         <CardHeader>

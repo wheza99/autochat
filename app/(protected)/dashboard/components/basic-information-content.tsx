@@ -122,15 +122,6 @@ export function BasicInformationContent() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Agent Information</h1>
-        <p className="text-lg text-muted-foreground">
-          View and manage details for{" "}
-          <span className="font-medium">{agent.name}</span>
-        </p>
-      </div>
-
       {/* Basic Information */}
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
