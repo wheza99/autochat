@@ -73,7 +73,24 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [isYearly, setIsYearly] = React.useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = React.useState(false);
-  const [paymentData, setPaymentData] = React.useState<any>(null);
+  const [paymentData, setPaymentData] = React.useState<{
+    reference: string;
+    merchant_ref: string;
+    payment_method: string;
+    payment_name: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    amount: number;
+    pay_code: string;
+    checkout_url: string;
+    status: string;
+    expired_time: number;
+    instructions: {
+      title: string;
+      steps: string[];
+    }[];
+  } | null>(null);
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
 
   const [selectedPlan, setSelectedPlan] = React.useState<string | null>(null);
