@@ -21,7 +21,7 @@ export function ChatSection() {
           </p>
         </div>
       </div>
-      
+
       <div className="flex-1">
         <ChatInterface />
       </div>

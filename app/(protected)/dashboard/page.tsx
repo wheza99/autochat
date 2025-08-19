@@ -25,19 +25,25 @@ import { SystemPromptSection } from "./components/system-prompt-section";
 import { DocumentSection } from "./components/document-section";
 import { WhatsAppSection } from "./components/whatsapp-section";
 import { ChatSection } from "./components/chat-section";
-import { Info, Settings, FileText, MessageSquare, MessageCircle } from "lucide-react";
+import {
+  Info,
+  Settings,
+  FileText,
+  MessageSquare,
+  MessageCircle,
+} from "lucide-react";
 
 // Inner component that uses the agent context
 function DashboardContent() {
   const { selectedAgent, agents, setSelectedAgent } = useAgent();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("agent-info");
-  
+
   // Handle agent_id parameter from URL
   useEffect(() => {
-    const agentId = searchParams.get('agent_id');
+    const agentId = searchParams.get("agent_id");
     if (agentId && agents.length > 0) {
-      const agent = agents.find(a => a.id === agentId);
+      const agent = agents.find((a) => a.id === agentId);
       if (agent && agent.id !== selectedAgent?.id) {
         setSelectedAgent(agent);
       }
@@ -89,21 +95,37 @@ function DashboardContent() {
               </div>
             </div>
           ) : (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="agent-info" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="agent-info"
+                  className="flex items-center gap-2"
+                >
                   <Info className="h-4 w-4" />
                   Agent Info
                 </TabsTrigger>
-                <TabsTrigger value="system-prompt" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="system-prompt"
+                  className="flex items-center gap-2"
+                >
                   <Settings className="h-4 w-4" />
                   System Prompt
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="documents"
+                  className="flex items-center gap-2"
+                >
                   <FileText className="h-4 w-4" />
                   Documents
                 </TabsTrigger>
-                <TabsTrigger value="whatsapp" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="whatsapp"
+                  className="flex items-center gap-2"
+                >
                   <MessageSquare className="h-4 w-4" />
                   WhatsApp
                 </TabsTrigger>
@@ -112,23 +134,23 @@ function DashboardContent() {
                   Chat
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="agent-info" className="mt-6">
                 <BasicInformationContent />
               </TabsContent>
-              
+
               <TabsContent value="system-prompt" className="mt-6">
                 <SystemPromptSection />
               </TabsContent>
-              
+
               <TabsContent value="documents" className="mt-6">
                 <DocumentSection />
               </TabsContent>
-              
+
               <TabsContent value="whatsapp" className="mt-6">
                 <WhatsAppSection />
               </TabsContent>
-              
+
               <TabsContent value="chat" className="mt-6">
                 <ChatSection />
               </TabsContent>
