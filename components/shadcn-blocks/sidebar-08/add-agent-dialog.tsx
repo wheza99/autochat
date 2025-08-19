@@ -70,7 +70,7 @@ const pricingPlans = [
     name: "Professional",
     monthlyPrice: 2000000,
     yearlyPrice: 20000000,
-    description: "Ideal for growing businesses",
+    description: "Ideal for growing businesses who hava many customers",
     messageLimit: "50K",
     baseMessages: 50000,
     features: [
@@ -391,7 +391,7 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
         {currentStep === 2 && (
           <div className="space-y-6 py-4">
             {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-start justify-start gap-4">
               <Label
                 htmlFor="billing-toggle"
                 className={`text-sm font-medium ${
@@ -413,40 +413,6 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
               >
                 Yearly
               </Label>
-            </div>
-
-            {/* Message Volume Slider */}
-            <div className="space-y-4">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold mb-2">
-                  How many messages per month do you need?
-                </h3>
-              </div>
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0">
-                  <div className="text-3xl font-bold text-primary">
-                    {formatMessageCount(messageVolume[0])}
-                  </div>
-                  <div className="text-xs text-muted-foreground text-center">
-                    messages/month
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <Slider
-                    value={messageVolume}
-                    onValueChange={setMessageVolume}
-                    max={10000}
-                    min={1000}
-                    step={1000}
-                    className="w-full h-3"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span>1k</span>
-                    <span>5k</span>
-                    <span>10k</span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Pricing Cards */}
@@ -506,9 +472,10 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
                       <div className="text-sm font-semibold text-primary">
                         {plan.messageLimit === "Custom" ||
                         plan.messageLimit === "Unlimited"
-                          ? plan.messageLimit
-                          : `${formatMessageCount(messageVolume[0])}`}{" "}
-                        messages/month
+                          ? `${plan.messageLimit} messages`
+                          : `${formatMessageCount(
+                              messageVolume[0]
+                            )} messages/month`}
                       </div>
                     </div>
                   </CardHeader>
