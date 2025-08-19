@@ -5,7 +5,7 @@ import * as React from "react";
 import { Plus, Bot } from "lucide-react";
 import { NavAgents } from "@/components/shadcn-blocks/sidebar-08/nav-agents";
 import { NavUser } from "@/components/shadcn-blocks/sidebar-08/nav-user";
-import { AddAgentDialog } from "@/components/shadcn-blocks/sidebar-08/add-agent-dialog";
+import { AddAgentDialog } from "@/components/add-agent-dialog";
 import {
   Sidebar,
   SidebarContent,
