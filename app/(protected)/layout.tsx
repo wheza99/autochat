@@ -5,11 +5,51 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/components/auth-provider";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { AgentProvider } from "@/contexts/agent-context";
+import { useAgent } from "@/contexts/agent-context";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
+}
+
+// Header component that uses agent context
+function ProtectedHeader() {
+  const { selectedAgent } = useAgent();
+
+  return (
+    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
+      <div className="flex items-center gap-2 px-4">
+        <SidebarTrigger className="-ml-1" />
+        <Separator
+          orientation="vertical"
+          className="mr-2 data-[orientation=vertical]:h-4"
+        />
+        <Breadcrumb>
+          <BreadcrumbList>
+            {selectedAgent && (
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/dashboard">
+                  {selectedAgent.name}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            )}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+    </header>
+  );
 }
 
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
@@ -47,7 +87,10 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     <AgentProvider>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        <SidebarInset>
+          <ProtectedHeader />
+          {children}
+        </SidebarInset>
       </SidebarProvider>
     </AgentProvider>
   );

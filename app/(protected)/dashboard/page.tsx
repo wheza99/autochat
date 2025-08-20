@@ -3,14 +3,6 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAgent } from "@/contexts/agent-context";
 import { BasicInformationContent } from "./components/basic-information-content";
 import { SystemPromptSection } from "./components/system-prompt-section";
@@ -35,27 +27,6 @@ function DashboardContent() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              {selectedAgent && (
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    {selectedAgent.name}
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-              )}
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
       {/* Main Content Area with Tabs */}
       <div className="flex-1 p-6 max-w-7xl mx-auto">
         {/* Header */}
