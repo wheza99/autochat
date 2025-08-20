@@ -172,29 +172,6 @@ export function NavUser({
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push("/profile")}>
-                <User />
-                Edit Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/billing")}>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <LifeBuoy />
-                Support
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Send />
-                Feedback
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
