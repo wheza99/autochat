@@ -2,13 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -23,7 +17,6 @@ import {
   Phone,
   CheckCircle,
   XCircle,
-  Settings,
   QrCode,
 } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
@@ -99,25 +92,41 @@ export function WhatsAppSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start text-xs h-8"
-            disabled={!isConnected}
-          >
-            <MessageCircle className="h-3 w-3 mr-2" />
-            Send Test Message
-          </Button>
+          {/* Connection Status */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Status</span>
+            <Badge
+              variant={isConnected ? "default" : "secondary"}
+              className="text-xs"
+            >
+              {isConnected ? (
+                <>
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Connected
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-3 w-3 mr-1" />
+                  Disconnected
+                </>
+              )}
+            </Badge>
+          </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start text-xs h-8"
-          >
-            <Settings className="h-3 w-3 mr-2" />
-            Configure Webhook
-          </Button>
+          {/* Phone Number */}
+          {phoneNumber && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Phone Number
+              </span>
+              <div className="flex items-center space-x-1">
+                <Phone className="h-3 w-3 text-muted-foreground" />
+                <span className="text-sm font-mono">{phoneNumber}</span>
+              </div>
+            </div>
+          )}
 
+          {/* Connection Button */}
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -127,8 +136,17 @@ export function WhatsAppSection() {
                 onClick={generateQRCode}
                 disabled={isLoading}
               >
-                <QrCode className="h-3 w-3 mr-2" />
-                {isLoading ? "Generating..." : "Show QR Code"}
+                {isConnected ? (
+                  <>
+                    <XCircle className="h-3 w-3 mr-2" />
+                    Disconnect
+                  </>
+                ) : (
+                  <>
+                    <QrCode className="h-3 w-3 mr-2" />
+                    {isLoading ? "Generating..." : "Connect Whatsapp"}
+                  </>
+                )}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -181,55 +199,6 @@ export function WhatsAppSection() {
               </div>
             </DialogContent>
           </Dialog>
-
-          <Button
-            variant={isConnected ? "destructive" : "default"}
-            size="sm"
-            className="w-full justify-start text-xs h-8"
-          >
-            {isConnected ? (
-              <>
-                <XCircle className="h-3 w-3 mr-2" />
-                Disconnect
-              </>
-            ) : (
-              <>
-                <CheckCircle className="h-3 w-3 mr-2" />
-                Connect WhatsApp
-              </>
-            )}
-          </Button>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Status</span>
-            <Badge
-              variant={isConnected ? "default" : "secondary"}
-              className="text-xs"
-            >
-              {isConnected ? (
-                <>
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Connected
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-3 w-3 mr-1" />
-                  Disconnected
-                </>
-              )}
-            </Badge>
-          </div>
-
-          {phoneNumber && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Phone Number
-              </span>
-              <div className="flex items-center space-x-1">
-                <Phone className="h-3 w-3 text-muted-foreground" />
-                <span className="text-sm font-mono">{phoneNumber}</span>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
