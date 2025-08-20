@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, CreditCard, ShoppingCart } from "lucide-react";
-import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,11 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,7 +23,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { AgentProvider } from "@/contexts/agent-context";
 import Script from "next/script";
 
 // PayPal types
@@ -182,124 +176,120 @@ function CheckoutContent() {
   }, [cleanupPayPal]);
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Checkout</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
+    <>
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Checkout</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Checkout</h1>
-              <p className="text-muted-foreground">
-                Complete your purchase securely
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Order Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  Order Summary
-                </CardTitle>
-                <CardDescription>Review your order details</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <div>
-                      <div className="font-medium">{planName}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {messageCount} messages/
-                        {billingType === "yearly" ? "year" : "month"}
-                      </div>
-                    </div>
-                    <span className="font-semibold">
-                      Rp {planPrice.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-muted-foreground">Tax (11%)</span>
-                    <span>Rp {taxAmount.toLocaleString("id-ID")}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 text-lg font-bold">
-                    <span>Total</span>
-                    <span>Rp {totalAmount.toLocaleString("id-ID")}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Payment */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Payment
-                </CardTitle>
-                <CardDescription>Secure payment with PayPal</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-sm text-muted-foreground mb-4">
-                    Your payment is secured by PayPal. You can pay with your
-                    PayPal account or credit card.
-                  </div>
-
-                  {/* PayPal Button Container */}
-                  <div
-                    ref={paypalRef}
-                    className="min-h-[50px] flex items-center justify-center"
-                  >
-                    {(!paypalLoaded || !paypalInitialized) && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                        {!paypalLoaded
-                          ? "Loading PayPal..."
-                          : "Initializing payment..."}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="text-xs text-muted-foreground mt-4">
-                    By completing this purchase, you agree to our Terms of
-                    Service and Privacy Policy.
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Checkout</h1>
+            <p className="text-muted-foreground">
+              Complete your purchase securely
+            </p>
           </div>
         </div>
-      </SidebarInset>
 
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Order Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Order Summary
+              </CardTitle>
+              <CardDescription>Review your order details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b">
+                  <div>
+                    <div className="font-medium">{planName}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {messageCount} messages/
+                      {billingType === "yearly" ? "year" : "month"}
+                    </div>
+                  </div>
+                  <span className="font-semibold">
+                    Rp {planPrice.toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b">
+                  <span className="text-muted-foreground">Tax (11%)</span>
+                  <span>Rp {taxAmount.toLocaleString("id-ID")}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 text-lg font-bold">
+                  <span>Total</span>
+                  <span>Rp {totalAmount.toLocaleString("id-ID")}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Payment
+              </CardTitle>
+              <CardDescription>Secure payment with PayPal</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-sm text-muted-foreground mb-4">
+                  Your payment is secured by PayPal. You can pay with your
+                  PayPal account or credit card.
+                </div>
+
+                {/* PayPal Button Container */}
+                <div
+                  ref={paypalRef}
+                  className="min-h-[50px] flex items-center justify-center"
+                >
+                  {(!paypalLoaded || !paypalInitialized) && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      {!paypalLoaded
+                        ? "Loading PayPal..."
+                        : "Initializing payment..."}
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-xs text-muted-foreground mt-4">
+                  By completing this purchase, you agree to our Terms of Service
+                  and Privacy Policy.
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       {/* PayPal Script */}
       <Script
         src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"
@@ -312,16 +302,12 @@ function CheckoutContent() {
         }}
         strategy="afterInteractive"
       />
-    </SidebarProvider>
+    </>
   );
 }
 
 export default function CheckoutPage() {
-  return (
-    <AgentProvider>
-      <CheckoutContent />
-    </AgentProvider>
-  );
+  return <CheckoutContent />;
 }
 
 // Extend window object for PayPal

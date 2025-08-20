@@ -1,7 +1,6 @@
 // Pricing page to display subscription plans
 "use client";
 
-import { AppSidebar } from "@/components/shadcn-blocks/sidebar-08/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,11 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -159,196 +154,193 @@ function PricingContent() {
   };
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                {selectedAgent && (
-                  <>
-                    <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="/agent_info">
-                        {selectedAgent.name}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block" />
-                  </>
-                )}
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Pricing</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+    <>
+      <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 bg-background border-b">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator
+            orientation="vertical"
+            className="mr-2 data-[orientation=vertical]:h-4"
+          />
+          <Breadcrumb>
+            <BreadcrumbList>
+              {selectedAgent && (
+                <>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/agent_info">
+                      {selectedAgent.name}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
+                </>
+              )}
+              <BreadcrumbItem>
+                <BreadcrumbPage>Pricing</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex-1 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold tracking-tight mb-4">
+              Choose the Right Plan for Your Business
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Enhance your customer service with intelligent AutoChat agents.
+              Start free and upgrade as your business grows.
+            </p>
           </div>
-        </header>
 
-        {/* Main Content Area */}
-        <div className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Header Section */}
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold tracking-tight mb-4">
-                Choose the Right Plan for Your Business
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Enhance your customer service with intelligent AutoChat agents.
-                Start free and upgrade as your business grows.
-              </p>
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <Label
+              htmlFor="billing-toggle"
+              className={`text-sm font-medium ${
+                !isYearly ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Monthly
+            </Label>
+            <Switch
+              id="billing-toggle"
+              checked={isYearly}
+              onCheckedChange={setIsYearly}
+            />
+            <Label
+              htmlFor="billing-toggle"
+              className={`text-sm font-medium ${
+                isYearly ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Yearly
+            </Label>
+          </div>
+
+          {/* Message Volume Slider */}
+          <div className="max-w-2xl mx-auto mb-12">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-semibold mb-4">
+                How many messages per month do you need?
+              </h3>
             </div>
-
-            {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-4 mb-12">
-              <Label
-                htmlFor="billing-toggle"
-                className={`text-sm font-medium ${
-                  !isYearly ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                Monthly
-              </Label>
-              <Switch
-                id="billing-toggle"
-                checked={isYearly}
-                onCheckedChange={setIsYearly}
-              />
-              <Label
-                htmlFor="billing-toggle"
-                className={`text-sm font-medium ${
-                  isYearly ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                Yearly
-              </Label>
-            </div>
-
-            {/* Message Volume Slider */}
-            <div className="max-w-2xl mx-auto mb-12">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold mb-4">
-                  How many messages per month do you need?
-                </h3>
-              </div>
-              <div className="flex items-center gap-8 mb-4">
-                <div className="flex-shrink-0">
-                  <div className="text-4xl font-bold text-primary">
-                    {formatMessageCount(messageVolume[0])}
-                  </div>
-                  <div className="text-sm text-muted-foreground text-center">
-                    messages/month
-                  </div>
+            <div className="flex items-center gap-8 mb-4">
+              <div className="flex-shrink-0">
+                <div className="text-4xl font-bold text-primary">
+                  {formatMessageCount(messageVolume[0])}
                 </div>
-                <div className="flex-1">
-                  <Slider
-                    value={messageVolume}
-                    onValueChange={setMessageVolume}
-                    max={10000}
-                    min={1000}
-                    step={1000}
-                    className="w-full h-3"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span>1k</span>
-                    <span>2k</span>
-                    <span>3k</span>
-                    <span>4k</span>
-                    <span>5k</span>
-                    <span>6k</span>
-                    <span>7k</span>
-                    <span>8k</span>
-                    <span>9k</span>
-                    <span>10k</span>
-                  </div>
+                <div className="text-sm text-muted-foreground text-center">
+                  messages/month
+                </div>
+              </div>
+              <div className="flex-1">
+                <Slider
+                  value={messageVolume}
+                  onValueChange={setMessageVolume}
+                  max={10000}
+                  min={1000}
+                  step={1000}
+                  className="w-full h-3"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>1k</span>
+                  <span>2k</span>
+                  <span>3k</span>
+                  <span>4k</span>
+                  <span>5k</span>
+                  <span>6k</span>
+                  <span>7k</span>
+                  <span>8k</span>
+                  <span>9k</span>
+                  <span>10k</span>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Pricing Cards */}
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              {pricingPlans.map((plan, index) => (
-                <Card
-                  key={index}
-                  className={`relative flex flex-col h-full ${
-                    plan.popular ? "border-primary shadow-lg scale-105" : ""
-                  }`}
-                >
-                  {plan.popular && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
-                      Most Popular
-                    </Badge>
-                  )}
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {pricingPlans.map((plan, index) => (
+              <Card
+                key={index}
+                className={`relative flex flex-col h-full ${
+                  plan.popular ? "border-primary shadow-lg scale-105" : ""
+                }`}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
+                    Most Popular
+                  </Badge>
+                )}
 
-                  <CardHeader className="text-center pb-4">
-                    <CardTitle className="text-2xl font-bold">
-                      {plan.name}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      {plan.description}
-                    </CardDescription>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold">
-                        {calculatePrice(
-                          isYearly ? plan.yearlyPrice : plan.monthlyPrice,
-                          messageVolume[0],
-                          plan.baseMessages
-                        )}
-                      </span>
-                      {typeof (isYearly
-                        ? plan.yearlyPrice
-                        : plan.monthlyPrice) !== "string" && (
-                        <span className="text-muted-foreground">
-                          {isYearly ? "/year" : "/month"}
-                        </span>
+                <CardHeader className="text-center pb-4">
+                  <CardTitle className="text-2xl font-bold">
+                    {plan.name}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {plan.description}
+                  </CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">
+                      {calculatePrice(
+                        isYearly ? plan.yearlyPrice : plan.monthlyPrice,
+                        messageVolume[0],
+                        plan.baseMessages
                       )}
+                    </span>
+                    {typeof (isYearly
+                      ? plan.yearlyPrice
+                      : plan.monthlyPrice) !== "string" && (
+                      <span className="text-muted-foreground">
+                        {isYearly ? "/year" : "/month"}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Message Limit Display */}
+                  <div className="mt-4 p-3 border rounded-lg bg-muted/50">
+                    <div className="text-lg font-semibold text-primary">
+                      {plan.messageLimit === "Custom" ||
+                      plan.messageLimit === "Unlimited"
+                        ? plan.messageLimit
+                        : `${formatMessageCount(messageVolume[0])}`}{" "}
+                      messages/month
                     </div>
+                  </div>
+                </CardHeader>
 
-                    {/* Message Limit Display */}
-                    <div className="mt-4 p-3 border rounded-lg bg-muted/50">
-                      <div className="text-lg font-semibold text-primary">
-                        {plan.messageLimit === "Custom" ||
-                        plan.messageLimit === "Unlimited"
-                          ? plan.messageLimit
-                          : `${formatMessageCount(messageVolume[0])}`}{" "}
-                        messages/month
-                      </div>
-                    </div>
-                  </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <ul className="space-y-3 mb-6 flex-1">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li
+                        key={featureIndex}
+                        className="flex items-center gap-3"
+                      >
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                  <CardContent className="flex-1 flex flex-col">
-                    <ul className="space-y-3 mb-6 flex-1">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li
-                          key={featureIndex}
-                          className="flex items-center gap-3"
-                        >
-                          <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Button
-                      className="w-full mt-auto"
-                      variant={plan.buttonVariant}
-                      size="lg"
-                      onClick={() => handleCheckout(plan)}
-                    >
-                      {plan.buttonText}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  <Button
+                    className="w-full mt-auto"
+                    variant={plan.buttonVariant}
+                    size="lg"
+                    onClick={() => handleCheckout(plan)}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </>
   );
 }
 

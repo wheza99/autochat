@@ -4,6 +4,9 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/components/auth-provider";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AgentProvider } from "@/contexts/agent-context";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -40,5 +43,12 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   }
 
   // Render protected page for logged in users
-  return <>{children}</>;
+  return (
+    <AgentProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    </AgentProvider>
+  );
 }
