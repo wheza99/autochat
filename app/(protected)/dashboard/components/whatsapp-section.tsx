@@ -99,49 +99,6 @@ export function WhatsAppSection() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Status</span>
-            <Badge
-              variant={isConnected ? "default" : "secondary"}
-              className="text-xs"
-            >
-              {isConnected ? (
-                <>
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Connected
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-3 w-3 mr-1" />
-                  Disconnected
-                </>
-              )}
-            </Badge>
-          </div>
-
-          {phoneNumber && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Phone Number
-              </span>
-              <div className="flex items-center space-x-1">
-                <Phone className="h-3 w-3 text-muted-foreground" />
-                <span className="text-sm font-mono">{phoneNumber}</span>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Quick Actions</CardTitle>
-          <CardDescription className="text-xs">
-            Manage your WhatsApp bot connection and settings
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
           <Button
             variant="outline"
             size="sm"
@@ -242,38 +199,37 @@ export function WhatsAppSection() {
               </>
             )}
           </Button>
-        </CardContent>
-      </Card>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Status</span>
+            <Badge
+              variant={isConnected ? "default" : "secondary"}
+              className="text-xs"
+            >
+              {isConnected ? (
+                <>
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Connected
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-3 w-3 mr-1" />
+                  Disconnected
+                </>
+              )}
+            </Badge>
+          </div>
 
-      {/* Statistics */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Message Statistics</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="text-center">
-              <div className="text-lg font-bold text-primary">0</div>
-              <div className="text-xs text-muted-foreground">Messages Sent</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-green-600">0</div>
-              <div className="text-xs text-muted-foreground">
-                Messages Received
+          {phoneNumber && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Phone Number
+              </span>
+              <div className="flex items-center space-x-1">
+                <Phone className="h-3 w-3 text-muted-foreground" />
+                <span className="text-sm font-mono">{phoneNumber}</span>
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="text-center">
-              <div className="text-lg font-bold text-blue-600">0</div>
-              <div className="text-xs text-muted-foreground">Active Chats</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-orange-600">0</div>
-              <div className="text-xs text-muted-foreground">Pending</div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

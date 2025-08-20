@@ -50,15 +50,15 @@ function DashboardContent() {
           </div>
         ) : (
           <div className="lg:flex gap-4">
-            <div className="flex-1 lg:hidden">
+            <div className="flex-1 lg:hidden space-y-4">
               <BasicInformationContent />
               <WhatsAppSection />
             </div>
-            <div className="flex-2">
+            <div className="flex-2 space-y-4">
               <SystemPromptSection />
               <DocumentSection />
             </div>
-            <div className="flex-1 lg:block">
+            <div className="flex-1 lg:block space-y-4">
               <BasicInformationContent />
               <WhatsAppSection />
             </div>
