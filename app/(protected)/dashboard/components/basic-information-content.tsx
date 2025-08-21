@@ -27,11 +27,9 @@ import {
   Bot,
   Calendar,
   Phone,
-  Settings,
   Edit,
   Eye,
   EyeOff,
-  Info,
   BotIcon,
 } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";

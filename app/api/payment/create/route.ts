@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabase } from "@/lib/supabase";
-import { createClient } from "@supabase/supabase-js";
 
 interface TripayPaymentRequest {
   customer_name: string;

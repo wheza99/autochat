@@ -2,13 +2,8 @@
 "use client";
 
 import {
-  Bell,
   ChevronsUpDown,
-  CreditCard,
-  LifeBuoy,
   LogOut,
-  Send,
-  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -17,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,

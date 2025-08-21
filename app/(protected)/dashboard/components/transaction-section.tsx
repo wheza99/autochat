@@ -118,7 +118,7 @@ export function TransactionSection() {
     };
 
     fetchTransactions();
-  }, [user?.id, supabase]);
+  }, [user?.id]);
 
   if (loading) {
     return (

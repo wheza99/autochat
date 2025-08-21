@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const email = process.env.WHATSAPP_API_EMAIL;
     const password = process.env.WHATSAPP_API_PASSWORD;
