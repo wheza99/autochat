@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseServer } from "@/lib/supabase-server";
 import crypto from "crypto";
-import { supabase } from "@/lib/supabase";
 
 interface TripayPaymentRequest {
   customer_name: string;
@@ -111,7 +111,21 @@ export async function POST(request: NextRequest) {
     );
     const expiredTime = new Date(expiry * 1000);
 
+    // Use server-side Supabase client with service role key
+    const supabase = supabaseServer;
+
     // Simpan transaksi ke database sebelum memanggil Tripay
+    console.log('Attempting to save transaction with data:', {
+      user_id,
+      merchant_ref,
+      customer_name,
+      customer_email,
+      customer_phone,
+      amount,
+      plan_name,
+      status: 'pending'
+    });
+
     const { data: transaction, error: transactionError } = await supabase
       .from("transactions")
       .insert({
@@ -129,12 +143,23 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (transactionError) {
-      console.error("Error saving transaction:", transactionError);
+      console.error('Database error details:', {
+        message: transactionError.message,
+        details: transactionError.details,
+        hint: transactionError.hint,
+        code: transactionError.code
+      });
       return NextResponse.json(
-        { success: false, message: "Failed to save transaction" },
+        { 
+          success: false, 
+          message: "Failed to save transaction",
+          details: transactionError.message
+        },
         { status: 500 }
       );
     }
+
+    console.log('Transaction saved successfully:', transaction);
 
     // Buat signature
     const signature = crypto
@@ -173,10 +198,23 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok || !data.success) {
       // Update transaction status to failed
-      await supabase
+      console.log('Updating transaction status to failed for merchant_ref:', merchant_ref);
+
+      const { error: updateError } = await supabase
         .from("transactions")
         .update({ status: "failed" })
         .eq("merchant_ref", merchant_ref);
+
+      if (updateError) {
+        console.error('Failed to update transaction status:', {
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint,
+          code: updateError.code
+        });
+      } else {
+        console.log('Transaction status updated to failed');
+      }
 
       return NextResponse.json(
         {
@@ -188,6 +226,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Update transaction dengan data dari Tripay
+    console.log('Updating transaction with Tripay data:', {
+      tripay_reference: data.data?.reference,
+      payment_method: data.data?.payment_method,
+      checkout_url: data.data?.checkout_url
+    });
+
     const { error: updateError } = await supabase
       .from("transactions")
       .update({
@@ -199,7 +243,14 @@ export async function POST(request: NextRequest) {
       .eq("merchant_ref", merchant_ref);
 
     if (updateError) {
-      console.error("Error updating transaction:", updateError);
+      console.error('Error updating transaction:', {
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+        code: updateError.code
+      });
+    } else {
+      console.log('Transaction updated successfully');
     }
 
     return NextResponse.json({
