@@ -58,11 +58,9 @@ export function WhatsAppSection() {
   const generateQRCode = async () => {
     setIsLoading(true);
     try {
-      const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
-      const response = await fetch("https://app.notif.my.id/ss/scanorpairing", {
+      const response = await fetch("/api/device/connect", {
         method: "POST",
         headers: {
-          Authorization: `Basic ${credentials}`,
           "Content-Type": "application/json",
         },
       });
