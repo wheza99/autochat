@@ -166,10 +166,12 @@ export function AddAgentDialog({ open, onOpenChange }: AddAgentDialogProps) {
         },
         body: JSON.stringify({
           customer_name: newAgentForm.name.trim(),
-          customer_email: "customer@example.com", // Default email, bisa diambil dari form
+          customer_email: user?.email || "customer@example.com", // Use user email or default
           customer_phone: newAgentForm.phone || "081234567890", // Menggunakan phone dari form atau default
           amount: amount,
           merchant_ref: merchantRef,
+          plan_name: selectedPlan || "Starter",
+          user_id: user?.id || "",
           order_items: [
             {
               sku: `PLAN_${selectedPlan?.toUpperCase()}`,

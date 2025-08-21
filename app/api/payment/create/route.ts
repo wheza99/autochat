@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 interface TripayPaymentRequest {
   customer_name: string;
@@ -7,6 +9,8 @@ interface TripayPaymentRequest {
   customer_phone: string;
   amount: number;
   merchant_ref: string;
+  plan_name: string;
+  user_id: string;
   order_items: {
     sku: string;
     name: string;
@@ -68,6 +72,8 @@ export async function POST(request: NextRequest) {
       customer_phone,
       amount,
       merchant_ref,
+      plan_name,
+      user_id,
       order_items,
     } = body;
 
@@ -78,6 +84,8 @@ export async function POST(request: NextRequest) {
       !customer_phone ||
       !amount ||
       !merchant_ref ||
+      !plan_name ||
+      !user_id ||
       !order_items
     ) {
       return NextResponse.json(
@@ -102,6 +110,32 @@ export async function POST(request: NextRequest) {
     const expiry = parseInt(
       String(Math.floor(new Date().getTime() / 1000) + 24 * 60 * 60)
     );
+    const expiredTime = new Date(expiry * 1000);
+
+    // Simpan transaksi ke database sebelum memanggil Tripay
+    const { data: transaction, error: transactionError } = await supabase
+      .from("transactions")
+      .insert({
+        user_id: user_id,
+        merchant_ref: merchant_ref,
+        customer_name: customer_name,
+        customer_email: customer_email,
+        customer_phone: customer_phone,
+        amount: amount,
+        plan_name: plan_name,
+        status: "pending",
+        expired_time: expiredTime.toISOString(),
+      })
+      .select()
+      .single();
+
+    if (transactionError) {
+      console.error("Error saving transaction:", transactionError);
+      return NextResponse.json(
+        { success: false, message: "Failed to save transaction" },
+        { status: 500 }
+      );
+    }
 
     // Buat signature
     const signature = crypto
@@ -139,6 +173,12 @@ export async function POST(request: NextRequest) {
     const data: TripayResponse = await response.json();
 
     if (!response.ok || !data.success) {
+      // Update transaction status to failed
+      await supabase
+        .from("transactions")
+        .update({ status: "failed" })
+        .eq("merchant_ref", merchant_ref);
+
       return NextResponse.json(
         {
           success: false,
@@ -148,10 +188,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Update transaction dengan data dari Tripay
+    const { error: updateError } = await supabase
+      .from("transactions")
+      .update({
+        tripay_reference: data.data?.reference,
+        payment_method: data.data?.payment_method,
+        checkout_url: data.data?.checkout_url,
+        status: "created",
+      })
+      .eq("merchant_ref", merchant_ref);
+
+    if (updateError) {
+      console.error("Error updating transaction:", updateError);
+    }
+
     return NextResponse.json({
       success: true,
       message: "Payment created successfully",
-      data: data.data,
+      data: {
+        ...data.data,
+        transaction_id: transaction.id,
+      },
     });
   } catch (error) {
     console.error("Payment creation error:", error);

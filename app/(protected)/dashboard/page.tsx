@@ -8,6 +8,7 @@ import { BasicInformationContent } from "./components/basic-information-content"
 import { SystemPromptSection } from "./components/system-prompt-section";
 import { DocumentSection } from "./components/document-section";
 import { WhatsAppSection } from "./components/whatsapp-section";
+import { TransactionSection } from "./components/transaction-section";
 
 // Inner component that uses the agent context
 function DashboardContent() {
@@ -53,6 +54,7 @@ function DashboardContent() {
             <div className="flex-1 lg:hidden space-y-4">
               <BasicInformationContent />
               <WhatsAppSection />
+              <TransactionSection />
             </div>
             <div className="flex-2 space-y-4">
               <SystemPromptSection />
@@ -61,6 +63,7 @@ function DashboardContent() {
             <div className="flex-1 lg:block space-y-4">
               <BasicInformationContent />
               <WhatsAppSection />
+              <TransactionSection />
             </div>
           </div>
         )}
