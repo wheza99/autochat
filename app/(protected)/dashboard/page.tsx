@@ -29,7 +29,7 @@ function DashboardContent() {
   return (
     <>
       {/* Main Content Area with Tabs */}
-      <div className="flex-1 p-6 max-w-7xl mx-auto">
+      <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="space-y-2 pb-8">
           <h1 className="text-3xl font-bold tracking-tight">
