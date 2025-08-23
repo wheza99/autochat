@@ -4,26 +4,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  MessageCircle,
-  Phone,
-  CheckCircle,
-  XCircle,
-  QrCode,
-} from "lucide-react";
+// Dialog components moved to AddDeviceDialog
+import { MessageCircle, Phone, CheckCircle, XCircle } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { AddDeviceDialog } from "./add-device-dialog";
 
 // Types for session data
 interface SessionData {
@@ -163,10 +150,11 @@ export function WhatsAppSection() {
   }
 
   // Determine connection status from device status or agent phone
-  const isConnected =
+  const isConnected = Boolean(
     deviceStatus?.status_session === "online" ||
-    (deviceStatus?.api_key && deviceStatus?.phone_number) ||
-    selectedAgent.phone;
+      (deviceStatus?.api_key && deviceStatus?.phone_number) ||
+      selectedAgent.phone
+  );
 
   const phoneNumber =
     deviceStatus?.phone_number ||
@@ -267,132 +255,64 @@ export function WhatsAppSection() {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Connection Status */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center space-x-2 text-sm">
-            <MessageCircle className="h-4 w-4" />
-            <span>WhatsApp Connection</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Connection Status */}
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center space-x-2 text-sm">
+          <MessageCircle className="h-4 w-4" />
+          <span>WhatsApp Connection</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Connection Status */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Status</span>
+          <Badge
+            variant={isConnected ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {isConnected ? (
+              <>
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Connected
+              </>
+            ) : (
+              <>
+                <XCircle className="h-3 w-3 mr-1" />
+                Disconnected
+              </>
+            )}
+          </Badge>
+        </div>
+
+        {/* Phone Number */}
+        {phoneNumber && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Status</span>
-            <Badge
-              variant={isConnected ? "default" : "secondary"}
-              className="text-xs"
-            >
-              {isConnected ? (
-                <>
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Connected
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-3 w-3 mr-1" />
-                  Disconnected
-                </>
-              )}
-            </Badge>
+            <span className="text-sm text-muted-foreground">Phone Number</span>
+            <div className="flex items-center space-x-1">
+              <Phone className="h-3 w-3 text-muted-foreground" />
+              <span className="text-sm font-mono">{phoneNumber}</span>
+            </div>
           </div>
+        )}
 
-          {/* Phone Number */}
-          {phoneNumber && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                Phone Number
-              </span>
-              <div className="flex items-center space-x-1">
-                <Phone className="h-3 w-3 text-muted-foreground" />
-                <span className="text-sm font-mono">{phoneNumber}</span>
-              </div>
-            </div>
-          )}
+        {/* Connection Button */}
+        <AddDeviceDialog
+          isConnected={isConnected}
+          isLoading={isLoading}
+          qrData={qrData}
+          sessionData={sessionData}
+          onConnect={generateQRCode}
+          onDisconnect={disconnectDevice}
+          disabled={Boolean(!user?.id || !selectedAgent?.id)}
+        />
 
-          {/* Error Message */}
-          {error && (
-            <div className="text-xs text-red-600 bg-red-50 p-2 rounded border">
-              {error}
-            </div>
-          )}
-
-          {/* Connection Button */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs h-8"
-                onClick={isConnected ? disconnectDevice : generateQRCode}
-                disabled={isLoading || !user?.id || !selectedAgent?.id}
-              >
-                {isConnected ? (
-                  <>
-                    <XCircle className="h-3 w-3 mr-2" />
-                    {isLoading ? "Disconnecting..." : "Disconnect"}
-                  </>
-                ) : (
-                  <>
-                    <QrCode className="h-3 w-3 mr-2" />
-                    {isLoading ? "Generating..." : "Connect Whatsapp"}
-                  </>
-                )}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>WhatsApp QR Code</DialogTitle>
-                <DialogDescription>
-                  Scan this QR code with your WhatsApp mobile app to connect
-                  your bot.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col items-center space-y-4">
-                {qrData ? (
-                  <>
-                    <div className="p-4 bg-white rounded-lg border">
-                      <Image
-                        src={qrData}
-                        alt="WhatsApp QR Code"
-                        width={256}
-                        height={256}
-                        className="w-64 h-64 object-contain"
-                      />
-                    </div>
-                    {sessionData && (
-                      <div className="text-center space-y-2">
-                        <p className="text-sm text-muted-foreground">
-                          Session:{" "}
-                          <span className="font-mono text-xs">
-                            {sessionData.session}
-                          </span>
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          API Key:{" "}
-                          <span className="font-mono text-xs">
-                            {sessionData.apikey}
-                          </span>
-                        </p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 rounded-lg">
-                    <div className="text-center">
-                      <QrCode className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Click &quot;Show QR Code&quot; to generate
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardContent>
-      </Card>
-    </div>
+        {/* Error Message */}
+        {error && (
+          <div className="text-xs text-red-600 bg-red-50 p-2 rounded border">
+            {error}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
