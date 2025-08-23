@@ -9,18 +9,18 @@ const supabase = createClient(
 );
 
 // Function to delete API key from notifikasee
-const deleteApiKeyFromNotifikasee = async (apiKey: string) => {
+const deleteApiKeyFromNotifikasee = async (apiKey: string, apiUrl: string) => {
   try {
     const email = process.env.WHATSAPP_API_EMAIL;
     const password = process.env.WHATSAPP_API_PASSWORD;
-    
+
     if (!email || !password) {
-      console.error('WhatsApp API credentials not configured');
+      console.error("WhatsApp API credentials not configured");
       return false;
     }
-    
+
     const credentials = btoa(`${email}:${password}`);
-    const response = await fetch("https://app.notif.my.id/ss/delete", {
+    const response = await fetch(`${apiUrl}/ss/delete`, {
       method: "POST",
       headers: {
         Authorization: `Basic ${credentials}`,
@@ -51,18 +51,18 @@ const deleteApiKeyFromNotifikasee = async (apiKey: string) => {
 };
 
 // Function to update webhook
-const updateWebhook = async (apiKey: string) => {
+const updateWebhook = async (apiKey: string, apiUrl: string) => {
   try {
     const email = process.env.WHATSAPP_API_EMAIL;
     const password = process.env.WHATSAPP_API_PASSWORD;
-    
+
     if (!email || !password) {
-      console.error('WhatsApp API credentials not configured');
+      console.error("WhatsApp API credentials not configured");
       return false;
     }
-    
+
     const credentials = btoa(`${email}:${password}`);
-    const response = await fetch("https://app.notif.my.id/ss/updatewebhook", {
+    const response = await fetch(`${apiUrl}/ss/updatewebhook`, {
       method: "POST",
       headers: {
         Authorization: `Basic ${credentials}`,
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
     if (existingDevice?.api_key) {
       try {
         const credentials = btoa(`${email}:${password}`);
-        const statusResponse = await fetch("https://app.notif.my.id/ss/info", {
+        const statusResponse = await fetch(`${apiUrl}/ss/info`, {
           method: "POST",
           headers: {
             Authorization: `Basic ${credentials}`,
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
 
         // If session is offline or invalid, delete existing API key
         console.log("Deleting existing API key before generating new one...");
-        await deleteApiKeyFromNotifikasee(existingDevice.api_key);
+        await deleteApiKeyFromNotifikasee(existingDevice.api_key, apiUrl);
 
         // Clear api_key and session from Supabase
         await supabase
@@ -244,7 +244,7 @@ export async function POST(request: Request) {
       console.log("Device saved to database:", deviceRecord);
 
       // Update webhook
-      await updateWebhook(data.apikey);
+      await updateWebhook(data.apikey, apiUrl);
 
       return NextResponse.json({
         qr: data.qr,

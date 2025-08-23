@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const apiUrl = process.env.WHATSAPP_API_URL;
+
     // Get device data first to retrieve api_key
     const { data: deviceData, error: fetchError } = await supabase
       .from("device")
@@ -32,13 +34,13 @@ export async function POST(request: NextRequest) {
       try {
         const email = process.env.WHATSAPP_API_EMAIL;
         const password = process.env.WHATSAPP_API_PASSWORD;
-        
+
         if (!email || !password) {
-          console.error('WhatsApp API credentials not configured');
+          console.error("WhatsApp API credentials not configured");
           // Continue with local cleanup even if credentials are missing
         } else {
           const credentials = btoa(`${email}:${password}`);
-          await fetch("https://app.notif.my.id/ss/delete", {
+          await fetch(`${apiUrl}/ss/delete`, {
             method: "POST",
             headers: {
               Authorization: `Basic ${credentials}`,

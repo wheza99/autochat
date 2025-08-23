@@ -91,14 +91,12 @@ function DashboardContent() {
 
     setIsCheckingStatus(true);
     try {
-      const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
-      const response = await fetch("https://app.notif.my.id/ss/info", {
+      const response = await fetch("/api/device/status", {
         method: "POST",
         headers: {
-          Authorization: `Basic ${credentials}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ apikey: apiKey }),
+        body: JSON.stringify({ apiKey }),
       });
 
       if (response.ok) {
