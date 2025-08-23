@@ -17,7 +17,6 @@ interface SessionData {
   qr: string;
   session: string;
   apikey: string;
-  device?: any;
 }
 
 interface DeviceStatus {
@@ -63,6 +62,45 @@ function DashboardContent() {
   }, [searchParams, agents, selectedAgent, setSelectedAgent]);
 
   // Load device status from database
+  // Check session status
+  const checkSessionStatus = useCallback(
+    async (apiKey: string) => {
+      if (isCheckingStatus) return;
+
+      setIsCheckingStatus(true);
+      try {
+        const response = await fetch("/api/device/status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            apiKey,
+            agentId: selectedAgent?.id,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setDeviceStatus((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status_session: data.status_session,
+                  phone_number: data.phone_number,
+                }
+              : null
+          );
+        }
+      } catch (error) {
+        console.error("Error checking session status:", error);
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    },
+    [isCheckingStatus, selectedAgent?.id]
+  );
+
   const loadDeviceStatus = useCallback(async () => {
     if (!user?.id || !selectedAgent?.id) return;
 
@@ -91,43 +129,7 @@ function DashboardContent() {
       console.error("Error loading device status:", error);
       setDeviceStatus(null);
     }
-  }, [user?.id, selectedAgent?.id]);
-
-  // Check session status
-  const checkSessionStatus = async (apiKey: string) => {
-    if (isCheckingStatus) return;
-
-    setIsCheckingStatus(true);
-    try {
-      const response = await fetch("/api/device/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          apiKey,
-          agentId: selectedAgent?.id,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDeviceStatus((prev) =>
-          prev
-            ? {
-                ...prev,
-                status_session: data.status_session,
-                phone_number: data.phone_number,
-              }
-            : null
-        );
-      }
-    } catch (error) {
-      console.error("Error checking session status:", error);
-    } finally {
-      setIsCheckingStatus(false);
-    }
-  };
+  }, [user?.id, selectedAgent?.id, checkSessionStatus]);
 
   // Generate QR Code
   const generateQRCode = async () => {
@@ -157,7 +159,7 @@ function DashboardContent() {
       } else {
         setError(data.error || "Failed to generate QR code");
       }
-    } catch (error) {
+    } catch {
       setError("Network error occurred");
     } finally {
       setIsLoading(false);
@@ -198,7 +200,7 @@ function DashboardContent() {
       } else {
         setError(data.error || "Failed to disconnect device");
       }
-    } catch (error) {
+    } catch {
       setError("Network error occurred");
     } finally {
       setIsLoading(false);
@@ -265,7 +267,7 @@ function DashboardContent() {
         clearInterval(intervalId);
       }
     };
-  }, [isDialogOpen, sessionData?.apikey, selectedAgent?.id]);
+  }, [isDialogOpen, sessionData, selectedAgent?.id]);
 
   // Determine connection status and phone number for WhatsApp
   const isConnected = Boolean(

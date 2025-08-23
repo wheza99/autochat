@@ -17,7 +17,6 @@ interface SessionData {
   qr: string;
   session: string;
   apikey: string;
-  device?: any;
 }
 
 // Props interface for WhatsAppSection

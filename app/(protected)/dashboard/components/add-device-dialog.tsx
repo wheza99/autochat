@@ -12,13 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { XCircle, QrCode } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
 
 interface SessionData {
   qr: string;
   session: string;
   apikey: string;
-  device?: any;
 }
 
 interface AddDeviceDialogProps {
@@ -44,10 +42,7 @@ export function AddDeviceDialog({
   connectionStatus = null,
   onDialogOpenChange,
 }: AddDeviceDialogProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const handleOpenChange = (open: boolean) => {
-    setIsDialogOpen(open);
     onDialogOpenChange?.(open);
   };
 

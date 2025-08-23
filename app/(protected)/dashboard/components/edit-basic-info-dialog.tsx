@@ -13,14 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Edit, Eye, EyeOff } from "lucide-react";
+
+import { Edit } from "lucide-react";
 import { useState } from "react";
 
 interface BasicInfoForm {
@@ -44,7 +38,6 @@ export function EditBasicInfoDialog({
   onDialogOpenChange,
 }: EditBasicInfoDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showApiKeyInEdit, setShowApiKeyInEdit] = useState(false);
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);

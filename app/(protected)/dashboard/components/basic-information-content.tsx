@@ -9,10 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+
 import { EditBasicInfoDialog } from "./edit-basic-info-dialog";
-import { Bot, Calendar, Phone, Eye, EyeOff, BotIcon } from "lucide-react";
+import { Bot, BotIcon } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
 import { supabase } from "@/lib/supabase";
 
@@ -24,7 +23,6 @@ export function BasicInformationContent() {
     model: "",
     api_key: "",
   });
-  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleFormChange = (form: typeof basicInfoForm) => {
     setBasicInfoForm(form);

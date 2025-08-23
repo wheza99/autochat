@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { user_id, device_id, is_active, updated_at } = body;
+    const { user_id, device_id, updated_at } = body;
 
     if (!user_id || !device_id) {
       return NextResponse.json(
