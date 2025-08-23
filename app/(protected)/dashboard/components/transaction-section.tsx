@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,9 +134,9 @@ export function TransactionSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Plans
+          <CardTitle className="flex items-center space-x-2 text-sm">
+            <CreditCard className="h-6 w-6" />
+            <span>Plans</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -146,9 +152,9 @@ export function TransactionSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Plans
+          <CardTitle className="flex items-center space-x-2 text-sm">
+            <CreditCard className="h-6 w-6" />
+            <span>Plans</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -158,82 +164,104 @@ export function TransactionSection() {
     );
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5" />
-          Plans
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {transactions.length === 0 ? (
+  if (transactions.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-sm">
+            <CreditCard className="h-6 w-6" />
+            <span>Plans</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No plans found</p>
             <p className="text-sm">Your plan information will appear here</p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {transactions.map((transaction) => (
-              <Card key={transaction.id}>
-                <CardContent className="p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">
-                          {transaction.plan_name} Plan
-                        </h4>
-                        {getStatusBadge(transaction.status)}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.merchant_ref}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDate(transaction.created_at)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">
-                        {formatCurrency(transaction.amount)}
-                      </p>
-                      {transaction.payment_method && (
-                        <p className="text-sm text-muted-foreground capitalize">
-                          {transaction.payment_method.replace("_", " ")}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-                  {transaction.checkout_url &&
-                    transaction.status !== "paid" && (
-                      <div className="pt-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-full"
-                          onClick={() =>
-                            window.open(transaction.checkout_url!, "_blank")
-                          }
-                        >
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Continue Payment
-                        </Button>
-                      </div>
-                    )}
+  return (
+    <div className="space-y-4">
+      {transactions.map((transaction) => (
+        <Card key={transaction.id}>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-sm">
+              <CreditCard className="h-6 w-6" />
+              <span>Plans</span>
+            </CardTitle>
+          </CardHeader>
 
-                  {transaction.expired_time &&
-                    transaction.status !== "paid" && (
-                      <div className="text-xs text-muted-foreground">
-                        Expires: {formatDate(transaction.expired_time)}
-                      </div>
-                    )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          <CardContent className="space-y-2">
+            {/* Subscription Name */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-muted-foreground">
+                Subscription Plans
+              </label>
+              <p className="text-base font-medium text-right">
+                {transaction.plan_name} Plan
+              </p>
+            </div>
+
+            {/* Price */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-muted-foreground">
+                Price
+              </label>
+              <p className="text-base font-medium text-right">
+                {formatCurrency(transaction.amount)}
+              </p>
+            </div>
+
+            {/* Transaction Date */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-muted-foreground">
+                Transaction Date
+              </label>
+              <p className="text-base font-medium text-right">
+                {formatDate(transaction.created_at)}
+              </p>
+            </div>
+
+            {/*Payment Method */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-muted-foreground">
+                Payment Method
+              </label>
+              <p className="text-base font-medium text-right">
+                {transaction.payment_method}
+              </p>
+            </div>
+
+            {/* Subscription Status */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-muted-foreground">
+                Status
+              </label>
+              <p className="text-base font-medium text-right">
+                {getStatusBadge(transaction.status)}
+              </p>
+            </div>
+          </CardContent>
+
+          <CardFooter>
+            {transaction.checkout_url && transaction.status !== "paid" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                onClick={() => window.open(transaction.checkout_url!, "_blank")}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Continue Payment
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
   );
 }
