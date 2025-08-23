@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { XCircle, QrCode } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 interface SessionData {
   qr: string;
@@ -28,6 +29,7 @@ interface AddDeviceDialogProps {
   onConnect: () => void;
   onDisconnect: () => void;
   disabled?: boolean;
+  connectionStatus?: string | null;
 }
 
 export function AddDeviceDialog({
@@ -38,9 +40,12 @@ export function AddDeviceDialog({
   onConnect,
   onDisconnect,
   disabled = false,
+  connectionStatus = null,
 }: AddDeviceDialogProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -94,6 +99,20 @@ export function AddDeviceDialog({
                       {sessionData.apikey}
                     </span>
                   </p>
+                  {connectionStatus && (
+                    <p className="text-sm font-medium">
+                      Status:{" "}
+                      <span
+                        className={`capitalize ${
+                          connectionStatus === "online"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                        }`}
+                      >
+                        {connectionStatus}
+                      </span>
+                    </p>
+                  )}
                 </div>
               )}
             </>

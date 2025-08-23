@@ -42,6 +42,8 @@ function DashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [deviceStatus, setDeviceStatus] = useState<DeviceStatus | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Handle agent_id parameter from URL
   useEffect(() => {
@@ -130,6 +132,7 @@ function DashboardContent() {
 
     setIsLoading(true);
     setError(null);
+    setIsDialogOpen(true); // Set dialog sebagai terbuka untuk memulai polling
 
     try {
       const response = await fetch("/api/device/connect", {
@@ -164,6 +167,8 @@ function DashboardContent() {
 
     setIsLoading(true);
     setError(null);
+    setIsDialogOpen(false); // Set dialog sebagai tertutup untuk menghentikan polling
+    setConnectionStatus(null); // Reset connection status
 
     try {
       const response = await fetch("/api/device/disconnect", {
@@ -209,6 +214,47 @@ function DashboardContent() {
 
     return () => clearInterval(interval);
   }, [deviceStatus?.api_key, isCheckingStatus]);
+
+  // Polling API status setiap 30 detik ketika dialog QR terbuka
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isDialogOpen && sessionData?.apikey) {
+      const checkDialogStatus = async () => {
+        try {
+          const response = await fetch("/api/device/status", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              apiKey: sessionData.apikey,
+              agentId: selectedAgent?.id,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setConnectionStatus(data.status_session);
+          }
+        } catch (error) {
+          console.error("Error checking dialog status:", error);
+        }
+      };
+
+      // Check immediately
+      checkDialogStatus();
+
+      // Then check every 30 seconds
+      intervalId = setInterval(checkDialogStatus, 5000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isDialogOpen, sessionData?.apikey, selectedAgent?.id]);
 
   // Determine connection status and phone number for WhatsApp
   const isConnected = Boolean(
@@ -259,6 +305,7 @@ function DashboardContent() {
                 phoneNumber={phoneNumber}
                 onConnect={generateQRCode}
                 onDisconnect={disconnectDevice}
+                connectionStatus={connectionStatus}
               />
               <TransactionSection />
             </div>
@@ -277,6 +324,7 @@ function DashboardContent() {
                 phoneNumber={phoneNumber}
                 onConnect={generateQRCode}
                 onDisconnect={disconnectDevice}
+                connectionStatus={connectionStatus}
               />
               <TransactionSection />
             </div>

@@ -24,6 +24,7 @@ interface WhatsAppSectionProps {
   phoneNumber: string | null;
   onConnect: () => Promise<void>;
   onDisconnect: () => Promise<void>;
+  connectionStatus?: string | null;
 }
 
 export function WhatsAppSection({
@@ -35,6 +36,7 @@ export function WhatsAppSection({
   phoneNumber,
   onConnect,
   onDisconnect,
+  connectionStatus = null,
 }: WhatsAppSectionProps) {
   const { selectedAgent } = useAgent();
 
@@ -65,7 +67,7 @@ export function WhatsAppSection({
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Status</span>
           <Badge
-            variant={isConnected ? "default" : "secondary"}
+            variant={isConnected ? "green" : "secondary"}
             className="text-xs"
           >
             {isConnected ? (
@@ -102,6 +104,7 @@ export function WhatsAppSection({
           onConnect={onConnect}
           onDisconnect={onDisconnect}
           disabled={Boolean(!selectedAgent?.id)}
+          connectionStatus={connectionStatus}
         />
 
         {/* Error Message */}
