@@ -295,7 +295,7 @@ function DashboardContent() {
         </div>
 
         {!selectedAgent ? (
-          <div className="flex items-center justify-center h-full text-center">
+          <div className="flex flex-col items-center justify-center h-full text-center pb-48">
             <h2 className="text-2xl font-semibold text-muted-foreground mb-2">
               Select an Agent
             </h2>
