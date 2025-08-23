@@ -96,7 +96,10 @@ function DashboardContent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ apiKey }),
+        body: JSON.stringify({
+          apiKey,
+          agentId: selectedAgent?.id,
+        }),
       });
 
       if (response.ok) {
@@ -110,20 +113,6 @@ function DashboardContent() {
               }
             : null
         );
-
-        // Update agent phone if connected and different
-        if (
-          data.status_session === "online" &&
-          data.phone_number &&
-          selectedAgent &&
-          selectedAgent.phone !== data.phone_number
-        ) {
-          // Update agent phone in database
-          await supabase
-            .from("agents")
-            .update({ phone: data.phone_number })
-            .eq("id", selectedAgent.id);
-        }
       }
     } catch (error) {
       console.error("Error checking session status:", error);

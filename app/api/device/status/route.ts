@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { apiKey } = body;
+    const { apiKey, agentId } = body;
 
     if (!apiKey) {
       return NextResponse.json(
@@ -37,6 +37,25 @@ export async function POST(request: NextRequest) {
 
       if (response.ok) {
         const data = await response.json();
+
+        // Update agent phone if connected, different, and agentId provided
+        if (data.status_session === "online" && data.phone_number && agentId) {
+          // Get current agent data
+          const { data: agent, error: agentError } = await supabase
+            .from("agents")
+            .select("phone")
+            .eq("id", agentId)
+            .single();
+
+          if (!agentError && agent && agent.phone !== data.phone_number) {
+            // Update agent phone in database
+            await supabase
+              .from("agents")
+              .update({ phone: data.phone_number })
+              .eq("id", agentId);
+          }
+        }
+
         return NextResponse.json({
           success: true,
           status_session: data.status_session,
