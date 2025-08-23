@@ -126,7 +126,7 @@ export function TransactionSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Payment History
+            Plans
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -143,9 +143,9 @@ export function TransactionSection() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Payment History
-          </CardTitle>
+          <CreditCard className="h-5 w-5" />
+          Plans
+        </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-red-600">{error}</div>
@@ -159,21 +159,21 @@ export function TransactionSection() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="h-5 w-5" />
-          Payment History
+          Plans
         </CardTitle>
       </CardHeader>
       <CardContent>
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No payment history found</p>
+            <p>No plans found</p>
             <p className="text-sm">
-              Your payment transactions will appear here
+              Your plan information will appear here
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {transactions.map((transaction) => (
+            {transactions.slice(0, 1).map((transaction) => (
               <Card key={transaction.id}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
