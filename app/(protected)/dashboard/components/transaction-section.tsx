@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
+import { useAgent } from "@/contexts/agent-context";
 
 interface Transaction {
   id: string;
@@ -29,6 +30,7 @@ interface Transaction {
   expired_time: string | null;
   created_at: string;
   updated_at: string;
+  agent_id: string | null;
 }
 
 const getStatusBadge = (status: string) => {
@@ -89,10 +91,11 @@ export function TransactionSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const { selectedAgent } = useAgent();
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (!user?.id) {
+      if (!user?.id || !selectedAgent?.id) {
         setLoading(false);
         return;
       }
@@ -102,6 +105,7 @@ export function TransactionSection() {
           .from("transactions")
           .select("*")
           .eq("user_id", user.id)
+          .eq("agent_id", selectedAgent.id)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -118,7 +122,7 @@ export function TransactionSection() {
     };
 
     fetchTransactions();
-  }, [user?.id]);
+  }, [user?.id, selectedAgent?.id]);
 
   if (loading) {
     return (
@@ -143,9 +147,9 @@ export function TransactionSection() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5" />
-          Plans
-        </CardTitle>
+            <CreditCard className="h-5 w-5" />
+            Plans
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-red-600">{error}</div>
@@ -167,13 +171,11 @@ export function TransactionSection() {
           <div className="text-center py-8 text-muted-foreground">
             <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No plans found</p>
-            <p className="text-sm">
-              Your plan information will appear here
-            </p>
+            <p className="text-sm">Your plan information will appear here</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {transactions.slice(0, 1).map((transaction) => (
+            {transactions.map((transaction) => (
               <Card key={transaction.id}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
@@ -203,27 +205,29 @@ export function TransactionSection() {
                     </div>
                   </div>
 
-                  {transaction.checkout_url && transaction.status !== "paid" && (
-                    <div className="pt-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        onClick={() =>
-                          window.open(transaction.checkout_url!, "_blank")
-                        }
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Continue Payment
-                      </Button>
-                    </div>
-                  )}
+                  {transaction.checkout_url &&
+                    transaction.status !== "paid" && (
+                      <div className="pt-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full"
+                          onClick={() =>
+                            window.open(transaction.checkout_url!, "_blank")
+                          }
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Continue Payment
+                        </Button>
+                      </div>
+                    )}
 
-                  {transaction.expired_time && transaction.status !== "paid" && (
-                    <div className="text-xs text-muted-foreground">
-                      Expires: {formatDate(transaction.expired_time)}
-                    </div>
-                  )}
+                  {transaction.expired_time &&
+                    transaction.status !== "paid" && (
+                      <div className="text-xs text-muted-foreground">
+                        Expires: {formatDate(transaction.expired_time)}
+                      </div>
+                    )}
                 </CardContent>
               </Card>
             ))}
