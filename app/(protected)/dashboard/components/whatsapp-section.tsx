@@ -1,6 +1,12 @@
 // Komponen stateless untuk menampilkan pengaturan WhatsApp agent
 "use client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Phone, CheckCircle, XCircle } from "lucide-react";
 import { useAgent } from "@/contexts/agent-context";
@@ -96,7 +102,8 @@ export function WhatsAppSection({
             </div>
           </div>
         )}
-
+      </CardContent>
+      <CardFooter>
         {/* Connection Button */}
         <AddDeviceDialog
           isConnected={isConnected}
@@ -116,7 +123,7 @@ export function WhatsAppSection({
             {error}
           </div>
         )}
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }
