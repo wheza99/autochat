@@ -170,47 +170,38 @@ function DashboardContent() {
 
   // Disconnect device
   const disconnectDevice = async () => {
-    if (!deviceStatus?.api_key) return;
+    if (!user?.id || !deviceStatus?.id) {
+      setError("User or device not found");
+      return;
+    }
 
     setIsLoading(true);
-    try {
-      // Delete API key from notifikasee
-      const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
-      await fetch("https://app.notif.my.id/ss/delete", {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ apikey: deviceStatus.api_key }),
-      });
+    setError(null);
 
-      // Clear device data from Supabase
-      await supabase
-        .from("device")
-        .update({
-          api_key: null,
-          session: null,
+    try {
+      const response = await fetch("/api/device/disconnect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          device_id: deviceStatus.id,
           is_active: false,
           updated_at: new Date().toISOString(),
-        })
-        .eq("id", deviceStatus.id);
+        }),
+      });
 
-      // Clear agent phone
-      if (selectedAgent) {
-        await supabase
-          .from("agents")
-          .update({ phone: null })
-          .eq("id", selectedAgent.id);
+      const data = await response.json();
+
+      if (response.ok) {
+        setQrData(null);
+        setSessionData(null);
+        setError(null);
+        setTimeout(() => loadDeviceStatus(), 1000);
+      } else {
+        setError(data.error || "Failed to disconnect device");
       }
-
-      // Reload device status
-      loadDeviceStatus();
-      setQrData(null);
-      setSessionData(null);
     } catch (error) {
-      console.error("Error disconnecting device:", error);
-      setError("Failed to disconnect device");
+      setError("Network error occurred");
     } finally {
       setIsLoading(false);
     }
