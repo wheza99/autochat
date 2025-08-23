@@ -220,6 +220,7 @@ function DashboardContent() {
     let intervalId: NodeJS.Timeout;
 
     if (isDialogOpen && sessionData?.apikey) {
+      console.log("Checking the Whatsapp connection status");
       const checkDialogStatus = async () => {
         try {
           const response = await fetch("/api/device/status", {
@@ -246,7 +247,7 @@ function DashboardContent() {
       checkDialogStatus();
 
       // Then check every 30 seconds
-      intervalId = setInterval(checkDialogStatus, 5000);
+      intervalId = setInterval(checkDialogStatus, 30000);
     }
 
     return () => {
