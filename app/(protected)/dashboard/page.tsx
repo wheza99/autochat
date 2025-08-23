@@ -85,7 +85,7 @@ function DashboardContent() {
     }
   }, [user?.id, selectedAgent?.id]);
 
-  // Check session status from notif.my.id
+  // Check session status
   const checkSessionStatus = async (apiKey: string) => {
     if (isCheckingStatus) return;
 
@@ -147,33 +147,22 @@ function DashboardContent() {
     try {
       const response = await fetch("/api/device/connect", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          agentId: selectedAgent.id,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, agentId: selectedAgent.id }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         setQrData(data.qr);
         setSessionData(data);
         setError(null);
-
-        // Reload device status after successful QR generation
-        setTimeout(() => {
-          loadDeviceStatus();
-        }, 1000);
+        setTimeout(() => loadDeviceStatus(), 1000);
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to generate QR code");
-        console.error("Failed to generate QR code:", errorData);
+        setError(data.error || "Failed to generate QR code");
       }
     } catch (error) {
       setError("Network error occurred");
-      console.error("Error generating QR code:", error);
     } finally {
       setIsLoading(false);
     }
