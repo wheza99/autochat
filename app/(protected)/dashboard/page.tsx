@@ -45,6 +45,12 @@ function DashboardContent() {
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Enhanced setIsDialogOpen with logging
+  const handleDialogOpenChange = (open: boolean) => {
+    console.log("Dialog open change:", { from: isDialogOpen, to: open });
+    setIsDialogOpen(open);
+  };
+
   // Handle agent_id parameter from URL
   useEffect(() => {
     const agentId = searchParams.get("agent_id");
@@ -206,12 +212,22 @@ function DashboardContent() {
 
   // Removed automatic polling - now only polls when dialog is open
 
-  // Polling API status setiap 30 detik ketika dialog QR terbuka
+  // Polling API status setiap 5 detik ketika dialog QR terbuka
   useEffect(() => {
+    console.log("Polling useEffect triggered:", {
+      isDialogOpen,
+      hasSessionData: !!sessionData,
+      hasApiKey: !!sessionData?.apikey,
+      agentId: selectedAgent?.id,
+    });
+
     let intervalId: NodeJS.Timeout;
 
     if (isDialogOpen && sessionData?.apikey) {
+      console.log("Starting polling with apiKey:", sessionData.apikey);
+
       const checkDialogStatus = async () => {
+        console.log("Checking dialog status...");
         try {
           const response = await fetch("/api/device/status", {
             method: "POST",
@@ -226,6 +242,7 @@ function DashboardContent() {
 
           if (response.ok) {
             const data = await response.json();
+            console.log("Status response:", data);
             setConnectionStatus(data.status_session);
           }
         } catch (error) {
@@ -238,10 +255,13 @@ function DashboardContent() {
 
       // Then check every 5 seconds
       intervalId = setInterval(checkDialogStatus, 5000);
+    } else {
+      console.log("Polling conditions not met");
     }
 
     return () => {
       if (intervalId) {
+        console.log("Clearing polling interval");
         clearInterval(intervalId);
       }
     };
@@ -297,7 +317,7 @@ function DashboardContent() {
                 onConnect={generateQRCode}
                 onDisconnect={disconnectDevice}
                 connectionStatus={connectionStatus}
-                onDialogOpenChange={setIsDialogOpen}
+                onDialogOpenChange={handleDialogOpenChange}
               />
               <TransactionSection />
             </div>
@@ -317,6 +337,7 @@ function DashboardContent() {
                 onConnect={generateQRCode}
                 onDisconnect={disconnectDevice}
                 connectionStatus={connectionStatus}
+                onDialogOpenChange={handleDialogOpenChange}
               />
               <TransactionSection />
             </div>
