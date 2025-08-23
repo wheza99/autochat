@@ -11,7 +11,15 @@ const supabase = createClient(
 // Function to delete API key from notifikasee
 const deleteApiKeyFromNotifikasee = async (apiKey: string) => {
   try {
-    const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+    const email = process.env.WHATSAPP_API_EMAIL;
+    const password = process.env.WHATSAPP_API_PASSWORD;
+    
+    if (!email || !password) {
+      console.error('WhatsApp API credentials not configured');
+      return false;
+    }
+    
+    const credentials = btoa(`${email}:${password}`);
     const response = await fetch("https://app.notif.my.id/ss/delete", {
       method: "POST",
       headers: {
@@ -45,7 +53,15 @@ const deleteApiKeyFromNotifikasee = async (apiKey: string) => {
 // Function to update webhook
 const updateWebhook = async (apiKey: string) => {
   try {
-    const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+    const email = process.env.WHATSAPP_API_EMAIL;
+    const password = process.env.WHATSAPP_API_PASSWORD;
+    
+    if (!email || !password) {
+      console.error('WhatsApp API credentials not configured');
+      return false;
+    }
+    
+    const credentials = btoa(`${email}:${password}`);
     const response = await fetch("https://app.notif.my.id/ss/updatewebhook", {
       method: "POST",
       headers: {
@@ -110,7 +126,7 @@ export async function POST(request: Request) {
     // If device exists and has API key, check session status
     if (existingDevice?.api_key) {
       try {
-        const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
+        const credentials = btoa(`${email}:${password}`);
         const statusResponse = await fetch("https://app.notif.my.id/ss/info", {
           method: "POST",
           headers: {

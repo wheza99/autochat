@@ -30,15 +30,23 @@ export async function POST(request: NextRequest) {
     // Delete API key from notifikasee if exists
     if (deviceData.api_key) {
       try {
-        const credentials = btoa("wheza99@gmail.com:b4ZXVkenVp7xMPe");
-        await fetch("https://app.notif.my.id/ss/delete", {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${credentials}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ apikey: deviceData.api_key }),
-        });
+        const email = process.env.WHATSAPP_API_EMAIL;
+        const password = process.env.WHATSAPP_API_PASSWORD;
+        
+        if (!email || !password) {
+          console.error('WhatsApp API credentials not configured');
+          // Continue with local cleanup even if credentials are missing
+        } else {
+          const credentials = btoa(`${email}:${password}`);
+          await fetch("https://app.notif.my.id/ss/delete", {
+            method: "POST",
+            headers: {
+              Authorization: `Basic ${credentials}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ apikey: deviceData.api_key }),
+          });
+        }
       } catch (notifError) {
         console.error("Error deleting API key from notifikasee:", notifError);
         // Continue with local cleanup even if notifikasee deletion fails
