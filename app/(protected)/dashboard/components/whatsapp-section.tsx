@@ -25,6 +25,7 @@ interface WhatsAppSectionProps {
   onConnect: () => Promise<void>;
   onDisconnect: () => Promise<void>;
   connectionStatus?: string | null;
+  onDialogOpenChange?: (open: boolean) => void;
 }
 
 export function WhatsAppSection({
@@ -37,6 +38,7 @@ export function WhatsAppSection({
   onConnect,
   onDisconnect,
   connectionStatus = null,
+  onDialogOpenChange,
 }: WhatsAppSectionProps) {
   const { selectedAgent } = useAgent();
 
@@ -105,6 +107,7 @@ export function WhatsAppSection({
           onDisconnect={onDisconnect}
           disabled={Boolean(!selectedAgent?.id)}
           connectionStatus={connectionStatus}
+          onDialogOpenChange={onDialogOpenChange}
         />
 
         {/* Error Message */}

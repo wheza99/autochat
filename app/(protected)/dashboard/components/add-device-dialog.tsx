@@ -30,6 +30,7 @@ interface AddDeviceDialogProps {
   onDisconnect: () => void;
   disabled?: boolean;
   connectionStatus?: string | null;
+  onDialogOpenChange?: (open: boolean) => void;
 }
 
 export function AddDeviceDialog({
@@ -41,11 +42,17 @@ export function AddDeviceDialog({
   onDisconnect,
   disabled = false,
   connectionStatus = null,
+  onDialogOpenChange,
 }: AddDeviceDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const handleOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    onDialogOpenChange?.(open);
+  };
+
   return (
-    <Dialog onOpenChange={setIsDialogOpen}>
+    <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="outline"

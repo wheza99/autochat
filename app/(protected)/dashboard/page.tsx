@@ -132,7 +132,7 @@ function DashboardContent() {
 
     setIsLoading(true);
     setError(null);
-    setIsDialogOpen(true); // Set dialog sebagai terbuka untuk memulai polling
+    // Dialog akan terbuka otomatis, polling akan dimulai melalui callback
 
     try {
       const response = await fetch("/api/device/connect", {
@@ -167,7 +167,7 @@ function DashboardContent() {
 
     setIsLoading(true);
     setError(null);
-    setIsDialogOpen(false); // Set dialog sebagai tertutup untuk menghentikan polling
+    // Dialog akan tertutup otomatis, polling akan dihentikan melalui callback
     setConnectionStatus(null); // Reset connection status
 
     try {
@@ -209,8 +209,9 @@ function DashboardContent() {
     if (!deviceStatus?.api_key) return;
 
     const interval = setInterval(() => {
+      console.log("Checking the Whatsapp connection status");
       checkSessionStatus(deviceStatus.api_key!);
-    }, 30000); // 30 seconds
+    }, 5000); // 5 seconds
 
     return () => clearInterval(interval);
   }, [deviceStatus?.api_key, isCheckingStatus]);
@@ -220,7 +221,6 @@ function DashboardContent() {
     let intervalId: NodeJS.Timeout;
 
     if (isDialogOpen && sessionData?.apikey) {
-      console.log("Checking the Whatsapp connection status");
       const checkDialogStatus = async () => {
         try {
           const response = await fetch("/api/device/status", {
@@ -246,8 +246,8 @@ function DashboardContent() {
       // Check immediately
       checkDialogStatus();
 
-      // Then check every 30 seconds
-      intervalId = setInterval(checkDialogStatus, 30000);
+      // Then check every 5 seconds
+      intervalId = setInterval(checkDialogStatus, 5000);
     }
 
     return () => {
@@ -307,6 +307,7 @@ function DashboardContent() {
                 onConnect={generateQRCode}
                 onDisconnect={disconnectDevice}
                 connectionStatus={connectionStatus}
+                onDialogOpenChange={setIsDialogOpen}
               />
               <TransactionSection />
             </div>
