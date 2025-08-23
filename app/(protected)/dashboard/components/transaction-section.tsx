@@ -174,59 +174,58 @@ export function TransactionSection() {
         ) : (
           <div className="space-y-4">
             {transactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="border rounded-lg p-4 space-y-3"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">
-                        {transaction.plan_name} Plan
-                      </h4>
-                      {getStatusBadge(transaction.status)}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {transaction.merchant_ref}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(transaction.created_at)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">
-                      {formatCurrency(transaction.amount)}
-                    </p>
-                    {transaction.payment_method && (
-                      <p className="text-sm text-muted-foreground capitalize">
-                        {transaction.payment_method.replace("_", " ")}
+              <Card key={transaction.id}>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">
+                          {transaction.plan_name} Plan
+                        </h4>
+                        {getStatusBadge(transaction.status)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {transaction.merchant_ref}
                       </p>
-                    )}
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(transaction.created_at)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">
+                        {formatCurrency(transaction.amount)}
+                      </p>
+                      {transaction.payment_method && (
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {transaction.payment_method.replace("_", " ")}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {transaction.checkout_url && transaction.status !== "paid" && (
-                  <div className="pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() =>
-                        window.open(transaction.checkout_url!, "_blank")
-                      }
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Continue Payment
-                    </Button>
-                  </div>
-                )}
+                  {transaction.checkout_url && transaction.status !== "paid" && (
+                    <div className="pt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() =>
+                          window.open(transaction.checkout_url!, "_blank")
+                        }
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Continue Payment
+                      </Button>
+                    </div>
+                  )}
 
-                {transaction.expired_time && transaction.status !== "paid" && (
-                  <div className="text-xs text-muted-foreground">
-                    Expires: {formatDate(transaction.expired_time)}
-                  </div>
-                )}
-              </div>
+                  {transaction.expired_time && transaction.status !== "paid" && (
+                    <div className="text-xs text-muted-foreground">
+                      Expires: {formatDate(transaction.expired_time)}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}

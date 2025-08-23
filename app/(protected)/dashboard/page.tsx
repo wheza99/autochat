@@ -304,7 +304,7 @@ function DashboardContent() {
             </p>
           </div>
         ) : (
-          <div className="lg:flex gap-4">
+          <div className="lg:flex gap-4 space-y-4">
             <div className="flex-1 lg:hidden space-y-4">
               <BasicInformationContent />
               <WhatsAppSection
