@@ -103,99 +103,21 @@ export function BasicInformationContent() {
     <div className="space-y-8">
       {/* Basic Information */}
       <Card className="w-full">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-          <CardTitle className="flex items-center space-x-3 text-md font-semibold">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-sm">
             <BotIcon className="h-6 w-6" />
-            <span>Agent Info</span>
+            <span>Agent Information</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Agent Name
-                </label>
-                <p className="text-base font-medium">
-                  {agent.name || "Not specified"}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground flex items-center space-x-2">
-                  <Phone className="h-4 w-4" />
-                  <span>Phone Number</span>
-                </label>
-                <p className="text-base">
-                  {agent.phone
-                    ? agent.phone.replace("@s.whatsapp.net", "")
-                    : "Not specified"}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  AI Model
-                </label>
-                <div>
-                  {agent.model ? (
-                    <Badge variant="secondary" className="text-sm px-3 py-1">
-                      {agent.model}
-                    </Badge>
-                  ) : (
-                    <span className="text-base text-muted-foreground">
-                      Not specified
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  API Key
-                </label>
-                <div className="flex items-center space-x-3">
-                  <p className="text-base font-mono">
-                    {agent.api_key
-                      ? showApiKey
-                        ? agent.api_key
-                        : "••••••••••••••••••••••••••••••••"
-                      : "Not specified"}
-                  </p>
-                  {agent.api_key && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="h-8 w-8 p-0"
-                    >
-                      {showApiKey ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground flex items-center space-x-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>Created Date</span>
-                </label>
-                <p className="text-base">
-                  {new Date(agent.created_at).toLocaleDateString("id-ID", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-            </div>
+          {/* Connection Status */}
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-muted-foreground">
+              Agent Name
+            </label>
+            <p className="text-base font-medium">
+              {agent.name || "Not specified"}
+            </p>
           </div>
         </CardContent>
         <CardFooter>
