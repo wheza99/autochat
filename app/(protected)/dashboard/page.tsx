@@ -204,17 +204,7 @@ function DashboardContent() {
     loadDeviceStatus();
   }, [loadDeviceStatus]);
 
-  // Poll session status every 30 seconds if device has API key
-  useEffect(() => {
-    if (!deviceStatus?.api_key) return;
-
-    const interval = setInterval(() => {
-      console.log("Checking the Whatsapp connection status");
-      checkSessionStatus(deviceStatus.api_key!);
-    }, 5000); // 5 seconds
-
-    return () => clearInterval(interval);
-  }, [deviceStatus?.api_key, isCheckingStatus]);
+  // Removed automatic polling - now only polls when dialog is open
 
   // Polling API status setiap 30 detik ketika dialog QR terbuka
   useEffect(() => {
